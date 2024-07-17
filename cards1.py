@@ -154,25 +154,26 @@ class Stack:
     def __init__(self):
         self.cards = []
     
-    
     @property
     def cards(self):
         return self._cards
     @cards.setter
     def cards(self, newcards):
-        if isinstance(newcards,list):
+        if isinstance(newcards, list):
             self._cards = newcards
-        
+        else:
+            self.cards.clear()
+            self._cards.append(newcards)
 
-    def addToStack(self, other):
+    def acceptCard(self, card):
+        self.cards.append(card)
+        if Card.count > 108:
+            print("Too many cards")
+            #sys("exit")
+
+    def combineStack(self, other):
         if isinstance(other, Stack):
-            while len(other.cards) > 0:
-                self.cards.append(other.cards.pop(0))
-        if isinstance(other,Card):
-            self.cards.append(other)
-
-    def shuffle(self):
-        random.shuffle(self.cards)
+            self.cards = self.cards + other.cards
 
     def sortByNumber(self):
         self.cards.sort(key = lambda x : x.number)
@@ -184,44 +185,73 @@ class Stack:
 class Deck(Stack):
     def __init__(self):
         super().__init__()
-        self.cards = self.createDeck()
+        self.cards = createDeck()
 
     def createDeck(self):
-        if len(self.cards) == 0:
+        if len(self.deck) == 0:
             for c in colors:
                 for lc in low_numbers:
-                    self.cards.append(LowCard(name = lc, color = c))
-                    print(f"{str(Card.getCount())} - {self.cards[-1].description()}")
-                    self.cards.append(LowCard(name = lc, color = c))
-                    print(f"{str(Card.getCount())} - {self.cards[-1].description()}")
+                    self.deck.append(LowCard(name = lc, color = c))
+                    print(f"{str(Card.getCount())} - {self.deck[-1].description()}")
+                    self.deck.append(LowCard(name = lc, color = c))
+                    print(f"{str(Card.getCount())} - {self.deck[-1].description()}")
                 for hc in high_numbers:
-                    self.cards.append(HighCard(name = hc, color = c))
-                    print(f"{str(Card.getCount())} - {self.cards[-1].description()}")
-                    self.cards.append(HighCard(name = hc, color = c))
-                    print(f"{str(Card.getCount())} - {self.cards[-1].description()}")
+                    self.deck.append(HighCard(name = hc, color = c))
+                    print(f"{str(Card.getCount())} - {self.deck[-1].description()}")
+                    self.deck.append(HighCard(name = hc, color = c))
+                    print(f"{str(Card.getCount())} - {self.deck[-1].description()}")
             for i in range(8):
                 newcard = WildCard()
-                self.cards.append(newcard)
-                print(f"{str(Card.getCount())} - {self.cards[-1].description()}")
+                self.deck.append(newcard)
+                print(f"{str(Card.getCount())} - {self.deck[-1].description()}")
             for i in range(4):
                 newcard = SkipCard()
-                self.cards.append(newcard)
-                print(f"{str(Card.getCount())} - {self.cards[-1].description()}")
-
+                self.deck.append(newcard)
+                print(f"{str(Card.getCount())} - {self.deck[-1].description()}")
+    
+    def shuffle(self):
+        random.shuffle(self.deck)
+    
     def drawCard(self):
-        if len(self.cards) > 0:
-            print("drawing card")
-            return self.cards.pop(0)
+        if len(self.deck) > 0:
+            return self.deck.pop(0)
         else:
             return False
 
-    def deal(self, players):
-        amt = len(players)*10
+    def dealToStack(self, stack, amount = 10):
         self.shuffle()
-        while amt > 0:
-            for p in players:
-                p.hand.addToStack(self.drawCard())
-                amt = amt - 1
+        for i in range(amount):
+            stack.acceptCard(self.drawCard())
+        
+    def dealCards(self, players:list):
+        self.shuffle()
+        cards = []
+        card_amount = len(players)*10
+        for deal in range(card_amount):
+            cards.append(self.drawCard())
+        while len(cards) > 0:
+            pass
+
+    def addStack(self, stack):
+        for c in stack:
+            if c.name == "Wild":
+                del c.mimic
+        self.deck = self.deck + stack
+        self.shuffle()
+
+    @property
+    def deck(self):
+        return self._deck
+    @deck.setter
+    def deck(self, newitem):
+        if isinstance(newitem, list):
+            self._deck = newitem
+        else:
+            del self.deck
+            self._deck.append(newitem)
+    @deck.deleter
+    def deck(self):
+        self._deck.clear()
 
 #
 class Hand(Stack):
@@ -229,6 +259,8 @@ class Hand(Stack):
         super().__init__()
     
     def showHand(self):
+        #self.sortByNumber()
+        print()
         print()
         print("Your Hand")
         print("#################")
@@ -236,12 +268,15 @@ class Hand(Stack):
             print(c.description())
         print("#################")
             
+    def acceptCard(self, card):
+        if len(self.cards) >= 10:
+            print("Hand has too many cards")
+            return False
+        super().acceptCard(card)
+
     
 ###
 ###
-class Player:
-    def __init__(self):
-        self.hand = Hand()
 
 
 ###
@@ -252,13 +287,15 @@ class Player:
 #
 #
 def testShuffle():
-    p1 = Player()
-    p2 = Player()
-    d = Deck()
-    pls = [p1,p2]
-    d.deal(pls)
-    for p in pls:
+    g = Game()
+    players = g.players
+    for p in players:
         p.hand.showHand()
-    
+    """d = Deck()
+    d.createDeck()
+    h = Hand()
+    d.dealToStack(h)
+    h.showHand()"""
+
 if __name__ == "__main__":
     testShuffle()
