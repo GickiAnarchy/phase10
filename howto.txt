@@ -1,0 +1,23 @@
+
+The Phase 10 deck of cards is made up of numeric cards, 1 - 12, in four colors: Red, Blue, Green, Yellow. There are 2 of each number for each color. There are also eight wild cards (which can represent any number or any color) and four skip cards(which when played will skip the turn of a designated player, chosen by the person playing the skip.
+
+
+
+The phases are:
+
+- 2 sets of 3
+- 1 set of 3 + 1 run of 4
+- 1 run of 7
+- 1 run of 9
+- 2 sets of 4
+- 7 cards of one color
+- 1 set of 5 + 1 set of 2
+- 1 set of 5 + 1 set of 3
+ 
+A set is a group of the same numbers(three of a kind, four of a kind, five of a kind, etc.)
+
+A run is a sequential group of numbers (2 3 4 5, 7 8 9 10 11 12, etc.)
+
+Wilds can be played as any number in a set or run also any color.
+
+Cards with a numeric value 1 - 9 are worth 5 points each. Cards with a numeric value of 10 - 12 are worth 10 points each. Skip and Wild Cards are worth 25 points each. Note: Color of cards has no impact on scoring.
