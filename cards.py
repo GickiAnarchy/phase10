@@ -228,9 +228,9 @@ class Hand(Stack):
     def __init__(self):
         super().__init__()
     
-    def showHand(self):
+    def showHand(self,name):
         print()
-        print("Your Hand")
+        print(f"{name}'s Hand")
         print("#################")
         for c in self.cards:
             print(c.description())
@@ -240,25 +240,67 @@ class Hand(Stack):
 ###
 ###
 class Player:
-    def __init__(self):
+    def __init__(self, name:str = "Default"):
         self.hand = Hand()
+        self.name = name
+
+    def showHand(self):
+        self.hand.showHand(self.name)
+    
+    def drawCard(self,card):
+        self.hand.addToStack(card)
+
+    def discardCard(self):
+        i = 0
+        for c in self.hand.cards:
+            print(f"{str(i + 1):3}{c.description():^25}")
+            i += 1
+        while True:
+            sel = input("Select card to discard: ")
+            try:
+                sel = int(sel)
+                if sel <= i:
+                    ret = self.hand.cards.pop(sel-1)
+                    return ret
+            except:
+                print("Not a proper input.")
+                
 
 
 ###
 ###
+class Game:
+    def __init__(self, players:list):
+        self.deck = Deck()
+        self.discards = Stack()
+        self.players = players
+    
+    def start(self):
+        self.deck.deal(self.players)
+        while True:
+            for p in self.players:
+                self.turn(p)
+    
+    def turn(self, player):
+        #Draw card
+        player.drawCard(self.deck.drawCard())
+        #Action
+        #player.showHand()
+        
+        #Discard card
+        self.discards.addToStack(player.discardCard())
+        
 
 #
 #
 #
 #
 def testShuffle():
-    p1 = Player()
-    p2 = Player()
-    d = Deck()
+    p1 = Player(name = "Corey")
+    p2 = Player(name = "Sam")
     pls = [p1,p2]
-    d.deal(pls)
-    for p in pls:
-        p.hand.showHand()
+    g = Game(pls)
+    g.start()
     
 if __name__ == "__main__":
     testShuffle()
