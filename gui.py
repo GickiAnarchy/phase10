@@ -1,21 +1,24 @@
 import pygame
 import random
-from cards import Player,Game
+from cards import Player, Game
 
 # Initialize Pygame
 pygame.init()
 screen_width = 800
 screen_height = 600
+card_width = 100
+card_height = 50
+hand_y = screen_height - card_height - 10
 screen = pygame.display.set_mode((screen_width, screen_height))
 pygame.display.set_caption("Simple GUI")
 
 # Font for text rendering
 font = pygame.font.Font(None, 32)
 
-#Game
+# Game
 p1 = Player()
 p2 = Player()
-game = Game([p1,p2])
+game = Game([p1, p2])
 
 
 # Button class
@@ -45,9 +48,13 @@ class Button:
 
 
 # Create a button
-draw_button = Button(
-    "Deal", 100, 100, 100, 50, (0, 200, 0), game.start()
-)
+draw_button = Button("Deal", 100, 100, 100, 50, (0, 200, 0), game.start())
+
+
+#def draw_card_text(card, x, y):
+#    text_surface = font.render(str(card), True, (0, 0, 0))
+#    screen.blit(text_surface, (x, y))
+
 
 running = True
 while running:
@@ -58,15 +65,22 @@ while running:
             pos = pygame.mouse.get_pos()
             if draw_button.is_clicked(pos):
                 draw_button.click_func()  # Call the button's function
+                
+        #if p1.hand.cards[0] != None:
+#            for i, card in enumerate(p1.hand.cards):
+#                x = card_width * i + 10
+#                draw_card_text(card, x, hand_y)
+#            screen.fill((255, 255, 255))
+#            pygame.display.flip()
 
-    # Clear screen before redrawing
-    screen.fill((255, 255, 255))
-
-    # Draw the button
-    draw_button.draw(screen)
-
-    # Update the display
-    pygame.display.flip()
+        # Clear screen before redrawing
+        screen.fill((255, 255, 255))
+    
+        # Draw the button
+        draw_button.draw(screen)
+    
+        # Update the display
+        pygame.display.flip()
 
 # Quit Pygame
 pygame.quit()

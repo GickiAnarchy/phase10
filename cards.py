@@ -350,7 +350,8 @@ class Game:
         self.deck.deal(self.players)
         while True:
             for p in self.players:
-                self.turn(p)
+                #self.turn(p)
+                pass
     
     def turn(self, player):
         #Draw card
