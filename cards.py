@@ -2,61 +2,6 @@ import random
 import copy
 import sys
 
-##GLOBAL VARIABLES
-#Global Card Variables
-colors = ["Red","Blue","Green","Yellow"]
-low_numbers = ["One","Two","Three","Four","Five","Six","Seven","Eight","Nine"]
-high_numbers = ["Ten","Eleven","Twelve"]
-number_value = {
-    "One": 1,"Two": 2,"Three": 3,
-    "Four": 4,"Five": 5,"Six": 6,
-    "Seven": 7,"Eight": 8,"Nine": 9,
-    "Ten": 10,"Eleven": 11,"Twelve": 12,
-    "Skip": 99, "Wild": 99
-}
-#Global Phase Variables
-phases_dict = {
-    1:{"name":"Phase 1",
-        "goal":[PhaseGoal(1,3),PhaseGoal(1,3)],
-        "complete":False
-    },
-    2:{"name":"Phase 2",
-        "goal":[PhaseGoal(1,3), PhaseGoal(2,4)],
-        "complete":False
-    },
-    3:{"name":"Phase 3",
-        "goal":[PhaseGoal(1,4), PhaseGoal(2,4)],
-        "complete":False
-    },
-    4:{"name":"Phase 4",
-        "goal":[PhaseGoal(2,7)],
-        "complete":False
-    },
-    5:{"name":"Phase 5",
-        "goal":[PhaseGoal(2,8)],
-        "complete":False
-    },
-    6:{"name":"Phase 6",
-        "goal":[PhaseGoal(2,9)],
-        "complete":False
-    },
-    7:{"name":"Phase 7",
-        "goal":[PhaseGoal(1,4),PhaseGoal(1,4)],
-        "complete":False
-    },
-    8:{"name":"Phase 8",
-        "goal":[PhaseGoal(3,7)],
-        "complete":False
-    },
-    9:{"name":"Phase 9",
-    "goal":[PhaseGoal(1,5), PhaseGoal(1,2)],
-    "complete":False
-    },
-    10:{"name":"Phase 10", 
-    "goal" :[PhaseGoal(1,5), PhaseGoal(1,3)],
-    "complete":False
-    }
-}
 
 ###
 #   CARDS
@@ -415,6 +360,64 @@ class Game:
         
         #Discard card
         self.discards.addToStack(player.discardCard())
+
+
+
+##GLOBAL VARIABLES
+#Global Card Variables
+colors = ["Red","Blue","Green","Yellow"]
+low_numbers = ["One","Two","Three","Four","Five","Six","Seven","Eight","Nine"]
+high_numbers = ["Ten","Eleven","Twelve"]
+number_value = {
+    "One": 1,"Two": 2,"Three": 3,
+    "Four": 4,"Five": 5,"Six": 6,
+    "Seven": 7,"Eight": 8,"Nine": 9,
+    "Ten": 10,"Eleven": 11,"Twelve": 12,
+    "Skip": 99, "Wild": 99
+}
+#Global Phase Variables
+phases_dict = {
+    1:{"name":"Phase 1",
+        "goal":[PhaseGoal(1,3),PhaseGoal(1,3)],
+        "complete":False
+    },
+    2:{"name":"Phase 2",
+        "goal":[PhaseGoal(1,3), PhaseGoal(2,4)],
+        "complete":False
+    },
+    3:{"name":"Phase 3",
+        "goal":[PhaseGoal(1,4), PhaseGoal(2,4)],
+        "complete":False
+    },
+    4:{"name":"Phase 4",
+        "goal":[PhaseGoal(2,7)],
+        "complete":False
+    },
+    5:{"name":"Phase 5",
+        "goal":[PhaseGoal(2,8)],
+        "complete":False
+    },
+    6:{"name":"Phase 6",
+        "goal":[PhaseGoal(2,9)],
+        "complete":False
+    },
+    7:{"name":"Phase 7",
+        "goal":[PhaseGoal(1,4),PhaseGoal(1,4)],
+        "complete":False
+    },
+    8:{"name":"Phase 8",
+        "goal":[PhaseGoal(3,7)],
+        "complete":False
+    },
+    9:{"name":"Phase 9",
+    "goal":[PhaseGoal(1,5), PhaseGoal(1,2)],
+    "complete":False
+    },
+    10:{"name":"Phase 10", 
+    "goal" :[PhaseGoal(1,5), PhaseGoal(1,3)],
+    "complete":False
+    }
+}
 
 ###
 #

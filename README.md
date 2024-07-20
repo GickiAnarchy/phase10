@@ -2,6 +2,14 @@
 _by: GickiAnarchy_
 
 ---
+___<u>ToDo</u>___  
+-[x] Start Game Logic  
+-[ ] Complete Game Logic  
+-[x] Start GUI  
+-[ ] Complete GUI  
+-[ ] Start online mechanic  
+-[ ] Complete Phase 10!
+---
 
 ## The game of Phase 10:
 
