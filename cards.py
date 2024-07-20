@@ -2,7 +2,7 @@ import random
 import copy
 import sys
 
-s##GLOBAL VARIABLES
+##GLOBAL VARIABLES
 #Global Card Variables
 colors = ["Red","Blue","Green","Yellow"]
 low_numbers = ["One","Two","Three","Four","Five","Six","Seven","Eight","Nine"]
