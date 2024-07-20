@@ -1,10 +1,12 @@
 import random
+import copy
 import sys
 
+s##GLOBAL VARIABLES
+#Global Card Variables
 colors = ["Red","Blue","Green","Yellow"]
 low_numbers = ["One","Two","Three","Four","Five","Six","Seven","Eight","Nine"]
 high_numbers = ["Ten","Eleven","Twelve"]
-
 number_value = {
     "One": 1,"Two": 2,"Three": 3,
     "Four": 4,"Five": 5,"Six": 6,
@@ -12,10 +14,52 @@ number_value = {
     "Ten": 10,"Eleven": 11,"Twelve": 12,
     "Skip": 99, "Wild": 99
 }
-
+#Global Phase Variables
+phases_dict = {
+    1:{"name":"Phase 1",
+        "goal":[PhaseGoal(1,3),PhaseGoal(1,3)],
+        "complete":False
+    },
+    2:{"name":"Phase 2",
+        "goal":[PhaseGoal(1,3), PhaseGoal(2,4)],
+        "complete":False
+    },
+    3:{"name":"Phase 3",
+        "goal":[PhaseGoal(1,4), PhaseGoal(2,4)],
+        "complete":False
+    },
+    4:{"name":"Phase 4",
+        "goal":[PhaseGoal(2,7)],
+        "complete":False
+    },
+    5:{"name":"Phase 5",
+        "goal":[PhaseGoal(2,8)],
+        "complete":False
+    },
+    6:{"name":"Phase 6",
+        "goal":[PhaseGoal(2,9)],
+        "complete":False
+    },
+    7:{"name":"Phase 7",
+        "goal":[PhaseGoal(1,4),PhaseGoal(1,4)],
+        "complete":False
+    },
+    8:{"name":"Phase 8",
+        "goal":[PhaseGoal(3,7)],
+        "complete":False
+    },
+    9:{"name":"Phase 9",
+    "goal":[PhaseGoal(1,5), PhaseGoal(1,2)],
+    "complete":False
+    },
+    10:{"name":"Phase 10", 
+    "goal" :[PhaseGoal(1,5), PhaseGoal(1,3)],
+    "complete":False
+    }
+}
 
 ###
-###
+#   CARDS
 class Card():
     count = 0
     def __init__(self, name:str, points:int, color:str):
@@ -72,7 +116,6 @@ class Card():
     def __gt__(self,other):
         return self.number > other.number
 
-#
 class WildCard(Card):
     def __init__(self, name = "Wild", points = 25, color = "None"):
         super().__init__(name,points,color)
@@ -115,7 +158,6 @@ class WildCard(Card):
             self.mimic = other
             return True
 
-#
 class SkipCard(Card):
     def __init__(self, name = "Skip", points = 25, color = "None"):
         super().__init__(name,points,color)
@@ -132,27 +174,23 @@ class SkipCard(Card):
     def __gt__(self,other):
         return False
 
-#
 class BasicCard(Card):
     def __init__(self, name:str, points:int, color:str):
         super().__init__(name,points,color)
 
-#
 class LowCard(BasicCard):
     def __init__(self, name:str, color:str, points = 5):
         super().__init__(name,points,color)
 
-#
 class HighCard(BasicCard):
     def __init__(self, name:str, color:str, points = 10):
         super().__init__(name,points,color)
 
-
 ###
-###
+#   CARD STACKS
 class Stack:
-    def __init__(self):
-        self.cards = []
+    def __init__(self, cards = []):
+        self.cards = cards
     
     @property
     def cards(self):
@@ -178,7 +216,6 @@ class Stack:
     def sortByColor(self):
         self.cards.sort(key = lambda x : x.color)
 
-#
 class Deck(Stack):
     def __init__(self):
         super().__init__()
@@ -221,7 +258,6 @@ class Deck(Stack):
                 p.hand.addToStack(self.drawCard())
                 amt = amt - 1
 
-#
 class Hand(Stack):
     def __init__(self):
         super().__init__()
@@ -233,111 +269,132 @@ class Hand(Stack):
         for c in self.cards:
             print(c.description())
         print("#################")
-            
-    
-###
-###
-class Player:
-    def __init__(self, name:str = "Default"):
-        self.hand = Hand()
-        self.name = name
-        self.phases = []
-
-    def showHand(self):
-        self.hand.showHand(self.name)
-    
-    def drawCard(self,card):
-        self.hand.addToStack(card)
-
-    def discardCard(self):
-        i = 0
-        for c in self.hand.cards:
-            print(f"{str(i + 1):3}{c.description():^25}")
-            i += 1
-        while True:
-            sel = input("Select card to discard: ")
-            try:
-                sel = int(sel)
-                if sel <= i:
-                    ret = self.hand.cards.pop(sel-1)
-                    return ret
-            except:
-                print("Not a proper input.")
-                
-
 
 ###
-###
-goals = [
-    [PhaseSet(3),PhaseSet(3)],
-    [PhaseSet(3), PhaseRun(4)],
-    [PhaseSet(4), PhaseRun(4)],
-    [PhaseRun(7)],
-    [PhaseRun(8)],
-    [PhaseRun(9)],
-    [PhaseSet(4),PhaseSet(4)],
-    [PhaseColor(7)],
-    [PhaseSet(5), PhaseSet(2)],
-    [PhaseSet(5), PhaseSet(3)]
-    ]
-phases_dict = {
-    0:{"name":"Phase 1",
-        "goal":[]
-    },
-    1:{"name":"Phase 2",
-        "goal":[]
-    },
-    2:{"name":"Phase 3",
-        "goal":[]
-    },
-    3:{"name":"Phase 4",
-        "goal":[]
-    },
-    4:{"name":"Phase 5",
-        "goal":[]
-    },
-    5:{"name":"Phase 6",
-        "goal":[]
-    },
-    6:{"name":"Phase 7",
-        "goal":[]
-    },
-    7:{"name":"Phase 8",
-        "goal":[]
-    },
-    8:{"name":"Phase 9",
-        "goal":[]
-    },
-    9:{"name":"Phase 10",
-        "goal":[]
-    },
-    10:{"name":"NA",
-        "goal":[]
-    }
-}
-
-
+#   PHASES
 class Phase():
-    def __init__(self, number:int,goals:list):
+    def __init__(self, number:int,goal:list):
         self.number = number
-        self.goals = goals
+        self.goal = phases_dict[number]["goal"]
+        self.complete = False
+    
+    def checkComplete(self):
+        for g in self.goal:
+            if not g.complete:
+                self.complete == False
+                return False
+        self.complete == True
+        return True
+    
+    @property
+    def complete(self):
+        return self._complete
+    @complete.setter
+    def complete(self, newCom:bool):
+        self._complete = newCom
 
 class PhaseGoal(Stack):
     def __init__(self, ptype:int, min_cards:int):
         #ptype: 1=Set, 2=Run, 3=Color
         self.ptype = ptype
         self.min_cards = min_cards
-        
+        self.target = None
+
     def addToStack(self,other):
-        #check condition
+        if self.ptype not in [1,2,3]:
+            return False
+        if isinstance(other, Card):
+            other = Stack(cards = [other])
+        if self.complete:
+            if other.cards[0] not in self.target:
+                return False
+            else:
+                super().addToStack(other)
+        if self.ptype == 1:
+            if not self.checkSet(other):
+                return False
+            else:
+                self.target = [self.cards[0].number]
+        if self.ptype == 2:
+            if not self.checkRun(other):
+                return False
+            else:
+                self.target = [
+                    (self.cards[0].number - 1),
+                    (self.cards[-1].number + 1)
+                    ]
+        if self.ptype == 3:
+            if not self.checkColor(other):
+                return False
+            else:
+                self.target = [self.cards[0].color]
+        self.complete == True
         super().addToStack(other)
-    
-    def checkSet(self,cards:Stack):
-        cards.sortByNumber()
-        #do check here;
-    
+
+    def checkSet(self, stack: Stack):
+        unique_numbers = set(card.number for card in stack.cards)
+        return len(unique_numbers) == len(stack.cards) and len(stack.cards) >= self.min_cards
+
+    def checkRun(self, stack: Stack):
+        stack.sortByNumber()
+        # Check if the difference between consecutive cards is 1 (excluding Wild cards)
+        for i in range(1, len(stack.cards)):
+            if stack.cards[i].number - stack.cards[i - 1].number != 1 and not isinstance(stack.cards[i - 1], WildCard):
+                return False
+        return len(stack.cards) >= self.min_cards
+       
+    def checkColor(self, stack: Stack):
+        if len(stack.cards) == 0:
+            return False
+        color = stack.cards[0].color
+        for card in stack.cards:
+            if card.color != color and not isinstance(card, WildCard):
+                return False
+        return len(stack.cards) >= self.min_cards
+
 ###
+#   PLAYERS
+class Player:
+    def __init__(self, name:str = "Default"):
+        self.hand = Hand()
+        self.name = name
+        self.phases = []
+
+    def setupPhases(self):
+        for k,v in phases_dict:
+            self.phases.append(Phase(k,k[v]["goal"]))
+
+    def showHand(self):
+        self.hand.showHand(self.name)
+    
+    def drawCard(self,card):
+        self.hand.addToStack(card)
+    
+    def discardCard(self):
+        i = 0
+        for c in self.hand.cards:
+            print(f"{str(i + 1):3}{c.description():^25}")
+            i += 1
+        while True:
+            try:
+                sel = int(input("Select card to discard: "))
+                if sel <= i:
+                    ret = self.hand.cards.pop(sel-1)
+                    return ret
+                else:
+                    print("Selection out of range. Please choose a number between 1 and", i)
+            except ValueError:
+                print("Invalid input. Please enter a number.")
+
+    def checkCurrentPhase(self):
+        for p in self.phases:
+            if p.checkComplete:
+                p["complete"] = True
+                continue
+            return 
+
 ###
+#   GAME LOGIC
 class Game:
     def __init__(self, players:list):
         self.deck = Deck()
@@ -358,11 +415,8 @@ class Game:
         
         #Discard card
         self.discards.addToStack(player.discardCard())
-        
 
-#
-#
-#
+###
 #
 def testShuffle():
     p1 = Player(name = "Corey")
