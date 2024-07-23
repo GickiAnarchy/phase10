@@ -33,7 +33,7 @@ class Card():
     @name.deleter
     def name(self):
         del self._name
-        
+
     @property
     def color(self):
         return self._color
@@ -350,9 +350,8 @@ class Game:
         self.deck.deal(self.players)
         while True:
             for p in self.players:
-                #self.turn(p)
-                pass
-    
+                self.turn(p)
+
     def turn(self, player):
         #Draw card
         player.drawCard(self.deck.drawCard())
