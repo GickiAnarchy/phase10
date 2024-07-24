@@ -144,13 +144,12 @@ class Stack:
     def cards(self, newcards):
         if isinstance(newcards,list):
             self._cards = newcards
-        
+        if isinstance(newcards, Card):
+            self._cards.append(newcards)
+
     def addToStack(self, other):
-        if isinstance(other, Stack):
-            while len(other.cards) > 0:
-                self.cards.append(other.cards.pop(0))
         if isinstance(other,Card):
-            self.cards.append(other)
+            self._cards.append(other)
 
     def shuffle(self):
         random.shuffle(self.cards)
@@ -196,24 +195,33 @@ class Deck(Stack):
             return False
 
     def deal(self, players):
-        amt = len(players)*10
         self.shuffle()
-        while amt > 0:
+        for i in range(10):
             for p in players:
+                print(f"{str(i)} rounds dealt")
                 p.hand.addToStack(self.drawCard())
-                amt = amt - 1
+
+    def addToStack(self, other):
+        if isinstance(other, Card):
+            self.cards.append(other)
 
 class Hand(Stack):
     def __init__(self):
-        super().__init__()
+        self.cards = []
     
-    def showHand(self,name):
+    def showHand(self, name):
         print()
         print(f"{name}'s Hand")
         print("#################")
+        i = 1
         for c in self.cards:
-            print(c.description())
+            print(f"{str(i)} - {c.description()}")
+            i += 1
         print("#################")
+
+    def addToStack(self, other):
+        if isinstance(other, Card):
+            self.cards.append(other)
 
 ###
 #   PHASES
@@ -316,14 +324,11 @@ class Player:
         self.hand.addToStack(card)
     
     def discardCard(self):
-        i = 0
-        for c in self.hand.cards:
-            print(f"{str(i + 1):3}{c.description():^25}")
-            i += 1
+        self.showHand()
         while True:
             try:
                 sel = int(input("Select card to discard: "))
-                if sel <= i:
+                if sel <= len(self.hand.cards):
                     ret = self.hand.cards.pop(sel-1)
                     return ret
                 else:
@@ -354,12 +359,13 @@ class Game:
 
     def turn(self, player):
         #Draw card
-        player.drawCard(self.deck.drawCard())
+        drw = self.deck.drawCard()
+        player.drawCard(drw)
         #Action
-        #player.showHand()
-        
+
         #Discard card
-        self.discards.addToStack(player.discardCard())
+        dis = player.discardCard()
+        self.discards.addToStack(dis)
 
 
 
