@@ -1,6 +1,6 @@
 import random
 import copy
-import sys
+import os
 
 
 ###
@@ -373,46 +373,55 @@ class Game:
         self.players = players
     
     def start(self):
+        os.system("clear")
         self.deck.deal(self.players)
         while True:
             for p in self.players:
                 self.turn(p)
 
     def turn(self, player):
+        os.system("clear")
         print(f"{player.name}'s Turn")
         #Draw card
         drw = self.deck.drawCard()
         player.drawCard(drw)
         #Action
         print(player.checkCurrentPhase())
+        player.showHand()
         self.actionsCLI(player)
         #Discard card
         dis = player.discardCard()
         self.discards.addToStack(dis)
 
     def actionsCLI(self, player):
-        print("What would you like to do?")
-        print("'n' - Sort hand by number")
-        print("'c' - Sort hand by color")
-        print("'p' - Lay down cards.")
-        print("Press enter to do nothing.")
         while True:
+            print("What would you like to do?")
+            print("'n' - Sort hand by number")
+            print("'c' - Sort hand by color")
+            print("'p' - Lay down cards.")
+            print("Press enter to do nothing.")
             sel = input(" ")
-            match sel.lower():
-                case "c":
-                    player.hand.sortByColor()
-                    player.showHand()
-                    continue
-                case "n":
-                    player.hand.sortByNumber()
-                    player.showHand()
-                    continue
-                case "p":
-                    print("not ready yet")
-                    continue
-                case _:
-                    break
-                    
+            if self.action(player, sel):
+                continue
+            else:
+                break
+
+    def action(self, player, sel):
+        match sel.lower():
+            case "c":
+                player.hand.sortByColor()
+                player.showHand()
+                return True
+            case "n":
+                player.hand.sortByNumber()
+                player.showHand()
+                return True
+            case "p":
+                print("not ready yet")
+                return True
+            case _:
+                return False
+
 
 ##GLOBAL VARIABLES
 #Global Card Variables
