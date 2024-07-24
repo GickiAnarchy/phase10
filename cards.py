@@ -226,10 +226,16 @@ class Hand(Stack):
 ###
 #   PHASES
 class Phase():
-    def __init__(self, number:int,goal:list):
-        self.number = number
-        self.goal = phases_dict[number]["goal"]
-        self.complete = False
+    def __init__(self, name:str, goal:list, complete:bool):
+        self.name = name
+        self.goal = goal
+        self.complete = complete
+    
+    def __str__(self):
+        return self.name
+
+    def __repr__(self):
+        self.__str__()
     
     def checkComplete(self):
         for g in self.goal:
@@ -242,9 +248,11 @@ class Phase():
     @property
     def complete(self):
         return self._complete
+
     @complete.setter
-    def complete(self, newCom:bool):
-        self._complete = newCom
+    def complete(self, newc):
+        self._complete = newc
+
 
 class PhaseGoal(Stack):
     def __init__(self, ptype:int, min_cards:int):
@@ -252,6 +260,7 @@ class PhaseGoal(Stack):
         self.ptype = ptype
         self.min_cards = min_cards
         self.target = None
+        self.complete = False
 
     def addToStack(self,other):
         if self.ptype not in [1,2,3]:
@@ -305,6 +314,14 @@ class PhaseGoal(Stack):
                 return False
         return len(stack.cards) >= self.min_cards
 
+    @property
+    def complete(self):
+        return self._complete
+
+    @complete.setter
+    def complete(self, newc):
+        self._complete = newc
+
 ###
 #   PLAYERS
 class Player:
@@ -312,17 +329,20 @@ class Player:
         self.hand = Hand()
         self.name = name
         self.phases = []
+        self.setupPhases()
 
     def setupPhases(self):
-        for k,v in phases_dict:
-            self.phases.append(Phase(k,k[v]["goal"]))
+        for args in phases_dict.values():
+            p = Phase(**args)
+            print(p)
+            self.phases.append(p)
 
     def showHand(self):
         self.hand.showHand(self.name)
-    
+
     def drawCard(self,card):
         self.hand.addToStack(card)
-    
+
     def discardCard(self):
         self.showHand()
         while True:
@@ -338,10 +358,11 @@ class Player:
 
     def checkCurrentPhase(self):
         for p in self.phases:
-            if p.checkComplete:
-                p["complete"] = True
+            if p.checkComplete():
+                p.complete = True
                 continue
-            return 
+            else:
+                return p
 
 ###
 #   GAME LOGIC
@@ -358,16 +379,40 @@ class Game:
                 self.turn(p)
 
     def turn(self, player):
+        print(f"{player.name}'s Turn")
         #Draw card
         drw = self.deck.drawCard()
         player.drawCard(drw)
         #Action
-
+        print(player.checkCurrentPhase())
+        self.actionsCLI(player)
         #Discard card
         dis = player.discardCard()
         self.discards.addToStack(dis)
 
-
+    def actionsCLI(self, player):
+        print("What would you like to do?")
+        print("'n' - Sort hand by number")
+        print("'c' - Sort hand by color")
+        print("'p' - Lay down cards.")
+        print("Press enter to do nothing.")
+        while True:
+            sel = input(" ")
+            match sel.lower():
+                case "c":
+                    player.hand.sortByColor()
+                    player.showHand()
+                    continue
+                case "n":
+                    player.hand.sortByNumber()
+                    player.showHand()
+                    continue
+                case "p":
+                    print("not ready yet")
+                    continue
+                case _:
+                    break
+                    
 
 ##GLOBAL VARIABLES
 #Global Card Variables
