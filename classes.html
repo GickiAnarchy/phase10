@@ -1,0 +1,102 @@
+<html>
+  <body>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+      <div class="mermaid">
+    
+        classDiagram
+          class BasicCard {
+          }
+          class Card {
+            color
+            count : int
+            name
+            number
+            points
+            description()
+            getCount()
+          }
+          class Deck {
+            cards : NoneType
+            addToStack(other)
+            createDeck()
+            deal(players)
+            drawCard()
+          }
+          class Game {
+            deck
+            discards
+            players : list
+            action(player, sel)
+            actionsCLI(player)
+            start()
+            turn(player)
+          }
+          class Hand {
+            cards : list
+            addToStack(other)
+            showHand(name)
+          }
+          class HighCard {
+          }
+          class LowCard {
+          }
+          class Phase {
+            complete
+            goal : list
+            name : str
+            checkComplete()
+          }
+          class PhaseGoal {
+            complete
+            min_cards : int
+            ptype : int
+            target : NoneType, list
+            addToStack(other)
+            checkColor(stack: Stack)
+            checkRun(stack: Stack)
+            checkSet(stack: Stack)
+          }
+          class Player {
+            hand
+            name : str
+            phases : list
+            points : int
+            addPoints()
+            checkCurrentPhase()
+            chooseGoalCLI()
+            discardCard()
+            drawCard(card)
+            layCards(cards, goal: PhaseGoal)
+            setupPhases()
+            showHand()
+          }
+          class SkipCard {
+            useSkip(player)*
+          }
+          class Stack {
+            cards
+            addToStack(other)
+            shuffle()
+            sortByColor()
+            sortByNumber()
+          }
+          class WildCard {
+            mimic
+            mimicCard(card: Card)
+          }
+          BasicCard --|> Card
+          Deck --|> Stack
+          Hand --|> Stack
+          HighCard --|> BasicCard
+          LowCard --|> BasicCard
+          PhaseGoal --|> Stack
+          SkipCard --|> Card
+          WildCard --|> Card
+          Deck --* Game : deck
+          Hand --* Player : hand
+          Stack --* Game : discards
+          Card --o WildCard : mimic
+  
+       </div>
+  </body>
+</html>
