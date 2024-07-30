@@ -16,6 +16,9 @@ class PlayerCreation(GridLayout):
         self.add_widget(Label(text='Player Name'))
         self.username = TextInput(multiline=False)
         self.add_widget(self.username)
+        #self.add_widget()
+
+
 
 
 
