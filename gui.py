@@ -4,7 +4,7 @@ import os
 
 from .cards import Card, Deck
 from .cards import Phase, PhaseGoal
-from .cards import Player, Game
+from .cards import Player, GameGUI
 
 from kivy.app import App
 from kivy.uix.label import Label

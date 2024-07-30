@@ -220,19 +220,7 @@ class Deck(Stack):
 
     def deal(self, player):
         for _ in range(10):
-            player.return(self.drawCard)
-
-
-"""
-    def deal(self, players):
-        self.shuffle()
-        for i in range(10):
-            for p in players:
-                print(f"{str(i)} rounds dealt")
-                p.hand.addToStack(self.drawCard()
-"""
-
-
+            player.recieveCard(self.drawCard)
     def addToStack(self, other):
         if isinstance(other, Card):
             self.cards.append(other)
@@ -333,7 +321,7 @@ class PhaseGoal(Stack):
     def checkSet(self, stack: Stack):
         unique_numbers = set(card.number for card in stack.cards)
         return (
-            len(unique_numbers) == len(stack.cards
+            len(unique_numbers) == len(stack.cards)
             and len(stack.cards) >= self.min_cards
         )
 
@@ -381,8 +369,8 @@ class Player:
             print(p)
             self.phases.append(p)
 
-    def recieveCard(self, card):
-        self.hand.addToStack(card)
+    def recieveCard(self, c):
+        self.hand.addToStack(c)
 
     def showHand(self):
         return self.hand.showHand(self.name)
@@ -400,8 +388,7 @@ class Player:
                     return ret
                 else:
                     print(
-                        "Selection out of range. Please choose a number between 1 and",
-                        i,
+                        "Selection out of range. Please choose a number between 1 and whatever"
                     )
             except ValueError:
                 print("Invalid input. Please enter a number.")
@@ -452,12 +439,13 @@ class GameCLI:
 
     def start(self):
         os.system("clear")
-        self.deck.deal(self.players)
+        for p in self.players:
+            self.deck.deal(p)
         while True:
             for p in self.players:
-                self.turn(p)
+                self.turnCLI(p)
 
-    def turn(self, player):
+    def turnCLI(self, player):
         os.system("clear")
         print(f"{player.name}'s Turn")
         # Draw card
