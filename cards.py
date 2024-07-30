@@ -218,12 +218,20 @@ class Deck(Stack):
         else:
             return False
 
+    def deal(self, player):
+        for _ in range(10):
+            player.return(self.drawCard)
+
+
+"""
     def deal(self, players):
         self.shuffle()
         for i in range(10):
             for p in players:
                 print(f"{str(i)} rounds dealt")
-                p.hand.addToStack(self.drawCard())
+                p.hand.addToStack(self.drawCard()
+"""
+
 
     def addToStack(self, other):
         if isinstance(other, Card):
@@ -235,14 +243,15 @@ class Hand(Stack):
         self.cards = []
 
     def showHand(self, name):
-        print()
-        print(f"{name}'s Hand")
-        print("#################")
+        ret = ""
+        ret += f"{name}'s Hand"
+        ret += "#################"
         i = 1
         for c in self.cards:
-            print(f"{str(i)} - {c.description()}")
+            ret += f"{str(i)} - {c.description()}"
             i += 1
-        print("#################")
+        ret += "#################"
+        return ret
 
     def addToStack(self, other):
         if isinstance(other, Card):
@@ -324,7 +333,7 @@ class PhaseGoal(Stack):
     def checkSet(self, stack: Stack):
         unique_numbers = set(card.number for card in stack.cards)
         return (
-            len(unique_numbers) == len(stack.cards)
+            len(unique_numbers) == len(stack.cards
             and len(stack.cards) >= self.min_cards
         )
 
@@ -359,7 +368,7 @@ class PhaseGoal(Stack):
 ###
 #   PLAYERS
 class Player:
-    def __init__(self, name: str = "Default"):
+    def __init__(self, name: str):
         self.hand = Hand()
         self.name = name
         self.phases = []
@@ -372,11 +381,14 @@ class Player:
             print(p)
             self.phases.append(p)
 
-    def showHand(self):
-        self.hand.showHand(self.name)
-
-    def drawCard(self, card):
+    def recieveCard(self, card):
         self.hand.addToStack(card)
+
+    def showHand(self):
+        return self.hand.showHand(self.name)
+
+    def printHand(self):
+        print(self.showHand)
 
     def discardCard(self):
         self.showHand()
@@ -432,7 +444,7 @@ class Player:
 
 ###
 #   GAME LOGIC
-class Game:
+class GameCLI:
     def __init__(self, players: list):
         self.deck = Deck()
         self.discards = Stack()
@@ -556,7 +568,7 @@ def testShuffle():
     p1 = Player(name="Corey")
     p2 = Player(name="Sam")
     pls = [p1, p2]
-    g = Game(pls)
+    g = GameCLI(pls)
     g.start()
 
 
