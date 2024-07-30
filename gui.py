@@ -1,11 +1,15 @@
 import random
 import copy
 import os
-from .cards import *
+from .cards import Deck
 from kivy.app import App
 from kivy.uix.label import Label
 from kivy.uix.gridlayout import GridLayout
 from kivy.uix.textinput import TextInput
+
+
+
+deck = Deck()
 
 
 
