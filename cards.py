@@ -259,7 +259,30 @@ class Hand(Stack):
 
 
 ###
-#   PHASES
+#   PHASE
+class Goal:
+    def __init__(self, min_cards):
+        self.min_cards = min_cards
+        self.cards = Stack()
+        self.complete = False
+    
+    def addToCards(self, cards):
+        self.cards.addToStack(cards)
+
+class PhaseSet(Goal):
+    def __init__(self, min_cards):
+        super().__init__(min_cards)
+
+class PhaseRun(Goal):
+    def __init__(self, min_cards):
+        super().__init__(min_cards)
+
+class PhaseColor(Goal):
+    def __init__(self, min_cards):
+        super().__init__(min_cards)
+    
+
+"""
 class Phase:
     def __init__(self, name: str, goal: list, complete: bool):
         self.name = name
@@ -363,7 +386,7 @@ class PhaseGoal(Stack):
     @complete.setter
     def complete(self, newc):
         self._complete = newc
-
+"""
 
 ###
 #   PLAYERS
@@ -406,7 +429,7 @@ class Player:
             except ValueError:
                 print("Invalid input. Please enter a number.")
 
-    def checkCurrentPhase(self):
+    def getCurrentPhase(self):
         for p in self.phases:
             if p.checkComplete():
                 p.complete = True
@@ -429,7 +452,7 @@ class Player:
     def chooseGoalCLI(self):
         print("Choose the goal you want to fill:")
         i = 0
-        cur_phase = self.checkCurrentPhase()
+        cur_phase = self.getCurrentPhase()
         for g in cur_phase.goal:
             print(f"{i + 1}) {g}")
             i += 1
@@ -462,9 +485,9 @@ class GameCLI:
         print(f"{player.name}'s Turn")
         # Draw card
         drw = self.deck.drawCard()
-        player.drawCard(drw)
+        player.recieveCard(drw)
         # Action
-        print(player.checkCurrentPhase())
+        print(player.getCurrentPhase())
         player.showHand()
         self.actionsCLI(player)
         # Discard card
@@ -501,6 +524,49 @@ class GameCLI:
                 return False
 
 
+class GameApp:
+    def __init__(self):
+        self.deck = Deck()      #Phase 10 deck
+        self.discards = Stack() #Discard Pile
+        self.players = []       #Player list
+
+    """Player Creation"""
+    def createPlayer(self, name):
+        for n in self.players:
+            if n.name == name:
+                return False    #Player already exists
+        newplayer = Player(name)
+        self.players.append(newplayer)
+
+    """Main Loop"""
+    def startGame(self):
+        self.deck.deal(self.players)    #Deal cards to players
+        while True:
+            for player in self.players:
+                self.turn(player)
+
+    def turn(self, player):
+        """Draw phase"""
+        player.recieveCard(self.deck.drawCard())
+        """Play or Pass"""
+        if btn_pressed == "Play":
+            self.playCards(player, selected_cards)
+        """Discard phase"""
+        
+        """Check winning conditions"""
+        
+
+    """Turn Options"""
+    def playCards(self, player, cards = None):
+        if cards == None:
+            return False
+        cur_phase
+        goals = [g for g in player.getCurrentPhase().goal]
+        for gl in goals:
+            if player.layCards(cards, gl):
+                return True #Cards must match one of the current phase goals.
+        return False
+
 ##GLOBAL VARIABLES
 # Global Card Variables
 colors = ["Red", "Blue", "Green", "Yellow"]
@@ -524,6 +590,43 @@ number_value = {
 }
 # Global Phase Variables
 phases_dict = {
+    1: {
+        "name": "Phase 1",
+        "goal": [PhaseSet(3), PhaseSet(3)],
+        "complete": False,
+    },
+    2: {
+        "name": "Phase 2",
+        "goal": [PhaseSet(3), PhaseRun(4)],
+        "complete": False,
+    },
+    3: {
+        "name": "Phase 3",
+        "goal": [PhaseSet(4), PhaseRun(4)],
+        "complete": False,
+    },
+    4: {"name": "Phase 4", "goal": [PhaseRun(7)], "complete": False},
+    5: {"name": "Phase 5", "goal": [PhaseRun(8)], "complete": False},
+    6: {"name": "Phase 6", "goal": [PhaseRun(9)], "complete": False},
+    7: {
+        "name": "Phase 7",
+        "goal": [PhaseSet(4), PhaseSet(4)],
+        "complete": False,
+    },
+    8: {"name": "Phase 8", "goal": [PhaseColor(7)], "complete": False},
+    9: {
+        "name": "Phase 9",
+        "goal": [PhaseSet(5), PhaseSet(2)],
+        "complete": False,
+    },
+    10: {
+        "name": "Phase 10",
+        "goal": [PhaseSet(5), PhaseSet(3)],
+        "complete": False,
+    },
+}
+
+"""phases_dict = {
     1: {
         "name": "Phase 1",
         "goal": [PhaseGoal(1, 3), PhaseGoal(1, 3)],
@@ -558,7 +661,7 @@ phases_dict = {
         "goal": [PhaseGoal(1, 5), PhaseGoal(1, 3)],
         "complete": False,
     },
-}
+}"""
 P_TYPES = ["", "Set", "Run", "Color"]
 
 
