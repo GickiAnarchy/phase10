@@ -28,7 +28,6 @@ class PlayerHand(BoxLayout):
         self.player_name.text = player_name
         self.hand_text.text = ""
 
-
 class PhaseGoalDisplay(BoxLayout):
     phase_name = ObjectProperty(None)
     goal_text = ObjectProperty(None)
@@ -37,7 +36,6 @@ class PhaseGoalDisplay(BoxLayout):
         super(PhaseGoalDisplay, self).__init__(**kwargs)
         self.phase_name.text = phase_name
         self.goal_text.text = goal_text
-
 
 class Phase10App(App):
     game = None
