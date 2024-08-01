@@ -70,7 +70,6 @@ class Card:
     def __gt__(self, other):
         return self.number > other.number
 
-
 class WildCard(Card):
     def __init__(self, name="Wild", points=25, color="None"):
         super().__init__(name, points, color)
@@ -115,7 +114,6 @@ class WildCard(Card):
             self.mimic = other
             return True
 
-
 class SkipCard(Card):
     def __init__(self, name="Skip", points=25, color="None"):
         super().__init__(name, points, color)
@@ -134,21 +132,17 @@ class SkipCard(Card):
     def __gt__(self, other):
         return False
 
-
 class BasicCard(Card):
     def __init__(self, name: str, points: int, color: str):
         super().__init__(name, points, color)
-
 
 class LowCard(BasicCard):
     def __init__(self, name: str, color: str, points=5):
         super().__init__(name, points, color)
 
-
 class HighCard(BasicCard):
     def __init__(self, name: str, color: str, points=10):
         super().__init__(name, points, color)
-
 
 ###
 #   CARD STACKS
@@ -182,7 +176,6 @@ class Stack:
 
     def sortByColor(self):
         self.cards.sort(key=lambda x: x.color)
-
 
 class Deck(Stack):
     def __init__(self):
@@ -236,7 +229,6 @@ class Deck(Stack):
     def addToStack(self, other):
         if isinstance(other, Card):
             self.cards.append(other)
-
 
 class Hand(Stack):
     def __init__(self):
@@ -460,24 +452,12 @@ class Player:
     def recieveCard(self, card):
         self.hand.addToStack(card)
 
+    def discardCard(self, c_index):
+        self.hand.cards.remove(c_index)
+        return True
+
     def showHand(self):
         return self.hand.showHand(self.name)
-
-    def discardCard(self):
-        self.showHand()
-        while True:
-            try:
-                sel = int(input("Select card to discard: "))
-                if sel <= len(self.hand.cards):
-                    ret = self.hand.cards.pop(sel - 1)
-                    return ret
-                else:
-                    print(
-                        "Selection out of range. Please choose a number between 1 and",
-                        i,
-                    )
-            except ValueError:
-                print("Invalid input. Please enter a number.")
 
     def addPoints(self):
         for c in self.hand.cards:
@@ -511,6 +491,21 @@ class Player:
                 print("No beans, buddy.")
     def printHand(self):
         print(self.showHand)
+    def discardCardCLI(self):
+        self.showHand()
+        while True:
+            try:
+                sel = int(input("Select card to discard: "))
+                if sel <= len(self.hand.cards):
+                    ret = self.hand.cards.pop(sel - 1)
+                    return ret
+                else:
+                    print(
+                        "Selection out of range. Please choose a number between 1 and",
+                        i,
+                    )
+            except ValueError:
+                print("Invalid input. Please enter a number.")
 
 ###
 #   GAME LOGIC
@@ -542,9 +537,14 @@ class GameApp:
         if btn_pressed == "Play":
             self.playCards(player, selected_cards)
         """Discard phase"""
+        if btn_pressed == "Discard":
+            self.discardCard(player, selected_cards)
+        
         
         """Check winning conditions"""
-        
+        if player.getCurrentPhase().name == "WINNER":
+            print(f"{player.name} wins")
+            return
 
     """Turn Options"""
     def playCards(self, player, cards = None):
@@ -556,6 +556,13 @@ class GameApp:
             if player.layCards(cards, gl):
                 return True #Cards must match one of the current phase goals.
         return False
+
+    def discardCard(player, selected_card):
+        if len(selected_card) != 1:
+            return False
+        if player.discardCard(player.hand.cards.index(selected_card)):
+            self.discards.addToStack(selected_card)
+        
 
 """
 the GameCLI class is commented out because the game needs to be graphical, not text based 
@@ -616,6 +623,7 @@ class GameCLI:
                 return False
 
 """
+
 ##GLOBAL VARIABLES
 # Global Card Variables
 colors = ["Red", "Blue", "Green", "Yellow"]
@@ -650,8 +658,6 @@ phases_dict = {
     9:Phase("Phase 9", [PhaseSet(5), PhaseSet(2)]),
     10:Phase("Phase 10",[PhaseSet(5), PhaseSet(3)])
 }
-
-
 P_TYPES = ["", "Set", "Run", "Color"]
 
 
