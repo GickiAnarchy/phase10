@@ -2,6 +2,7 @@ import random
 import copy
 import os
 import json
+import itertools
 
 
 ###
@@ -9,7 +10,6 @@ import json
 class Card:
     count = 0
 
-    
     def __init__(self, name: str, points: int, color: str):
         self.name = name
         self.points = points
@@ -103,14 +103,6 @@ class WildCard(Card):
     @mimic.deleter
     def mimic(self):
         del self._mimic
-
-#    def __eq__(self, other):
-#        if self.number != other:
-#            return False
-#        else:
-#            self.mimic = other
-#            return True
-
     def __lt__(self, other):
         if other.name == "Skip":
             return False
@@ -124,6 +116,14 @@ class WildCard(Card):
         else:
             self.mimic = other
             return True
+
+#    def __eq__(self, other):
+#        if self.number != other:
+#            return False
+#        else:
+#            self.mimic = other
+#            return True
+
 
 class SkipCard(Card):
     def __init__(self, name="Skip", points=25, color="None"):
@@ -470,7 +470,7 @@ class Player:
             print(f"{v.name} added to {self.name}'s phase list")
         return phase_list
 
-    def getCurrentPhase(self):
+        def getCurrentPhase(self):
         for p in self.phases:
             if p.checkComplete():
                 continue
@@ -550,7 +550,19 @@ class GameApp:
         self.deck = Deck()      #Phase 10 deck
         self.discards = Stack() #Discard Pile
         self.players = []       #Player list
+        self.currentPlayer = None
         load_players()
+
+
+    def getCurrentPlayer(self):
+        if self.currentPlayer == None:
+            return self.players[0]
+        return self.currentPlayer
+
+    def getNextPlayer(self, plyrs):
+        while true:
+            for cp in plyrs:
+                yield cp
 
     """Player Creation"""
     def createPlayer(self, name):
@@ -578,27 +590,6 @@ class GameApp:
         for p in self.players:
             self.deck.deal(p)    #Deal cards to players
         save_players()
-        while True:
-            for player in self.players:
-                self.turn(player)
-
-    def turn(self, player):
-        """Draw phase"""
-        player.recieveCard(self.deck.drawCard())
-        """Play or Pass"""
-        btn_pressed = "Discard"
-        selected_cards = None
-        if btn_pressed == "Play":
-            self.playCards(player, selected_cards)
-        """Discard phase"""
-        if btn_pressed == "Discard":
-            self.discardCard(player, selected_cards)
-        
-        
-        """Check winning conditions"""
-        if player.getCurrentPhase().name == "WINNER":
-            print(f"{player.name} wins")
-            return
 
     """Turn Options"""
     def playCards(self, player, cards = None):

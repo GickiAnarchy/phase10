@@ -6,11 +6,20 @@ _by: GickiAnarchy_
 ___<u>ToDo</u>___  
 -[x] Start Game Logic  
 -[ ] Complete Game Logic  
--[ ] Start GUI  
+-[x] Start GUI  
 -[ ] Complete GUI  
 -[ ] Start online mechanic  
 -[ ] Complete Phase 10!
 ---
+
+___<u>Game Logic Needs</u>___
+pass
+
+
+
+
+
+
 
 ## The game of Phase 10:
 
