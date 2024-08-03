@@ -8,7 +8,7 @@ import json
 #   CARDS
 class Card:
     count = 0
-    image_directory = "images/"
+
     
     def __init__(self, name: str, points: int, color: str):
         self.name = name
@@ -24,6 +24,7 @@ class Card:
             return f"{self.color} {self.name}"
 
     def getImage(self):
+        image_directory = "/images/"
         if isinstance(self, WildCard):
             return r"{image_directory}Skip.png"
         if isinstance(self, SkipCard):
@@ -71,7 +72,7 @@ class Card:
         del self._points
 
     def __eq__(self, other):
-        return self.number == other.number
+        return self.number == other
 
     def __lt__(self, other):
         return self.number < other.number
@@ -83,6 +84,7 @@ class WildCard(Card):
     def __init__(self, name="Wild", points=25, color="None"):
         super().__init__(name, points, color)
         self.mimic = None
+        self.number = 61
 
     def mimicCard(self, card: Card):
         self.mimic = card
@@ -102,12 +104,12 @@ class WildCard(Card):
     def mimic(self):
         del self._mimic
 
-    def __eq__(self, other):
-        if other.name == "Skip":
-            return False
-        else:
-            self.mimic = other
-            return True
+#    def __eq__(self, other):
+#        if self.number != other:
+#            return False
+#        else:
+#            self.mimic = other
+#            return True
 
     def __lt__(self, other):
         if other.name == "Skip":
@@ -125,6 +127,7 @@ class WildCard(Card):
 
 class SkipCard(Card):
     def __init__(self, name="Skip", points=25, color="None"):
+        self.number = 60
         super().__init__(name, points, color)
 
     # TO-DO
@@ -133,7 +136,7 @@ class SkipCard(Card):
         pass
 
     def __eq__(self, other):
-        return self.name == other.name
+        return self.number == other
 
     def __lt__(self, other):
         return False
@@ -482,8 +485,8 @@ class Player:
         self.hand.addToStack(card)
 
     def discardCard(self, c_index):
-        dis = self.hand.cards[c_index]
-        print(f"{player.name} is discarding {dis.name}")
+        #dis = self.hand.cards[c_index]
+        print(f"{self.name} is discarding {c_index.name}")
         self.hand.cards.remove(c_index)
         return True
 
@@ -493,7 +496,7 @@ class Player:
     def addPoints(self):
         for c in self.hand.cards:
             self.points += c.points
-        print(f"{player.name} has {self.points} points")
+        print(f"{self.name} has {self.points} points")
 
     def layCards(self, cards, goal: Goal):
         if goal.addToStack(cards):
@@ -505,7 +508,7 @@ class Player:
 
     def toggle_ready(self):
         self.isReady = not self.isReady
-        print(f"{player.name} ready: {self.isReady}")
+        print(f"{self.name} ready: {self.isReady}")
 
     ##CLI Methods
     def chooseGoalCLI(self):
@@ -535,7 +538,6 @@ class Player:
                 else:
                     print(
                         "Selection out of range. Please choose a number between 1 and",
-                        i,
                     )
             except ValueError:
                 print("Invalid input. Please enter a number.")
@@ -564,8 +566,15 @@ class GameApp:
         cls_list.append(newplayer)
         self.players.append(newplayer)
 
+    def getPlayer(self, name):
+        for player in self.players:
+            if player.name == name:
+                return player
+        print("No player by that name")
+
     """Main Loop"""
     def startGame(self):
+        self.deck.shuffle()
         for p in self.players:
             self.deck.deal(p)    #Deal cards to players
         save_players()
@@ -595,7 +604,6 @@ class GameApp:
     def playCards(self, player, cards = None):
         if cards == None:
             return False
-        cur_phase
         goals = [g for g in player.getCurrentPhase().goal]
         for gl in goals:
             if player.layCards(cards, gl):
@@ -604,10 +612,12 @@ class GameApp:
 
     def discardCard(self, player, selected_card = None):
         if selected_card == None:
-            selected_card = list(random.choice(player.hand.cards))
-        if len(selected_card) != 1:
-            return False
-        if player.discardCard(player.hand.cards.index(selected_card)):
+            selected_card = random.choice(player.hand.cards)
+            selected_card = [selected_card]
+        if isinstance(selected_card, list):
+            selected_card = selected_card[0]
+        #if player.discardCard(player.hand.cards.index(selected_card)):
+        if player.discardCard(selected_card):
             self.discards.addToStack(selected_card)
         
 
@@ -744,4 +754,5 @@ def game_test():
 
 
 if __name__ == "__main__":
-    game_test()
+    #game_test()
+    pass

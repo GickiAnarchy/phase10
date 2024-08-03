@@ -5,15 +5,19 @@ from kivy.uix.image import AsyncImage
 from kivy.uix.label import Label
 from kivy.uix.scrollview import ScrollView
 
+
 # Import your game logic classes from cards.py
-from cards import Player, Deck, Hand, Card
+from cards import Player, Deck, Hand, Card, GameApp
 
 class Phase10App(App):
     def build(self):
-        # Initialize game objects
-        self.deck = Deck()
-        self.player = Player("Player 1")
-        self.deck.deal(self.player)  # Deal cards to player
+        self.game = GameApp()
+        self.game.createPlayer("Sam")
+        self.player = self.game.getPlayer("Sam")
+        self.game.createPlayer("George")
+        self.deck = self.game.deck
+        self.game.startGame()
+
 
         # Create the main layout
         root_widget = BoxLayout(orientation="vertical")
@@ -57,7 +61,7 @@ class Phase10App(App):
         discard_button = Button(text="Discard Card")
         button_box.add_widget(draw_button)
         button_box.add_widget(play_button)
-        button_button.add_widget(discard_button)
+        button_box.add_widget(discard_button)
         root_widget.add_widget(button_box)
 
         # Bind button actions (to be implemented)
