@@ -1,11 +1,12 @@
 # <u>Phase 10</u>
-_by: GickiAnarchy_
-
+_by: GickiAnarchy_  
+---
+#### _development branch_
 ---
 ___<u>ToDo</u>___  
 -[x] Start Game Logic  
 -[ ] Complete Game Logic  
--[x] Start GUI  
+-[ ] Start GUI  
 -[ ] Complete GUI  
 -[ ] Start online mechanic  
 -[ ] Complete Phase 10!

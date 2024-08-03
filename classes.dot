@@ -1,0 +1,29 @@
+digraph "classes" {
+rankdir=BT
+charset="utf-8"
+"phase10.cards.BasicCard" [color="black", fontcolor="black", label=<{BasicCard|<br ALIGN="LEFT"/>|}>, shape="record", style="solid"];
+"phase10.cards.Card" [color="black", fontcolor="black", label=<{Card|color<br ALIGN="LEFT"/>count : int<br ALIGN="LEFT"/>name<br ALIGN="LEFT"/>number<br ALIGN="LEFT"/>points<br ALIGN="LEFT"/>|description()<br ALIGN="LEFT"/>getCount()<br ALIGN="LEFT"/>}>, shape="record", style="solid"];
+"phase10.cards.Deck" [color="black", fontcolor="black", label=<{Deck|cards : NoneType<br ALIGN="LEFT"/>|addToStack(other)<br ALIGN="LEFT"/>createDeck()<br ALIGN="LEFT"/>deal(players)<br ALIGN="LEFT"/>drawCard()<br ALIGN="LEFT"/>}>, shape="record", style="solid"];
+"phase10.cards.Game" [color="black", fontcolor="black", label=<{Game|deck<br ALIGN="LEFT"/>discards<br ALIGN="LEFT"/>players : list<br ALIGN="LEFT"/>|action(player, sel)<br ALIGN="LEFT"/>actionsCLI(player)<br ALIGN="LEFT"/>start()<br ALIGN="LEFT"/>turn(player)<br ALIGN="LEFT"/>}>, shape="record", style="solid"];
+"phase10.cards.Hand" [color="black", fontcolor="black", label=<{Hand|cards : list<br ALIGN="LEFT"/>|addToStack(other)<br ALIGN="LEFT"/>showHand(name)<br ALIGN="LEFT"/>}>, shape="record", style="solid"];
+"phase10.cards.HighCard" [color="black", fontcolor="black", label=<{HighCard|<br ALIGN="LEFT"/>|}>, shape="record", style="solid"];
+"phase10.cards.LowCard" [color="black", fontcolor="black", label=<{LowCard|<br ALIGN="LEFT"/>|}>, shape="record", style="solid"];
+"phase10.cards.Phase" [color="black", fontcolor="black", label=<{Phase|complete<br ALIGN="LEFT"/>goal : list<br ALIGN="LEFT"/>name : str<br ALIGN="LEFT"/>|checkComplete()<br ALIGN="LEFT"/>}>, shape="record", style="solid"];
+"phase10.cards.PhaseGoal" [color="black", fontcolor="black", label=<{PhaseGoal|complete<br ALIGN="LEFT"/>min_cards : int<br ALIGN="LEFT"/>ptype : int<br ALIGN="LEFT"/>target : NoneType, list<br ALIGN="LEFT"/>|addToStack(other)<br ALIGN="LEFT"/>checkColor(stack: Stack)<br ALIGN="LEFT"/>checkRun(stack: Stack)<br ALIGN="LEFT"/>checkSet(stack: Stack)<br ALIGN="LEFT"/>}>, shape="record", style="solid"];
+"phase10.cards.Player" [color="black", fontcolor="black", label=<{Player|hand<br ALIGN="LEFT"/>name : str<br ALIGN="LEFT"/>phases : list<br ALIGN="LEFT"/>points : int<br ALIGN="LEFT"/>|addPoints()<br ALIGN="LEFT"/>checkCurrentPhase()<br ALIGN="LEFT"/>chooseGoalCLI()<br ALIGN="LEFT"/>discardCard()<br ALIGN="LEFT"/>drawCard(card)<br ALIGN="LEFT"/>layCards(cards, goal: PhaseGoal)<br ALIGN="LEFT"/>setupPhases()<br ALIGN="LEFT"/>showHand()<br ALIGN="LEFT"/>}>, shape="record", style="solid"];
+"phase10.cards.SkipCard" [color="black", fontcolor="black", label=<{SkipCard|<br ALIGN="LEFT"/>|<I>useSkip</I>(player)<br ALIGN="LEFT"/>}>, shape="record", style="solid"];
+"phase10.cards.Stack" [color="black", fontcolor="black", label=<{Stack|cards<br ALIGN="LEFT"/>|addToStack(other)<br ALIGN="LEFT"/>shuffle()<br ALIGN="LEFT"/>sortByColor()<br ALIGN="LEFT"/>sortByNumber()<br ALIGN="LEFT"/>}>, shape="record", style="solid"];
+"phase10.cards.WildCard" [color="black", fontcolor="black", label=<{WildCard|mimic<br ALIGN="LEFT"/>|mimicCard(card: Card)<br ALIGN="LEFT"/>}>, shape="record", style="solid"];
+"phase10.cards.BasicCard" -> "phase10.cards.Card" [arrowhead="empty", arrowtail="none"];
+"phase10.cards.Deck" -> "phase10.cards.Stack" [arrowhead="empty", arrowtail="none"];
+"phase10.cards.Hand" -> "phase10.cards.Stack" [arrowhead="empty", arrowtail="none"];
+"phase10.cards.HighCard" -> "phase10.cards.BasicCard" [arrowhead="empty", arrowtail="none"];
+"phase10.cards.LowCard" -> "phase10.cards.BasicCard" [arrowhead="empty", arrowtail="none"];
+"phase10.cards.PhaseGoal" -> "phase10.cards.Stack" [arrowhead="empty", arrowtail="none"];
+"phase10.cards.SkipCard" -> "phase10.cards.Card" [arrowhead="empty", arrowtail="none"];
+"phase10.cards.WildCard" -> "phase10.cards.Card" [arrowhead="empty", arrowtail="none"];
+"phase10.cards.Deck" -> "phase10.cards.Game" [arrowhead="diamond", arrowtail="none", fontcolor="green", label="deck", style="solid"];
+"phase10.cards.Hand" -> "phase10.cards.Player" [arrowhead="diamond", arrowtail="none", fontcolor="green", label="hand", style="solid"];
+"phase10.cards.Stack" -> "phase10.cards.Game" [arrowhead="diamond", arrowtail="none", fontcolor="green", label="discards", style="solid"];
+"phase10.cards.Card" -> "phase10.cards.WildCard" [arrowhead="odiamond", arrowtail="none", fontcolor="green", label="mimic", style="solid"];
+}
