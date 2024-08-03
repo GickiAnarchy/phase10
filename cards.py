@@ -1,13 +1,15 @@
 import random
 import copy
 import os
+import json
 
 
 ###
 #   CARDS
 class Card:
     count = 0
-
+    image_directory = "images/"
+    
     def __init__(self, name: str, points: int, color: str):
         self.name = name
         self.points = points
@@ -20,6 +22,13 @@ class Card:
             return self.name
         else:
             return f"{self.color} {self.name}"
+
+    def getImage(self):
+        if isinstance(self, WildCard):
+            return r"{image_directory}Skip.png"
+        if isinstance(self, SkipCard):
+            return r"{image_directory}Wild.png"
+        return r"{image_directory}{self.color}_{self.number}.png"
 
     @classmethod
     def getCount(cls):
@@ -70,7 +79,6 @@ class Card:
     def __gt__(self, other):
         return self.number > other.number
 
-
 class WildCard(Card):
     def __init__(self, name="Wild", points=25, color="None"):
         super().__init__(name, points, color)
@@ -115,7 +123,6 @@ class WildCard(Card):
             self.mimic = other
             return True
 
-
 class SkipCard(Card):
     def __init__(self, name="Skip", points=25, color="None"):
         super().__init__(name, points, color)
@@ -134,21 +141,17 @@ class SkipCard(Card):
     def __gt__(self, other):
         return False
 
-
 class BasicCard(Card):
     def __init__(self, name: str, points: int, color: str):
         super().__init__(name, points, color)
-
 
 class LowCard(BasicCard):
     def __init__(self, name: str, color: str, points=5):
         super().__init__(name, points, color)
 
-
 class HighCard(BasicCard):
     def __init__(self, name: str, color: str, points=10):
         super().__init__(name, points, color)
-
 
 ###
 #   CARD STACKS
@@ -183,7 +186,6 @@ class Stack:
     def sortByColor(self):
         self.cards.sort(key=lambda x: x.color)
 
-
 class Deck(Stack):
     def __init__(self):
         super().__init__()
@@ -210,6 +212,7 @@ class Deck(Stack):
                 newcard = SkipCard()
                 self.cards.append(newcard)
                 print(f"{str(Card.getCount())} - {self.cards[-1].description()}")
+            print("Deck has been created")
 
     def drawCard(self):
         if len(self.cards) > 0:
@@ -220,11 +223,22 @@ class Deck(Stack):
 
     def deal(self, player):
         for _ in range(10):
-            player.recieveCard(self.drawCard)
-    def addToStack(self, other):
-        if isinstance(other, Card):
-            self.cards.append(other)
+            print(f"{player.name} was dealt a card")
+            player.recieveCard(self.drawCard())
 
+        def addToStack(self, other):
+            if isinstance(other, Card):
+                print("Card added to deck")
+                self.cards.append(other)
+
+"""
+    def deal(self, players):
+        self.shuffle()
+        for i in range(10):
+            for p in players:
+                print(f"{str(i)} rounds dealt")
+                p.hand.addToStack(self.drawCard()
+"""
 
 class Hand(Stack):
     def __init__(self):
@@ -245,9 +259,85 @@ class Hand(Stack):
         if isinstance(other, Card):
             self.cards.append(other)
 
+    def __iter__(self):
+        return iter(self.cards)
 
 ###
-#   PHASES
+#   PHASE
+class Phase:
+    def __init__(self, name, goal, complete = False):
+        self.name = name
+        self.goal = goal
+        self.complete = complete
+
+    def checkComplete(self):
+        for g in self.goal:
+            if g.complete == False:
+                self.complete = False
+                return False
+        self.complete = True
+        return True
+
+class Goal:
+    def __init__(self, min_cards):
+        self.min_cards = min_cards
+        self.cards = Stack()
+        self.complete = False
+    
+    def addToCards(self, cards):
+        if self.checkCards(cards):
+            self.cards.addToStack(cards)
+
+    def checkCards(self, stack):
+        pass
+
+class PhaseSet(Goal):
+    def __init__(self, min_cards):
+        super().__init__(min_cards)
+
+    def checkCards(self, stack):
+        if self.complete:
+            target = self.cards.cards[0].number
+            for c in stack.cards:
+                if c.number != target:
+                    return False
+            return True
+        if not self.complete:
+            unique_numbers = set(card.number for card in stack.cards)
+            ret = (len(unique_numbers) == len(stack.cards) and len(stack.cards) >= self.min_cards)
+            self.complete = ret
+        return ret
+
+class PhaseRun(Goal):
+    def __init__(self, min_cards):
+        super().__init__(min_cards)
+
+    def checkCards(self, stack):
+        stack.sortByNumber()
+        #nums = [n for n ]
+        if self.complete:
+            pass
+        for i in range(1, len(stack.cards)):
+            if stack.cards[i].number - stack.cards[
+                i - 1
+            ].number != 1 and not isinstance(stack.cards[i - 1], WildCard):
+                return False
+                return len(stack.cards) >= self.min_cards
+
+class PhaseColor(Goal):
+    def __init__(self, min_cards):
+        super().__init__(min_cards)
+
+    def checkCards(self, stack):
+        if len(stack.cards) == 0:
+            return False
+        color = stack.cards[0].color
+        for card in stack.cards:
+            if card.color != color and not isinstance(card, WildCard):
+                return False
+        return len(stack.cards) >= self.min_cards
+
+"""
 class Phase:
     def __init__(self, name: str, goal: list, complete: bool):
         self.name = name
@@ -321,7 +411,7 @@ class PhaseGoal(Stack):
     def checkSet(self, stack: Stack):
         unique_numbers = set(card.number for card in stack.cards)
         return (
-            len(unique_numbers) == len(stack.cards)
+            len(unique_numbers) == len(stack.cards
             and len(stack.cards) >= self.min_cards
         )
 
@@ -351,61 +441,61 @@ class PhaseGoal(Stack):
     @complete.setter
     def complete(self, newc):
         self._complete = newc
-
+"""
 
 ###
 #   PLAYERS
 class Player:
-    def __init__(self, name: str):
+    def __init__(self, name: str, score:int = 0):
         self.hand = Hand()
         self.name = name
-        self.phases = []
-        self.setupPhases()
+        self.phases = self.setupPhases()
         self.points = 0
+        self.score = score
+        self.isReady = False #Indicates player is ready to play;
+
+    def getInfo(self):
+        return {
+            "name":self.name,
+            "score":self.score
+            }
 
     def setupPhases(self):
-        for args in phases_dict.values():
-            p = Phase(**args)
-            print(p)
-            self.phases.append(p)
+        phase_list = []
+        for k,v in phases_dict.items():
+            phase_list.append(v)
+            print(f"{v.name} added to {self.name}'s phase list")
+        return phase_list
 
-    def recieveCard(self, c):
-        self.hand.addToStack(c)
+    def getCurrentPhase(self):
+        for p in self.phases:
+            if p.checkComplete():
+                continue
+            if not p.checkComplete():
+                print(f"current phase is {p.name}")
+                return p
+        #Should only get here if all phases are complete.
+        return Phase("WINNER", [])
+
+    def recieveCard(self, card):
+        print(f"{self.name} drew a {card.name}")
+        self.hand.addToStack(card)
+
+    def discardCard(self, c_index):
+        dis = self.hand.cards[c_index]
+        print(f"{player.name} is discarding {dis.name}")
+        self.hand.cards.remove(c_index)
+        return True
 
     def showHand(self):
         return self.hand.showHand(self.name)
 
-    def printHand(self):
-        print(self.showHand)
-
-    def discardCard(self):
-        self.showHand()
-        while True:
-            try:
-                sel = int(input("Select card to discard: "))
-                if sel <= len(self.hand.cards):
-                    ret = self.hand.cards.pop(sel - 1)
-                    return ret
-                else:
-                    print(
-                        "Selection out of range. Please choose a number between 1 and whatever"
-                    )
-            except ValueError:
-                print("Invalid input. Please enter a number.")
-
-    def checkCurrentPhase(self):
-        for p in self.phases:
-            if p.checkComplete():
-                p.complete = True
-                continue
-            else:
-                return p
-
     def addPoints(self):
         for c in self.hand.cards:
             self.points += c.points
+        print(f"{player.name} has {self.points} points")
 
-    def layCards(self, cards, goal: PhaseGoal):
+    def layCards(self, cards, goal: Goal):
         if goal.addToStack(cards):
             print("Phase goal completed")
             return True
@@ -413,10 +503,15 @@ class Player:
             print("Cards wont work for this Phase Goal")
             return False
 
+    def toggle_ready(self):
+        self.isReady = not self.isReady
+        print(f"{player.name} ready: {self.isReady}")
+
+    ##CLI Methods
     def chooseGoalCLI(self):
         print("Choose the goal you want to fill:")
         i = 0
-        cur_phase = self.checkCurrentPhase()
+        cur_phase = self.getCurrentPhase()
         for g in cur_phase.goal:
             print(f"{i + 1}) {g}")
             i += 1
@@ -427,10 +522,97 @@ class Player:
                 return cur_phase.goal[sel - 1]
             except:
                 print("No beans, buddy.")
-
+    def printHand(self):
+        print(self.showHand)
+    def discardCardCLI(self):
+        self.showHand()
+        while True:
+            try:
+                sel = int(input("Select card to discard: "))
+                if sel <= len(self.hand.cards):
+                    ret = self.hand.cards.pop(sel - 1)
+                    return ret
+                else:
+                    print(
+                        "Selection out of range. Please choose a number between 1 and",
+                        i,
+                    )
+            except ValueError:
+                print("Invalid input. Please enter a number.")
 
 ###
 #   GAME LOGIC
+class GameApp:
+    saved_players = []
+    def __init__(self):
+        self.deck = Deck()      #Phase 10 deck
+        self.discards = Stack() #Discard Pile
+        self.players = []       #Player list
+        load_players()
+
+    """Player Creation"""
+    def createPlayer(self, name):
+        cls_list = self.__class__.saved_players
+        i = 0
+        for n in cls_list:
+            if n.name == name:
+                print("This player already exists")
+                self.players.append(cls_list[i])
+                return
+            i += 1
+        newplayer = Player(name)
+        cls_list.append(newplayer)
+        self.players.append(newplayer)
+
+    """Main Loop"""
+    def startGame(self):
+        for p in self.players:
+            self.deck.deal(p)    #Deal cards to players
+        save_players()
+        while True:
+            for player in self.players:
+                self.turn(player)
+
+    def turn(self, player):
+        """Draw phase"""
+        player.recieveCard(self.deck.drawCard())
+        """Play or Pass"""
+        btn_pressed = "Discard"
+        selected_cards = None
+        if btn_pressed == "Play":
+            self.playCards(player, selected_cards)
+        """Discard phase"""
+        if btn_pressed == "Discard":
+            self.discardCard(player, selected_cards)
+        
+        
+        """Check winning conditions"""
+        if player.getCurrentPhase().name == "WINNER":
+            print(f"{player.name} wins")
+            return
+
+    """Turn Options"""
+    def playCards(self, player, cards = None):
+        if cards == None:
+            return False
+        cur_phase
+        goals = [g for g in player.getCurrentPhase().goal]
+        for gl in goals:
+            if player.layCards(cards, gl):
+                return True #Cards must match one of the current phase goals.
+        return False
+
+    def discardCard(self, player, selected_card = None):
+        if selected_card == None:
+            selected_card = list(random.choice(player.hand.cards))
+        if len(selected_card) != 1:
+            return False
+        if player.discardCard(player.hand.cards.index(selected_card)):
+            self.discards.addToStack(selected_card)
+        
+
+"""
+the GameCLI class is commented out because the game needs to be graphical, not text based 
 class GameCLI:
     def __init__(self, players: list):
         self.deck = Deck()
@@ -439,20 +621,19 @@ class GameCLI:
 
     def start(self):
         os.system("clear")
-        for p in self.players:
-            self.deck.deal(p)
+        self.deck.deal(self.players)
         while True:
             for p in self.players:
-                self.turnCLI(p)
+                self.turn(p)
 
-    def turnCLI(self, player):
+    def turn(self, player):
         os.system("clear")
         print(f"{player.name}'s Turn")
         # Draw card
         drw = self.deck.drawCard()
-        player.drawCard(drw)
+        player.recieveCard(drw)
         # Action
-        print(player.checkCurrentPhase())
+        print(player.getCurrentPhase())
         player.showHand()
         self.actionsCLI(player)
         # Discard card
@@ -488,6 +669,7 @@ class GameCLI:
             case _:
                 return False
 
+"""
 
 ##GLOBAL VARIABLES
 # Global Card Variables
@@ -512,53 +694,54 @@ number_value = {
 }
 # Global Phase Variables
 phases_dict = {
-    1: {
-        "name": "Phase 1",
-        "goal": [PhaseGoal(1, 3), PhaseGoal(1, 3)],
-        "complete": False,
-    },
-    2: {
-        "name": "Phase 2",
-        "goal": [PhaseGoal(1, 3), PhaseGoal(2, 4)],
-        "complete": False,
-    },
-    3: {
-        "name": "Phase 3",
-        "goal": [PhaseGoal(1, 4), PhaseGoal(2, 4)],
-        "complete": False,
-    },
-    4: {"name": "Phase 4", "goal": [PhaseGoal(2, 7)], "complete": False},
-    5: {"name": "Phase 5", "goal": [PhaseGoal(2, 8)], "complete": False},
-    6: {"name": "Phase 6", "goal": [PhaseGoal(2, 9)], "complete": False},
-    7: {
-        "name": "Phase 7",
-        "goal": [PhaseGoal(1, 4), PhaseGoal(1, 4)],
-        "complete": False,
-    },
-    8: {"name": "Phase 8", "goal": [PhaseGoal(3, 7)], "complete": False},
-    9: {
-        "name": "Phase 9",
-        "goal": [PhaseGoal(1, 5), PhaseGoal(1, 2)],
-        "complete": False,
-    },
-    10: {
-        "name": "Phase 10",
-        "goal": [PhaseGoal(1, 5), PhaseGoal(1, 3)],
-        "complete": False,
-    },
+    1:Phase("Phase 1", [PhaseSet(3), PhaseSet(3)]),
+    2:Phase("Phase 2",[PhaseSet(3), PhaseRun(4)]),
+    3:Phase("Phase 3", [PhaseSet(4), PhaseRun(4)]),
+    4:Phase("Phase 4", [PhaseRun(7)]),
+    5:Phase("Phase 5", [PhaseRun(8)]),
+    6:Phase("Phase 6", [PhaseRun(9)]),
+    7:Phase("Phase 7", [PhaseSet(4), PhaseSet(4)]),
+    8:Phase("Phase 8", [PhaseColor(7)]),
+    9:Phase("Phase 9", [PhaseSet(5), PhaseSet(2)]),
+    10:Phase("Phase 10",[PhaseSet(5), PhaseSet(3)])
 }
 P_TYPES = ["", "Set", "Run", "Color"]
 
+###
+#   PLAYER SAVES
+playersfile = "saved_players.json"
+
+def save_players():
+    player_dict = {}
+    if GameApp().saved_players == []:
+        print("There are no players to save")
+        return
+    for p in GameApp.saved_players:
+        player_dict[p.name] = p.getInfo()
+    with open(playersfile, "w") as f:
+        json.dump(player_dict, f)
+        f.close()
+    print("Players saved")
+
+def load_players():
+    try:
+        with open(playersfile, "r+") as f:
+            data = json.load(f)
+            print("Players Loaded")
+            for k,v in data.items():
+                GameApp.saved_players.append(Player(v["name"],v["score"]))
+    except FileNotFoundError:
+        print("No saved players found.")
 
 ###
 #
-def testShuffle():
-    p1 = Player(name="Corey")
-    p2 = Player(name="Sam")
-    pls = [p1, p2]
-    g = GameCLI(pls)
-    g.start()
+def game_test():
+    g = GameApp()
+    g.createPlayer("Corey")
+    g.createPlayer("Sam")
+    g.createPlayer("Corey")
+    g.startGame()
 
 
 if __name__ == "__main__":
-    testShuffle()
+    game_test()
