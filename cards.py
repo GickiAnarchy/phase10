@@ -24,12 +24,12 @@ class Card:
             return f"{self.color} {self.name}"
 
     def getImage(self):
-        image_directory = "/images/"
+        image_directory = "images/"
         if isinstance(self, WildCard):
-            return r"{image_directory}Skip.png"
+            return f"{image_directory}Skip.png"
         if isinstance(self, SkipCard):
-            return r"{image_directory}Wild.png"
-        return r"{image_directory}{self.color}_{self.number}.png"
+            return f"{image_directory}Wild.png"
+        return f"{image_directory}{self.color}_{self.number}.png"
 
     @classmethod
     def getCount(cls):
@@ -471,14 +471,14 @@ class Player:
         return phase_list
 
         def getCurrentPhase(self):
-        for p in self.phases:
-            if p.checkComplete():
-                continue
-            if not p.checkComplete():
-                print(f"current phase is {p.name}")
-                return p
-        #Should only get here if all phases are complete.
-        return Phase("WINNER", [])
+            for p in self.phases:
+                if p.checkComplete():
+                    continue
+                if not p.checkComplete():
+                    print(f"current phase is {p.name}")
+                    return p
+            #Should only get here if all phases are complete.
+            return Phase("WINNER", [])
 
     def recieveCard(self, card):
         print(f"{self.name} drew a {card.name}")
@@ -560,7 +560,7 @@ class GameApp:
         return self.currentPlayer
 
     def getNextPlayer(self, plyrs):
-        while true:
+        while True:
             for cp in plyrs:
                 yield cp
 

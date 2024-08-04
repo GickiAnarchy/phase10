@@ -1,3 +1,5 @@
+import random
+
 from kivy.app import App
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.button import Button
@@ -13,23 +15,28 @@ from cards import Player, Deck, Hand, Card, GameApp
 
 class Phase10App(App):
     def build(self):
-        self.game = GameApp()
+        self.game = GameApp()                                       #Main Game app from card.py
+
         self.game.createPlayer("Sam")
         self.player = self.game.getPlayer("Sam")
-        self.game.createPlayer("George")
-        self.deck = self.game.deck
-        Clock.schedule_interval(self.update_game, 1/60)
+            # Need to create a create player screen
+
+        self.game.createPlayer("George")                            # For testing purposes
+
+        self.cycler = self.game.getNextPlayer(self.game.players)    # Player Turn cycler
+
+        self.deck = self.game.deck                                  # Phase 10 Deck
+        Clock.schedule_interval(self.update_game, 1/60)             # update clock =
         self.game.startGame()
-        self.cycler = self.game.getNextPlayer(self.game.players)
+
         
     def update_game(self, dt):
-        self.turn(self.game.currentPlayer)
 
         # Create the main layout
         root_widget = BoxLayout(orientation="vertical")
 
         # Player information section
-        player_info = BoxLayout(orientation="horizontal", size_hint = {'x':.8,'y':.2}, pos_hint = {'x':1, 'y':.2})
+        player_info = BoxLayout(orientation="horizontal")
         player_label = Label(text=f"Player: {self.player.name}")
         score_label = Label(text=f"Score: {self.player.score}")
         player_info.add_widget(player_label)
@@ -48,7 +55,7 @@ class Phase10App(App):
         # Discard pile section (placeholder)
         discard_pile = BoxLayout(orientation="horizontal", size_hint_x = .5, size_hint_y = .5)
         discard_label = Label(text=f"Discard Pile: {len(self.game.discards.cards)} cards")
-        discard_pile.add_widget(discard_label
+        discard_pile.add_widget(discard_label)
         # Add button or image for discard pile
         root_widget.add_widget(discard_pile)
 
@@ -75,13 +82,21 @@ class Phase10App(App):
         play_button.bind(on_press=self.play_cards)
         discard_button.bind(on_press=self.discard_card)
 
+        if self.player != self.game.getCurrentPlayer():
+            draw_button.disabled = True
+            play_button.disabled = True
+            discard_button.disabled = True
+        if self.player == self.game.getCurrentPlayer():
+            draw_button.disabled = False
+            play_button.disabled = False
+            discard_button.disabled = False
+
         return root_widget
 
     # Implement button actions here (functions to call corresponding methods from cards.py)
     def draw_card(self, instance, player):
         # Call player.recieveCard(self.deck.drawCard()) and update UI
         player.recieveCard(self.deck.drawCard())
-        
 
     def play_cards(self, instance, player, cards):
         # Call player related methods to handle playing cards and update UI
@@ -93,12 +108,12 @@ class Phase10App(App):
     def discard_card(self, instance, selected_card = None):
         # Call player related methods to handle discarding cards and update UI
         if selected_card == None:
-            selected_card = random.choice(player.hand.cards)
+            selected_card = random.choice(self.player.hand.cards)
             selected_card = [selected_card]
         if isinstance(selected_card, list):
             selected_card = selected_card[0]
         #if player.discardCard(player.hand.cards.index(selected_card)):
-        if player.discardCard(selected_card):
+        if self.player.discardCard(selected_card):
             self.discards.addToStack(selected_card)
         self.currentPlayer = next(self.cycler)
 
@@ -108,6 +123,4 @@ class Phase10App(App):
 
 
 if __name__ == "__main__":
-    print("wait.....")
-    input("")
     Phase10App().run()
