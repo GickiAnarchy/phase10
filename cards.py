@@ -3,6 +3,8 @@ import copy
 import os
 import json
 import itertools
+from abc import ABC, abstractmethod
+from typing import List, Union
 
 
 ###
@@ -268,186 +270,58 @@ class Hand(Stack):
 ###
 #   PHASE
 class Phase:
-    def __init__(self, name, goal, complete = False):
+    def __init__(self, name: str, goals: List[Goal]):
         self.name = name
-        self.goal = goal
-        self.complete = complete
-
-    def checkComplete(self):
-        for g in self.goal:
-            if g.complete == False:
-                self.complete = False
-                return False
-        self.complete = True
-        return True
-
-class Goal:
-    def __init__(self, min_cards):
-        self.min_cards = min_cards
-        self.cards = Stack()
+        self.goals = goals
         self.complete = False
-    
-    def addToCards(self, cards):
-        if self.checkCards(cards):
-            self.cards.addToStack(cards)
 
-    def checkCards(self, stack):
+    def check_complete(self) -> bool:
+        self.complete = all(goal.complete for goal in self.goals)
+        return self.complete
+
+    def add_cards_to_goal(self, goal_index: int, cards: List['Card']) -> bool:
+        if 0 <= goal_index < len(self.goals):
+            return self.goals[goal_index].add_cards(cards)
+        return False
+
+class Goal(ABC):
+    def __init__(self, min_cards: int):
+        self.min_cards = min_cards
+        self.cards = []
+        self.complete = False
+
+    @abstractmethod
+    def check_cards(self, cards: List['Card']) -> bool:
         pass
 
-class PhaseSet(Goal):
-    def __init__(self, min_cards):
-        super().__init__(min_cards)
-
-    def checkCards(self, stack):
-        if self.complete:
-            target = self.cards.cards[0].number
-            for c in stack.cards:
-                if c.number != target:
-                    return False
+    def add_cards(self, cards: List['Card']) -> bool:
+        if self.check_cards(cards):
+            self.cards.extend(cards)
+            self.complete = len(self.cards) >= self.min_cards
             return True
-        if not self.complete:
-            unique_numbers = set(card.number for card in stack.cards)
-            ret = (len(unique_numbers) == len(stack.cards) and len(stack.cards) >= self.min_cards)
-            self.complete = ret
-        return ret
+        return False
 
-class PhaseRun(Goal):
-    def __init__(self, min_cards):
-        super().__init__(min_cards)
-
-    def checkCards(self, stack):
-        stack.sortByNumber()
-        #nums = [n for n ]
-        if self.complete:
-            pass
-        for i in range(1, len(stack.cards)):
-            if stack.cards[i].number - stack.cards[
-                i - 1
-            ].number != 1 and not isinstance(stack.cards[i - 1], WildCard):
-                return False
-                return len(stack.cards) >= self.min_cards
-
-class PhaseColor(Goal):
-    def __init__(self, min_cards):
-        super().__init__(min_cards)
-
-    def checkCards(self, stack):
-        if len(stack.cards) == 0:
+class SetGoal(Goal):
+    def check_cards(self, cards: List['Card']) -> bool:
+        if not cards:
             return False
-        color = stack.cards[0].color
-        for card in stack.cards:
-            if card.color != color and not isinstance(card, WildCard):
-                return False
-        return len(stack.cards) >= self.min_cards
+        return all(card.number == cards[0].number for card in cards)
 
-"""
-class Phase:
-    def __init__(self, name: str, goal: list, complete: bool):
-        self.name = name
-        self.goal = goal
-        self.complete = complete
-
-    def __str__(self):
-        return self.name
-
-    def __repr__(self):
-        self.__str__()
-
-    def checkComplete(self):
-        for g in self.goal:
-            if not g.complete:
-                self.complete == False
-                return False
-        self.complete == True
-        return True
-
-    @property
-    def complete(self):
-        return self._complete
-
-    @complete.setter
-    def complete(self, newc):
-        self._complete = newc
-
-
-class PhaseGoal(Stack):
-    def __init__(self, ptype: int, min_cards: int):
-        # ptype: 1=Set, 2=Run, 3=Color
-        self.ptype = ptype
-        self.min_cards = min_cards
-        self.target = None
-        self.complete = False
-
-    def __str__(self):
-        return f"{P_TYPES[self.ptype]} of {self.min_cards} cards"
-
-    def addToStack(self, other):
-        if self.ptype not in [1, 2, 3]:
+class RunGoal(Goal):
+    def check_cards(self, cards: List['Card']) -> bool:
+        if not cards:
             return False
-        if isinstance(other, Card):
-            other = Stack(cards=[other])
-        if isinstance(other, list):
-            other = Stack(cards=other)
-        if self.complete:
-            if other.cards[0] not in self.target:
-                return False
-            else:
-                super().addToStack(other)
-        if self.ptype == 1:
-            if not self.checkSet(other):
-                return False
-            else:
-                self.target = [self.cards[0].number]
-        if self.ptype == 2:
-            if not self.checkRun(other):
-                return False
-            else:
-                self.target = [(self.cards[0].number - 1), (self.cards[-1].number + 1)]
-        if self.ptype == 3:
-            if not self.checkColor(other):
-                return False
-            else:
-                self.target = [self.cards[0].color]
-        self.complete == True
-        super().addToStack(other)
+        sorted_cards = sorted(cards, key=lambda c: c.number)
+        return all(sorted_cards[i].number - sorted_cards[i-1].number == 1 
+                   for i in range(1, len(sorted_cards)))
 
-    def checkSet(self, stack: Stack):
-        unique_numbers = set(card.number for card in stack.cards)
-        return (
-            len(unique_numbers) == len(stack.cards
-            and len(stack.cards) >= self.min_cards
-        )
-
-    def checkRun(self, stack: Stack):
-        stack.sortByNumber()
-        # Check if the difference between consecutive cards is 1 (excluding Wild cards)
-        for i in range(1, len(stack.cards)):
-            if stack.cards[i].number - stack.cards[
-                i - 1
-            ].number != 1 and not isinstance(stack.cards[i - 1], WildCard):
-                return False
-        return len(stack.cards) >= self.min_cards
-
-    def checkColor(self, stack: Stack):
-        if len(stack.cards) == 0:
+class ColorGoal(Goal):
+    def check_cards(self, cards: List['Card']) -> bool:
+        if not cards:
             return False
-        color = stack.cards[0].color
-        for card in stack.cards:
-            if card.color != color and not isinstance(card, WildCard):
-                return False
-        return len(stack.cards) >= self.min_cards
-
-    @property
-    def complete(self):
-        return self._complete
-
-    @complete.setter
-    def complete(self, newc):
-        self._complete = newc
-"""
+        return all(card.color == cards[0].color for card in cards)
 
 ###
-#   PLAYERS
 class Player:
     def __init__(self, name: str, score:int = 0):
         self.hand = Hand()
@@ -470,16 +344,6 @@ class Player:
             print(f"{v.name} added to {self.name}'s phase list")
         return phase_list
 
-        def getCurrentPhase(self):
-            for p in self.phases:
-                if p.checkComplete():
-                    continue
-                if not p.checkComplete():
-                    print(f"current phase is {p.name}")
-                    return p
-            #Should only get here if all phases are complete.
-            return Phase("WINNER", [])
-
     def recieveCard(self, card):
         print(f"{self.name} drew a {card.name}")
         self.hand.addToStack(card)
@@ -498,13 +362,21 @@ class Player:
             self.points += c.points
         print(f"{self.name} has {self.points} points")
 
-    def layCards(self, cards, goal: Goal):
-        if goal.addToStack(cards):
-            print("Phase goal completed")
+    def lay_cards(self, cards: List['Card'], goal_index: int) -> bool:
+        current_phase = self.get_current_phase()
+        if current_phase.add_cards_to_goal(goal_index, cards):
+            for card in cards:
+                self.hand.cards.remove(card)
+            if current_phase.check_complete():
+                print(f"{self.name} completed {current_phase.name}!")
             return True
-        else:
-            print("Cards wont work for this Phase Goal")
-            return False
+        return False
+
+    def get_current_phase(self) -> Phase:
+        for phase in self.phases:
+            if not phase.complete:
+                return phase
+        return None  # All phases complete
 
     def toggle_ready(self):
         self.isReady = not self.isReady
@@ -572,11 +444,12 @@ class GameApp:
             if n.name == name:
                 print("This player already exists")
                 self.players.append(cls_list[i])
-                return
+                return cls_list[i]
             i += 1
         newplayer = Player(name)
         cls_list.append(newplayer)
         self.players.append(newplayer)
+        return newplayer
 
     def getPlayer(self, name):
         for player in self.players:
@@ -695,16 +568,16 @@ number_value = {
 }
 # Global Phase Variables
 phases_dict = {
-    1:Phase("Phase 1", [PhaseSet(3), PhaseSet(3)]),
-    2:Phase("Phase 2",[PhaseSet(3), PhaseRun(4)]),
-    3:Phase("Phase 3", [PhaseSet(4), PhaseRun(4)]),
-    4:Phase("Phase 4", [PhaseRun(7)]),
-    5:Phase("Phase 5", [PhaseRun(8)]),
-    6:Phase("Phase 6", [PhaseRun(9)]),
-    7:Phase("Phase 7", [PhaseSet(4), PhaseSet(4)]),
-    8:Phase("Phase 8", [PhaseColor(7)]),
-    9:Phase("Phase 9", [PhaseSet(5), PhaseSet(2)]),
-    10:Phase("Phase 10",[PhaseSet(5), PhaseSet(3)])
+    1:Phase("Phase 1", [SetGoal(3), SetGoal(3)]),
+    2:Phase("Phase 2",[SetGoal(3), RunGoal(4)]),
+    3:Phase("Phase 3", [SetGoal(4), RunGoal(4)]),
+    4:Phase("Phase 4", [RunGoal(7)]),
+    5:Phase("Phase 5", [RunGoal(8)]),
+    6:Phase("Phase 6", [RunGoal(9)]),
+    7:Phase("Phase 7", [SetGoal(4), SetGoal(4)]),
+    8:Phase("Phase 8", [ColorGoal(7)]),
+    9:Phase("Phase 9", [SetGoal(5), SetGoal(2)]),
+    10:Phase("Phase 10",[SetGoal(5), SetGoal(3)])
 }
 P_TYPES = ["", "Set", "Run", "Color"]
 
