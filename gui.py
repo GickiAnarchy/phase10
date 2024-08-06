@@ -38,7 +38,6 @@ class PlayerCreationScreen(Popup):
         else:
             print("Please enter a player name.")
 
-
 class OpponentDisplay(BoxLayout):
     def __init__(self, opponent , **kwargs):
         super().__init__(**kwargs)
@@ -55,7 +54,6 @@ class OpponentDisplay(BoxLayout):
         self.opp_hand_info.update_display()
         self.add_widget(self.opp_name_label)
         self.add_widget(self.opp_hand_info)
-
 
 class PhaseDisplay(BoxLayout):
     def __init__(self, player, **kwargs):
@@ -80,7 +78,6 @@ class PhaseDisplay(BoxLayout):
                 self.add_widget(Label(text=goal_text))
         else:
             self.add_widget(Label(text="All phases complete!"))
-
 
 class SelectableCard(ToggleButton):
     def __init__(self, card, **kwargs):
@@ -107,7 +104,6 @@ class SelectableCard(ToggleButton):
         else:
             self.border_color.a = 0  # Fully transparent
 
-
 class SelectableHand(BoxLayout):
     def __init__(self, hand, **kwargs):
         super().__init__(**kwargs)
@@ -123,7 +119,6 @@ class SelectableHand(BoxLayout):
 
     def get_selected_cards(self):
         return [widget.card for widget in self.children if widget.state == 'down']
-
 
 class PlayerDisplay(BoxLayout):
     def __init__(self, player = None, **kwargs):
@@ -150,7 +145,6 @@ class PlayerDisplay(BoxLayout):
         c_phase = self.player.get_current_phase()
         self.current_phase_label.text - c_phase.name
         self.phase_box.update_display()
-
 
 class StackDisplay(BoxLayout):
     def __init__(self, stack, img = "images/stack_back_small.png", **kwargs):

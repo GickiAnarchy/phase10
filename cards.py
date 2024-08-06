@@ -11,7 +11,6 @@ from typing import List, Union
 #   CARDS
 class Card:
     count = 0
-
     def __init__(self, name: str, points: int, color: str):
         self.name = name
         self.points = points
@@ -36,11 +35,9 @@ class Card:
     @classmethod
     def getCount(cls):
         return cls.count
-
     @property
     def name(self):
         return self._name
-
     @name.setter
     def name(self, newname):
         self._name = newname
@@ -48,15 +45,12 @@ class Card:
     @name.deleter
     def name(self):
         del self._name
-
     @property
     def color(self):
         return self._color
-
     @color.setter
     def color(self, newcolor):
         self._color = newcolor
-
     @color.deleter
     def color(self):
         del self._color
@@ -64,21 +58,17 @@ class Card:
     @property
     def points(self):
         return self._points
-
     @points.setter
     def points(self, newpoints):
         self._points = newpoints
-
     @points.deleter
     def points(self):
         del self._points
 
     def __eq__(self, other):
         return self.number == other
-
     def __lt__(self, other):
         return self.number < other.number
-
     def __gt__(self, other):
         return self.number > other.number
 
@@ -88,30 +78,25 @@ class WildCard(Card):
         self.mimic = None
         self.number = 61
 
-    def mimicCard(self, card: Card):
-        self.mimic = card
-
     @property
     def mimic(self):
         return self._mimic
-
     @mimic.setter
     def mimic(self, newmimic):
         if newmimic == None or issubclass(newmimic, Card):
             self._mimic = newmimic
         else:
             print("Not a proper format for mimic attribute.")
-
     @mimic.deleter
     def mimic(self):
         del self._mimic
+
     def __lt__(self, other):
         if other.name == "Skip":
             return False
         else:
             self.mimic = other
             return True
-
     def __gt__(self, other):
         if other.name == "Skip":
             return False
@@ -119,13 +104,12 @@ class WildCard(Card):
             self.mimic = other
             return True
 
-#    def __eq__(self, other):
-#        if self.number != other:
-#            return False
-#        else:
-#            self.mimic = other
-#            return True
-
+    def __eq__(self, other):
+        if isinstance(other, Card):
+            self.mimic = other
+            return True
+        if isinstance(other, int):
+            self.mimic = 
 
 class SkipCard(Card):
     def __init__(self, name="Skip", points=25, color="None"):
@@ -570,6 +554,7 @@ number_value = {
     "Twelve": 12,
     "Skip": 99,
     "Wild": 99,
+    "Mimic": 99
 }
 # Global Phase Variables
 phases_dict = {
