@@ -425,7 +425,6 @@ class GameApp:
         self.currentPlayer = None
         load_players()
 
-
     def getCurrentPlayer(self):
         if self.currentPlayer == None:
             return self.players[0]
@@ -451,8 +450,10 @@ class GameApp:
         self.players.append(newplayer)
         return newplayer
 
-    def getPlayer(self, name):
+    def getPlayer(self, name, getOpp = False):
         for player in self.players:
+            if getOpp == True and player.name != name:
+                return player
             if player.name == name:
                 return player
         print("No player by that name")
@@ -544,6 +545,10 @@ class GameCLI:
                 return False
 
 """
+
+
+
+
 
 ##GLOBAL VARIABLES
 # Global Card Variables
