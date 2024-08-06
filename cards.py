@@ -27,9 +27,9 @@ class Card:
     def getImage(self):
         image_directory = "images/"
         if isinstance(self, WildCard):
-            return f"{image_directory}Skip.png"
-        if isinstance(self, SkipCard):
             return f"{image_directory}Wild.png"
+        if isinstance(self, SkipCard):
+            return f"{image_directory}Skip.png"
         return f"{image_directory}{self.color}_{self.number}.png"
 
     @classmethod
@@ -71,45 +71,39 @@ class Card:
         return self.number < other.number
     def __gt__(self, other):
         return self.number > other.number
-
+        
 class WildCard(Card):
     def __init__(self, name="Wild", points=25, color="None"):
         super().__init__(name, points, color)
         self.mimic = None
-        self.number = 61
 
-    @property
-    def mimic(self):
-        return self._mimic
-    @mimic.setter
-    def mimic(self, newmimic):
-        if newmimic == None or issubclass(newmimic, Card):
-            self._mimic = newmimic
+    def description(self):
+        ret = super().description()
+        return f"**{ret}"
+
+    def set_mimic(self, card):
+        if isinstance(card, Card):
+            self.mimic = card
+
+    def __eq__(self, other):
+        if other.name == "Skip":
+            return False
         else:
-            print("Not a proper format for mimic attribute.")
-    @mimic.deleter
-    def mimic(self):
-        del self._mimic
+            self.set_mimic(other)
 
     def __lt__(self, other):
         if other.name == "Skip":
             return False
         else:
-            self.mimic = other
+            self.set_mimic(other)
             return True
+
     def __gt__(self, other):
         if other.name == "Skip":
             return False
         else:
-            self.mimic = other
+            self.set_mimic(other)
             return True
-
-    def __eq__(self, other):
-        if isinstance(other, Card):
-            self.mimic = other
-            return True
-        if isinstance(other, int):
-            self.mimic = 
 
 class SkipCard(Card):
     def __init__(self, name="Skip", points=25, color="None"):
@@ -268,6 +262,8 @@ class Phase:
             return self.goals[goal_index].add_cards(cards)
         return False
 
+    def 
+
 class Goal(ABC):
     def __init__(self, min_cards: int):
         self.min_cards = min_cards
@@ -292,7 +288,7 @@ class SetGoal(Goal):
         return all(card.number == cards[0].number for card in cards)
 
 class RunGoal(Goal):
-    def check_cards(self, cards: List['Card']) -> bool:
+     def check_cards(self, cards: List['Card']) -> bool:
         if not cards:
             return False
         sorted_cards = sorted(cards, key=lambda c: c.number)
@@ -409,127 +405,7 @@ class GameApp:
         self.currentPlayer = None
         load_players()
 
-    def getCurrentPlayer(self):
-        if self.currentPlayer == None:
-            return self.players[0]
-        return self.currentPlayer
-
-    def getNextPlayer(self, plyrs):
-        while True:
-            for cp in plyrs:
-                yield cp
-
-    """Player Creation"""
-    def createPlayer(self, name):
-        cls_list = self.__class__.saved_players
-        i = 0
-        for n in cls_list:
-            if n.name == name:
-                print("This player already exists")
-                self.players.append(cls_list[i])
-                return cls_list[i]
-            i += 1
-        newplayer = Player(name)
-        cls_list.append(newplayer)
-        self.players.append(newplayer)
-        return newplayer
-
-    def getPlayer(self, name, getOpp = False):
-        for player in self.players:
-            if getOpp == True and player.name != name:
-                return player
-            if player.name == name:
-                return player
-        print("No player by that name")
-
-    """Main Loop"""
-    def startGame(self):
-        self.deck.shuffle()
-        for p in self.players:
-            self.deck.deal(p)    #Deal cards to players
-        save_players()
-
-    """Turn Options"""
-    def playCards(self, player, cards = None):
-        if cards == None:
-            return False
-        goals = [g for g in player.getCurrentPhase().goal]
-        for gl in goals:
-            if player.layCards(cards, gl):
-                return True #Cards must match one of the current phase goals.
-        return False
-
-    def discardCard(self, player, selected_card = None):
-        if selected_card == None:
-            selected_card = random.choice(player.hand.cards)
-            selected_card = [selected_card]
-        if isinstance(selected_card, list):
-            selected_card = selected_card[0]
-        #if player.discardCard(player.hand.cards.index(selected_card)):
-        if player.discardCard(selected_card):
-            self.discards.addToStack(selected_card)
-        
-
-"""
-the GameCLI class is commented out because the game needs to be graphical, not text based 
-class GameCLI:
-    def __init__(self, players: list):
-        self.deck = Deck()
-        self.discards = Stack()
-        self.players = players
-
-    def start(self):
-        os.system("clear")
-        self.deck.deal(self.players)
-        while True:
-            for p in self.players:
-                self.turn(p)
-
-    def turn(self, player):
-        os.system("clear")
-        print(f"{player.name}'s Turn")
-        # Draw card
-        drw = self.deck.drawCard()
-        player.recieveCard(drw)
-        # Action
-        print(player.getCurrentPhase())
-        player.showHand()
-        self.actionsCLI(player)
-        # Discard card
-        dis = player.discardCard()
-        self.discards.addToStack(dis)
-
-    def actionsCLI(self, player):
-        while True:
-            print("What would you like to do?")
-            print("'n' - Sort hand by number")
-            print("'c' - Sort hand by color")
-            print("'p' - Lay down cards.")
-            print("Press enter to do nothing.")
-            sel = input(" ")
-            if self.action(player, sel):
-                continue
-            else:
-                break
-
-    def action(self, player, sel):
-        match sel.lower():
-            case "c":
-                player.hand.sortByColor()
-                player.showHand()
-                return True
-            case "n":
-                player.hand.sortByNumber()
-                player.showHand()
-                return True
-            case "p":
-                print("not ready yet")
-                return True
-            case _:
-                return False
-
-"""
-
+    
 
 
 
