@@ -1,3 +1,0 @@
-title=My App
-author=kevdev
-orientation=portrait
