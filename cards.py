@@ -362,37 +362,6 @@ class Player:
         self.isReady = not self.isReady
         print(f"{self.name} ready: {self.isReady}")
 
-    ##CLI Methods
-    def chooseGoalCLI(self):
-        print("Choose the goal you want to fill:")
-        i = 0
-        cur_phase = self.getCurrentPhase()
-        for g in cur_phase.goal:
-            print(f"{i + 1}) {g}")
-            i += 1
-        while True:
-            sel = input("Enter a number: ")
-            try:
-                sel = int(sel)
-                return cur_phase.goal[sel - 1]
-            except:
-                print("No beans, buddy.")
-    def printHand(self):
-        print(self.showHand)
-    def discardCardCLI(self):
-        self.showHand()
-        while True:
-            try:
-                sel = int(input("Select card to discard: "))
-                if sel <= len(self.hand.cards):
-                    ret = self.hand.cards.pop(sel - 1)
-                    return ret
-                else:
-                    print(
-                        "Selection out of range. Please choose a number between 1 and",
-                    )
-            except ValueError:
-                print("Invalid input. Please enter a number.")
 
 ###
 #   GAME LOGIC
@@ -403,7 +372,20 @@ class GameApp:
         self.discards = Stack() #Discard Pile
         self.players = []       #Player list
         self.currentPlayer = None
-        load_players()
+
+    def create_player(self, name):
+        newp = Player(name)
+        self.players.append(newp)
+        return newp
+
+    def draw(self):
+        c = self.deck.drawCard()
+        self.currentPlayer.recieveCard(c)
+
+    def discard(self, card):
+        pass 
+
+    #TODO ALL
 
     
 
