@@ -7,6 +7,45 @@ from abc import ABC, abstractmethod
 from typing import List, Union
 
 
+##GLOBAL VARIABLES
+# Global Card Variables
+colors = ["Red", "Blue", "Green", "Yellow"]
+low_numbers = ["One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine"]
+high_numbers = ["Ten", "Eleven", "Twelve"]
+number_value = {
+    "One": 1,
+    "Two": 2,
+    "Three": 3,
+    "Four": 4,
+    "Five": 5,
+    "Six": 6,
+    "Seven": 7,
+    "Eight": 8,
+    "Nine": 9,
+    "Ten": 10,
+    "Eleven": 11,
+    "Twelve": 12,
+    "Skip": 99,
+    "Wild": 99,
+    "Mimic": 99
+}
+phases_dict = {
+    1:Phase("Phase 1", [SetGoal(3), SetGoal(3)]),
+    2:Phase("Phase 2",[SetGoal(3), RunGoal(4)]),
+    3:Phase("Phase 3", [SetGoal(4), RunGoal(4)]),
+    4:Phase("Phase 4", [RunGoal(7)]),
+    5:Phase("Phase 5", [RunGoal(8)]),
+    6:Phase("Phase 6", [RunGoal(9)]),
+    7:Phase("Phase 7", [SetGoal(4), SetGoal(4)]),
+    8:Phase("Phase 8", [ColorGoal(7)]),
+    9:Phase("Phase 9", [SetGoal(5), SetGoal(2)]),
+    10:Phase("Phase 10",[SetGoal(5), SetGoal(3)])
+}
+#   PLAYER SAVES
+playersfile = "saved_players.json"
+
+
+
 ###
 #   CARDS
 class Card:
@@ -109,11 +148,6 @@ class SkipCard(Card):
     def __init__(self, name="Skip", points=25, color="None"):
         self.number = 60
         super().__init__(name, points, color)
-
-    # TO-DO
-    def useSkip(self, player):
-        # implement code to skip Player 'player'.
-        pass
 
     def __eq__(self, other):
         return self.number == other
@@ -262,7 +296,6 @@ class Phase:
             return self.goals[goal_index].add_cards(cards)
         return False
 
-    def 
 
 class Goal(ABC):
     def __init__(self, min_cards: int):
@@ -310,6 +343,7 @@ class Player:
         self.points = 0
         self.score = score
         self.isReady = False #Indicates player is ready to play;
+        self.gotSkipped = False
 
     def getInfo(self):
         return {
@@ -328,8 +362,7 @@ class Player:
         print(f"{self.name} drew a {card.name}")
         self.hand.addToStack(card)
 
-    def discardCard(self, c_index):
-        #dis = self.hand.cards[c_index]
+    def discardCard(self, c_index) -> bool:
         print(f"{self.name} is discarding {c_index.name}")
         self.hand.cards.remove(c_index)
         return True
@@ -362,6 +395,9 @@ class Player:
         self.isReady = not self.isReady
         print(f"{self.name} ready: {self.isReady}")
 
+    def toggle_skip(self):
+        self.gotSkipped = not self.gotSkipped
+
 
 ###
 #   GAME LOGIC
@@ -372,66 +408,63 @@ class GameApp:
         self.discards = Stack() #Discard Pile
         self.players = []       #Player list
         self.currentPlayer = None
+        self.turn_phase_cycle = itertools.cycle(["Draw","Play","Discard"])
 
-    def create_player(self, name):
+    def begin(self) -> None:
+        if len(self.players) < 2:
+            print("Need more players")
+            self.player_cycle = itertools.cycle(self.players)
+            self.cycleTurnPhase()
+            self.nextPlayer()
+            return
+
+    def cycleTurnPhase(self) -> None:
+        self.turn_phase = next(self.turn_phase_cycle)
+        print(f"TURN PHASE: {self.turn_phase}")
+        return
+
+    def nextPlayer(self) -> None:
+        self.currentPlayer = next(self.player_cycle)
+        if self.currentPlayer.gotSkipped:
+            print(f"{self.currentPlayer.name} was skipped")
+            self.currentPlayer.toggle_skip()
+            self.currentPlayer = next(self.player_cycle)
+        print(f"It is {self.currentPlayer.name}'s turn")
+        return
+
+    def create_player(self, name) -> Player:
         newp = Player(name)
         self.players.append(newp)
         return newp
 
-    def draw(self):
+    def draw(self) -> None:
         c = self.deck.drawCard()
         self.currentPlayer.recieveCard(c)
+        self.cycleTurnPhase()
+        return
 
-    def discard(self, card):
-        pass 
+    def discard(self, card) -> None:
+        if isinstance(card, Stack) and len(card.cards) == 1:
+            card = Stack.cards[0]
+        if isinstance(card,Card):
+            self.currentPlayer.discardCard(card)
+            self.cycleTurnPhase()
+            return
+        else:
+            print("GameApp.discard() needs a Card passed into it")
+            return
+
+    def play(self, cards, goal: Goal = None) -> None:
+        if goal == None and isinstance(cards, Card):
+            pass
+        if isinstance(cards, list):
+            cards = Stack(cards)
+
 
     #TODO ALL
 
-    
 
 
-
-
-##GLOBAL VARIABLES
-# Global Card Variables
-colors = ["Red", "Blue", "Green", "Yellow"]
-low_numbers = ["One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine"]
-high_numbers = ["Ten", "Eleven", "Twelve"]
-number_value = {
-    "One": 1,
-    "Two": 2,
-    "Three": 3,
-    "Four": 4,
-    "Five": 5,
-    "Six": 6,
-    "Seven": 7,
-    "Eight": 8,
-    "Nine": 9,
-    "Ten": 10,
-    "Eleven": 11,
-    "Twelve": 12,
-    "Skip": 99,
-    "Wild": 99,
-    "Mimic": 99
-}
-# Global Phase Variables
-phases_dict = {
-    1:Phase("Phase 1", [SetGoal(3), SetGoal(3)]),
-    2:Phase("Phase 2",[SetGoal(3), RunGoal(4)]),
-    3:Phase("Phase 3", [SetGoal(4), RunGoal(4)]),
-    4:Phase("Phase 4", [RunGoal(7)]),
-    5:Phase("Phase 5", [RunGoal(8)]),
-    6:Phase("Phase 6", [RunGoal(9)]),
-    7:Phase("Phase 7", [SetGoal(4), SetGoal(4)]),
-    8:Phase("Phase 8", [ColorGoal(7)]),
-    9:Phase("Phase 9", [SetGoal(5), SetGoal(2)]),
-    10:Phase("Phase 10",[SetGoal(5), SetGoal(3)])
-}
-P_TYPES = ["", "Set", "Run", "Color"]
-
-###
-#   PLAYER SAVES
-playersfile = "saved_players.json"
 
 def save_players():
     player_dict = {}

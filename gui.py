@@ -12,16 +12,13 @@ from kivy.graphics import Color, Rectangle
 from kivy.uix.popup import Popup
 from kivy.properties import ObjectProperty
 
-from cards import Player, Stack, Deck, Hand, Card, GameApp, Phase, Goal, RunGoal, SetGoal, ColorGoal
+from cards import Player, Stack, Deck, Hand, Card, GameApp, Phase, Goal, RunGoal, SetGoal, ColorGoal, SkipCard
 
 """GLOBAL"""
 EMPTY_SLOT_IMAGE = r"images/empty_slot.png"
 
 
 
-"""
-Adding kivy to certain phase10 objects
-"""
 class PlayerDisplay(BoxLayout):
     def __init__(self, player: Player = None, **kwargs):
         super().__init__(**kwargs)
@@ -111,7 +108,6 @@ class SelectableHand(BoxLayout):
         self.clear_widgets()
         for card in self.hand.cards:
             self.add_widget(SelectableCard(card))
-
     def get_selected_cards(self):
         return [widget.card for widget in self.children if widget.state == 'down']
 
@@ -127,27 +123,6 @@ class StackDisplay(BoxLayout):
         self.clear_widgets()
         for card in self.stack.cards:
             self.add_widget(SelectableCard(card))
-
-
-
-class PlayerCreationScreen(Popup):
-    def __init__(self, game_app, **kwargs):
-        super().__init__(orientation='vertical', spacing=10, padding=10, **kwargs)
-        self.game_app = game_app
-        self.name_label = Label(text='Player Name:')
-        self.name_input = TextInput(multiline=False)
-        self.create_button = Button(text='Create Player')
-        self.create_button.bind(on_press=self.create_player)
-        self.add_widget(self.name_label)
-        self.add_widget(self.name_input)
-        self.add_widget(self.create_button)
-
-    def create_player(self, instance):
-        player_name = self.name_input.text
-        if player_name:
-            return self.game_app.create_player(player_name)
-        else:
-            print("Please enter a player name.")
 
 class OpponentDisplay(BoxLayout):
     def __init__(self, opponent , **kwargs):
@@ -203,13 +178,62 @@ class ButtonBox(BoxLayout):
         self.root.add_widget(self.discard_button)
 
     def draw(self, instance):
-        self.gameapp.draw()
+        if self.gameapp.turn_phase == "Draw":
+            self.gameapp.draw()
 
     def discard(self, instance):
-        pass
+        if self.gameapp.turn_phase == "Discard":
+            sel = self.gameapp.getSelectedCards()
+            if len(sel.cards) == 1:
+                self.gameapp.discard(sel)
 
-    def play(self, instance):
-        pass
+    def play(self, sel_cards, instance):
+        if isinstance(sel_cards, list): sel_cards = Stack(sel_cards)
+        if isinstance(sel_cards, SkipCard):
+            sel_pop = SelectPlayerPopup()
+            skipping = sel_pop.open()
+            skipping.toggle_skip()
+
+#Popups
+class PlayerCreationScreen(Popup):
+    def __init__(self, game_app, **kwargs):
+        super().__init__(orientation='vertical', spacing=10, padding=10, **kwargs)
+        self.game_app = game_app
+        self.name_label = Label(text='Player Name:')
+        self.name_input = TextInput(multiline=False)
+        self.create_button = Button(text='Create Player')
+        self.create_button.bind(on_press=self.create_player)
+        self.add_widget(self.name_label)
+        self.add_widget(self.name_input)
+        self.add_widget(self.create_button)
+
+    def create_player(self, instance):
+        player_name = self.name_input.text
+        if player_name:
+            return self.game_app.create_player(player_name)
+        else:
+            print("Please enter a player name.")
+
+class SelectPlayerPopup(Popup):
+    def __init__(self, **kwargs):
+        super().__init__(orientation='vertical', spacing=10, padding=10, **kwargs)
+        self.lbl = Label("Choose a player.")
+        self.root.add_widget(self.lbl)
+        self.btns = BoxLayout(orientation="horizontal")
+        self.game = Phase10App().getGameApp()
+        for p in self.game:
+            if p.name == self.game.currentPlayer.name:
+                continue
+            else:
+                self.btns.add_widget(Button(text=p.name, on_press=self.chooseMe))
+        self.root.add_widget(self.btns)
+
+    def chooseMe(self, instance) -> Player:
+        for p in self.game.players:
+            if p.name == instance.text:
+                return p
+
+
 
 
 class Phase10App(App):
@@ -220,17 +244,12 @@ class Phase10App(App):
         self.create_player_info()
         self.create_dk_and_dis_display()
         self.create_hand_display()
+        self.create_button_display()
         return self.root
 
     def create_opponent_info(self):
         self.opp_info_box = OpponentDisplay(self)
         self.root.add_widget(self.opp_info_box)
-    def create_player_info(self):
-        self.player_info = PlayerDisplay()
-        self.root.add_widget(self.player_info)
-    def create_hand_display(self):
-        self.player_hand_box = SelectableHand(self.player.hand)
-        self.root.add_widget(self.player_hand_box)
     def create_dk_and_dis_display(self):
         self.box = BoxLayout(orientation="horizontal")
         self.deck_box = StackDisplay(game.deck)
@@ -238,6 +257,17 @@ class Phase10App(App):
         self.discard_box = Stack(game.discards)
         self.box.add_widget(self.discard_box)
         self.root.add_widget(self.box)
+    def create_hand_display(self):
+        self.player_hand_box = SelectableHand(self.player.hand)
+        self.root.add_widget(self.player_hand_box)
+    def create_player_info(self):
+        self.player_info = PlayerDisplay()
+        self.root.add_widget(self.player_info)
+    def create_button_display(self):
+        self.button_box = ButtonBox(Phase10App().getGameApp())
+
+    def getSelectedCards(self) -> Stack:
+        return Stack(self.player_hand_box.get_selected_cards())
 
     def update_game(self, dt):
         self.opp_info_box.update_display()
@@ -245,10 +275,13 @@ class Phase10App(App):
         self.discard_box.update_display()
         self.player_info.update_display()
         self.player_hand_box.update_display()
+        self.button_box.update_display()
 
     @classmethod
     def getGameApp(cls):
         return cls.game
+
+
 
 if __name__ == "__main__":
     Phase10App().run()
