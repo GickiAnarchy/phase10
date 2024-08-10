@@ -6,46 +6,6 @@ import itertools
 from abc import ABC, abstractmethod
 from typing import List, Union
 
-
-##GLOBAL VARIABLES
-# Global Card Variables
-colors = ["Red", "Blue", "Green", "Yellow"]
-low_numbers = ["One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine"]
-high_numbers = ["Ten", "Eleven", "Twelve"]
-number_value = {
-    "One": 1,
-    "Two": 2,
-    "Three": 3,
-    "Four": 4,
-    "Five": 5,
-    "Six": 6,
-    "Seven": 7,
-    "Eight": 8,
-    "Nine": 9,
-    "Ten": 10,
-    "Eleven": 11,
-    "Twelve": 12,
-    "Skip": 99,
-    "Wild": 99,
-    "Mimic": 99
-}
-phases_dict = {
-    1:Phase("Phase 1", [SetGoal(3), SetGoal(3)]),
-    2:Phase("Phase 2",[SetGoal(3), RunGoal(4)]),
-    3:Phase("Phase 3", [SetGoal(4), RunGoal(4)]),
-    4:Phase("Phase 4", [RunGoal(7)]),
-    5:Phase("Phase 5", [RunGoal(8)]),
-    6:Phase("Phase 6", [RunGoal(9)]),
-    7:Phase("Phase 7", [SetGoal(4), SetGoal(4)]),
-    8:Phase("Phase 8", [ColorGoal(7)]),
-    9:Phase("Phase 9", [SetGoal(5), SetGoal(2)]),
-    10:Phase("Phase 10",[SetGoal(5), SetGoal(3)])
-}
-#   PLAYER SAVES
-playersfile = "saved_players.json"
-
-
-
 ###
 #   CARDS
 class Card:
@@ -206,7 +166,7 @@ class Stack:
 class Deck(Stack):
     def __init__(self):
         super().__init__()
-        self.cards = self.createDeck()
+        self.createDeck()
 
     def createDeck(self):
         if len(self.cards) == 0:
@@ -248,15 +208,6 @@ class Deck(Stack):
                 print("Card added to deck")
                 self.cards.append(other)
 
-"""
-    def deal(self, players):
-        self.shuffle()
-        for i in range(10):
-            for p in players:
-                print(f"{str(i)} rounds dealt")
-                p.hand.addToStack(self.drawCard()
-"""
-
 class Hand(Stack):
     def __init__(self):
         self.cards = []
@@ -296,17 +247,33 @@ class Phase:
             return self.goals[goal_index].add_cards(cards)
         return False
 
-
 class Goal(ABC):
     def __init__(self, min_cards: int):
         self.min_cards = min_cards
         self.cards = []
         self.complete = False
+        self.name =  ""
 
     @abstractmethod
     def check_cards(self, cards: List['Card']) -> bool:
         pass
 
+    @property
+    def name(self):
+        if isinstance(self, SetGoal):
+            self._name = f"Set of \n{self.min_cards} cards"
+        if isinstance(self, RunGoal):
+            self._name = f"Run of \n{self.min_cards} cards" 
+        if isinstance(self, ColorGoal):
+            self._name = f"Colors of \n{self.min_cards} cards"
+        return self._name
+        
+    @name.setter
+    def name(self, newname):
+        self._name = newname
+        
+    
+    
     def add_cards(self, cards: List['Card']) -> bool:
         if self.check_cards(cards):
             self.cards.extend(cards)
@@ -321,7 +288,7 @@ class SetGoal(Goal):
         return all(card.number == cards[0].number for card in cards)
 
 class RunGoal(Goal):
-     def check_cards(self, cards: List['Card']) -> bool:
+    def check_cards(self, cards: List['Card']) -> bool:
         if not cards:
             return False
         sorted_cards = sorted(cards, key=lambda c: c.number)
@@ -398,7 +365,6 @@ class Player:
     def toggle_skip(self):
         self.gotSkipped = not self.gotSkipped
 
-
 ###
 #   GAME LOGIC
 class GameApp:
@@ -445,7 +411,7 @@ class GameApp:
 
     def discard(self, card) -> None:
         if isinstance(card, Stack) and len(card.cards) == 1:
-            card = Stack.cards[0]
+            card = card.cards[0]
         if isinstance(card,Card):
             self.currentPlayer.discardCard(card)
             self.cycleTurnPhase()
@@ -460,10 +426,49 @@ class GameApp:
         if isinstance(cards, list):
             cards = Stack(cards)
 
+    def getOpponent(self) -> Player:
+        for p in swlf.players:
+            if p.name != self.currentPlayer.name:
+                return p
 
     #TODO ALL
 
-
+##GLOBAL VARIABLES
+# Global Card Variables
+colors = ["Red", "Blue", "Green", "Yellow"]
+low_numbers = ["One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine"]
+high_numbers = ["Ten", "Eleven", "Twelve"]
+number_value = {
+    "One": 1,
+    "Two": 2,
+    "Three": 3,
+    "Four": 4,
+    "Five": 5,
+    "Six": 6,
+    "Seven": 7,
+    "Eight": 8,
+    "Nine": 9,
+    "Ten": 10,
+    "Eleven": 11,
+    "Twelve": 12,
+    "Skip": 99,
+    "Wild": 99,
+    "Mimic": 99
+}
+phases_dict = {
+    1:Phase("Phase 1", [SetGoal(3), SetGoal(3)]),
+    2:Phase("Phase 2",[SetGoal(3), RunGoal(4)]),
+    3:Phase("Phase 3", [SetGoal(4), RunGoal(4)]),
+    4:Phase("Phase 4", [RunGoal(7)]),
+    5:Phase("Phase 5", [RunGoal(8)]),
+    6:Phase("Phase 6", [RunGoal(9)]),
+    7:Phase("Phase 7", [SetGoal(4), SetGoal(4)]),
+    8:Phase("Phase 8", [ColorGoal(7)]),
+    9:Phase("Phase 9", [SetGoal(5), SetGoal(2)]),
+    10:Phase("Phase 10",[SetGoal(5), SetGoal(3)])
+}
+#   PLAYER SAVES
+playersfile = "saved_players.json"
 
 
 def save_players():
@@ -490,14 +495,7 @@ def load_players():
 
 ###
 #
-def game_test():
-    g = GameApp()
-    g.createPlayer("Corey")
-    g.createPlayer("Sam")
-    g.createPlayer("Corey")
-    g.startGame()
 
 
 if __name__ == "__main__":
-    #game_test()
     pass

@@ -28,12 +28,12 @@ class PlayerDisplay(BoxLayout):
             self.player = pop.open()
         self.player = player
         self.player_label = ObjectProperty(None)
-        self.phase_box = PhaseDisplay()
+        self.phase_box = ObjectProperty(None)
         self. update_display()
 
     def update_display(self):
         self.player_label.text = self.player.name
-        self.phase_box.phase = self.player.get_current_phase()
+        self.phase_box = PhasPhaseDisplay(self.player.get_current_phase())
         self.phase_box.update_display()
 
 class PhaseDisplay(BoxLayout):
@@ -41,12 +41,14 @@ class PhaseDisplay(BoxLayout):
         super().__init__(orientation='vertical', **kwargs)
         self.phase = phase
         self.update_display()
+        Phase10App().getGameApp().begin()
     
     def update_display(self):
         self.clear_widgets()
         self.add_widget(Label(text=f"Current Phase: {phase.name}"))
         for i, goal in enumerate(self.phase.goals):
             goal_display = GoalDisplay(goal)
+            goal_display.update_display()
             self.add_widget(goal_display)
 
 class GoalDisplay(GridLayout):
@@ -108,21 +110,9 @@ class SelectableHand(BoxLayout):
         self.clear_widgets()
         for card in self.hand.cards:
             self.add_widget(SelectableCard(card))
+
     def get_selected_cards(self):
-        return [widget.card for widget in self.children if widget.state == 'down']
-
-class StackDisplay(BoxLayout):
-    def __init__(self, stack: Stack = None, **kwargs):
-        super().__init__(**kwargs)
-        self.orientation = 'horizontal'
-        self.spacing = 10
-        self.stack = stack
-        self.update_stack()
-
-    def update_stack(self):
-        self.clear_widgets()
-        for card in self.stack.cards:
-            self.add_widget(SelectableCard(card))
+        return Stack([widget.card for widget in self.children if widget.state == 'down'])
 
 class OpponentDisplay(BoxLayout):
     def __init__(self, opponent , **kwargs):
@@ -173,6 +163,7 @@ class ButtonBox(BoxLayout):
         self.draw_button.text = "Draw"
         self.discard_button.text = "Discard"
         self.play_button.text = "Play"
+        if self.gameapp.currentPlayer
         self.root.add_widget(self.draw_button)
         self.root.add_widget(self.play_button)
         self.root.add_widget(self.discard_button)
@@ -193,6 +184,16 @@ class ButtonBox(BoxLayout):
             sel_pop = SelectPlayerPopup()
             skipping = sel_pop.open()
             skipping.toggle_skip()
+        if isinstance(sel_cards, Stack):
+            c_phase = self.gameapp.currentPlayer.get_current_phase()
+            if len(c_phase.goals) > 1:
+                chs_goal = SelectGoal(c_phase)
+            else:
+                chs_goal = c_phase.goals[0]
+            if chs_goal.add_cards(sel_cards.cards):
+                return True
+            return False
+            
 
 #Popups
 class PlayerCreationScreen(Popup):
@@ -233,13 +234,35 @@ class SelectPlayerPopup(Popup):
             if p.name == instance.text:
                 return p
 
-
-
-
+class SelectGoal(Popup):
+    def __init__(self, phase, **kwargs):
+        super().__init__(orientation='vertical', spacing=10, padding=10, **kwargs)
+        self.phase = phase
+        self.goal_popup_label = Label(text = "Choose a Goal")
+        self.root.add_widget(self.goal_popup_label)
+        self.b_box = BoxLayout(orientation="horizontal")
+        for g in self.phase.goals:
+            buttn = Button(text = f"{g.name}")
+            buttn.bind(on_press = self.chooseMe)
+            self.b_box.add_widget(buttn)
+        self.ex_btn = Button(text = "Cancel")
+        self.ex_btn.bind(on_press = self.close)
+        self.b_box.add_widget(self.ex_btn)
+        self.root.add_widget(self.b_box)
+        
+    def chooseMe(self, instance) -> Goal:
+        for g in self.phase.goals:
+            if g.name == instance.text:
+                return g
+        
+        
+##
+# Main App
 class Phase10App(App):
     game = GameApp()
     def build(self):
         self.root = BoxLayout(orientation="vertical")
+        self.me = ObjectProperty()
         self.create_opponent_info()
         self.create_player_info()
         self.create_dk_and_dis_display()
@@ -248,7 +271,7 @@ class Phase10App(App):
         return self.root
 
     def create_opponent_info(self):
-        self.opp_info_box = OpponentDisplay(self)
+        self.opp_info_box = OpponentDisplay(self.getGameApp().getOpponent())6
         self.root.add_widget(self.opp_info_box)
     def create_dk_and_dis_display(self):
         self.box = BoxLayout(orientation="horizontal")
@@ -276,7 +299,7 @@ class Phase10App(App):
         self.player_info.update_display()
         self.player_hand_box.update_display()
         self.button_box.update_display()
-
+    
     @classmethod
     def getGameApp(cls):
         return cls.game
