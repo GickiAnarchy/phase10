@@ -163,7 +163,6 @@ class ButtonBox(BoxLayout):
         self.draw_button.text = "Draw"
         self.discard_button.text = "Discard"
         self.play_button.text = "Play"
-        if self.gameapp.currentPlayer
         self.root.add_widget(self.draw_button)
         self.root.add_widget(self.play_button)
         self.root.add_widget(self.discard_button)
@@ -262,7 +261,7 @@ class Phase10App(App):
     game = GameApp()
     def build(self):
         self.root = BoxLayout(orientation="vertical")
-        self.me = ObjectProperty()
+        self.me = None
         self.create_opponent_info()
         self.create_player_info()
         self.create_dk_and_dis_display()
@@ -284,7 +283,8 @@ class Phase10App(App):
         self.player_hand_box = SelectableHand(self.player.hand)
         self.root.add_widget(self.player_hand_box)
     def create_player_info(self):
-        self.player_info = PlayerDisplay()
+        self.me = PlayerCreationScreen(Phase10App().getGameApp())
+        self.player_info = PlayerDisplay(self.me)
         self.root.add_widget(self.player_info)
     def create_button_display(self):
         self.button_box = ButtonBox(Phase10App().getGameApp())
