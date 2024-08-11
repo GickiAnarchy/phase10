@@ -427,7 +427,7 @@ class GameApp:
             cards = Stack(cards)
 
     def getOpponent(self) -> Player:
-        for p in swlf.players:
+        for p in self.players:
             if p.name != self.currentPlayer.name:
                 return p
 
