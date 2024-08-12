@@ -334,30 +334,49 @@ class Player():
                 return phase
         return None
 
+    def drawCard(self, card):
+        self.hand.addToStack(card)
 
 
 """ Main Game Loop Class """
 class Game():
     def __init__(self):
+        self.deck = Deck()
         self.players = []                               # List of the players
+        self.active_player:Player = None
         self.turn_steps = ["Draw", "Play", "Discard"]   # the steps of every turn.
+        self.turn_step = None
 
     def ready(self):
         if len(self.players) < 2:
             print("Need more players")
             return False
-        pass
+        self.active_player: Player = self.players[0]
+        self.nextTurnStep()
 
     def addPlayer(self, newplayer: Player) -> bool:
-        """
-        if newplayer.name in [name for name in self.players]:
-            print(f"{newplayer.name} already a player name.")
-            return False
-        `"""
         self.players.append(newplayer)
         print(f"{newplayer.name} has joined the game!")
         return True
 
+    def nextTurnStep(self) -> str:
+        match self.turn_step:
+            case None:
+                self.turn_step = self.turn_steps[0]
+            case "Draw":
+                self.turn_step = self.turn_steps[1]
+            case "Play":
+                self.turn_step = self.turn_steps[2]
+            case "Discard":
+                self.turn_step = self.turn_steps[0]
+        return self.turn_step
+
+
+    def drawCard(self):
+        if self.turn_step == "Draw":
+            c = self.deck.drawCard()
+            self.active_player.drawCard(c)
+            self.nextTurnStep()
 
 
 """ GLOBAL/TEMP VARIABLES """

@@ -1,8 +1,9 @@
 
 import random
 from kivy.app import App
-from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.button import Button
+from kivy.uix.boxlayout import BoxLayout
+from kivy.uix.gridlayout import GridLayout
 from kivy.uix.togglebutton import ToggleButton
 from kivy.uix.image import AsyncImage
 from kivy.uix.label import Label
@@ -16,7 +17,7 @@ from kivy.properties import ObjectProperty
 from cards import Player, Stack, Deck, Hand, Card, Game, Phase, Goal, RunGoal, SetGoal, ColorGoal, SkipCard
 
 
-
+##
 class SelectableCard(ToggleButton):
     def __init__(self, card, **kwargs):
         super().__init__(**kwargs)
@@ -56,9 +57,12 @@ class SelectableHand(BoxLayout):
     def get_selected_cards(self):
         return Stack([widget.card for widget in self.children if widget.state == 'down'])
 
+
+##
 class PlayerCreationScreen(Popup):
     def __init__(self, game_app, **kwargs):
         super().__init__(**kwargs)
+        self.size_hint = (0.5,0.5)
         self.game = game_app
         self.root = BoxLayout(orientation = "vertical")
         self.name_label = Label(text='Player Name:')
@@ -75,31 +79,75 @@ class PlayerCreationScreen(Popup):
         if player_name:
             p = Player(player_name)
             self.game.addPlayer(p)
+            self.dismiss()
             return p
         else:
             print("Please enter a player name.")
 
 
-class Phase10App(App):
-    def build(self):
-        self.root = BoxLayout(orientation = "vertical")
-        self.me = None
-        self.game = Game()
-        self.lbl = Label(text = "PHASE 10")
-        self.create_player_btn = Button(text="Create Player", on_press = self.createPlayer)
-        self.root.add_widget(self.lbl)
-        self.root.add_widget(self.create_player_btn)
-        return self.root
+##
+class ButtonBox(GridLayout):
+    def __init__(self, **kwargs):
+        super().__init__(pos_hint = {'center_y': 0.8}, **kwargs)
+        self.size_hint = (1, 0.2)
+        #self.pos_hint = {'center_y': 0.8}
+        self.cols = 3
+        self.padding = 5
+        self.spacing = 5
+        self.game = Phase10App().getGame()
+        self.create_player_btn = Button(text="Create Player", disabled = True, on_press=self.createPlayer)
+        self.create_player_btn.disabled = True
+        self.draw_btn = Button(text = "Draw", on_press = self.drawPressed)
+
+        self.game.ready()
+        self.update_display()
+
+
+    def update_display(self):
+        self.clear_widgets()
+        if Phase10App().me == None:
+            self.create_player_btn.disabled = False
+            self.add_widget(self.create_player_btn)
+        if self.game.active_player == Phase10App().me:
+            if self.game.turn_step == "Draw":
+                self.draw_btn.disabled = False
+                self.add_widget(self.draw_btn)
+            if self.game.turn_step == "Play":
+                pass
+            if self.game.turn_step == "Discard":
+                pass
+
+
+    def drawPressed(self, instance):
+        self.game.drawCard()
 
     def createPlayer(self, instance):
         pop = PlayerCreationScreen(self.game)
-        self.me = pop.open()
-        return True
+        Phase10App().me = pop.open()
+        if Phase10App().me:
+            return True
+
+class Phase10App(App):
+    game = Game()
+    me = None
+    def build(self):
+        self.root = BoxLayout(orientation = "vertical")
+        self.game = Game()
+        self.lbl = Label(text = "PHASE 10", size_hint = (1,0.15))
+        self.btn_box = ButtonBox()
+        self.root.add_widget(self.lbl)
+        self.root.add_widget(self.btn_box)
+        return self.root
+
+    @classmethod
+    def getGame(cls):
+        return cls.game
 
 
 
 
 if __name__ == "__main__":
     Phase10App().run()
+
 
 
