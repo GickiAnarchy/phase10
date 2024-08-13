@@ -1,5 +1,6 @@
 
 The Phase 10 deck of cards is made up of numeric cards, 1 - 12, in four colors: Red, Blue, Green, Yellow. There are 2 of each number for each color. There are also eight wild cards (which can represent any number or any color) and four skip cards(which when played will skip the turn of a designated player, chosen by the person playing the skip.
+    The goal is to have the lowest score at the end of the game.
 
 
 

@@ -28,7 +28,7 @@ class Card():
             return f"{self.color} {self.name}"
 
     def getImage(self):
-        image_directory = "images/"
+        image_directory = "./images/"
         if isinstance(self, WildCard):
             return f"{image_directory}Wild.png"
         if isinstance(self, SkipCard):
@@ -194,6 +194,13 @@ class Phase:
             return self.goals[goal_index].addCards(cards)
         return False
 
+    def grabAllCards(self) -> Stack:
+        if checkComplete:
+            cards_list = []
+            for g in self.goals:
+                cards_list.append(g.cards)
+            return Stack(cards_list)
+
 class SetGoal(Goal):
     def checkCards(self, cards: List['Card']) -> bool:
         if not cards:
@@ -216,6 +223,7 @@ class ColorGoal(Goal):
 
 
 """ Card Management """
+
 class Stack:
     def __init__(self, cards=None):
         if cards is None:
@@ -299,87 +307,115 @@ class Deck(Stack):
             print(f"{player.name} was dealt a card")
             player.recieveCard(self.drawCard())
 
-        def addToStack(self, other) -> bool:
-            if super().addToStack(other):
-                print("Card added to deck")
-                return True
-            else:
-                print("Error in adding card to deck")
-                return False
 
 
 """ Player Classes """
+
+
 class Player():
-    def __init__(self, name: str, wins:int = 0):
-        self.hand = Hand()
+    def __init__(self, name: str, **kwargs):
         self.name = name
+        self.wins, self.losses = 0
+        self.hand = Hand()
         self.phases = self.createPhases()
 
-
+    #   Phase Interactions
     def createPhases(self) -> list:
         p_list = []
         for k,v in phases_dict.items():
+            v.owner = self.name
             p_list.append(v)
         print(f"10 Phases created for {self.name}")
         return p_list
-
-    def addPoints(self) -> None:
-        for c in self.hand.cards:
-            self.points += c.points
-        print(f"{self.name} has {self.points} points")
 
     def getCurrentPhase(self) -> Phase:
         for phase in self.phases:
             if not phase.complete:
                 return phase
         return None
+        
+    #   Scoring
+    def addPoints(self) -> None:
+        for c in self.hand.cards:
+            self.points += c.points
+        print(f"{self.name} has {self.points} points")
 
+    #   Turn Actions
     def drawCard(self, card):
         self.hand.addToStack(card)
 
+    def discardCard(self, card_index) -> Card:
+        return self.hand.cards.pop(card_index)
 
-""" Main Game Loop Class """
+    def addCardsToGoal(self, cards, goal_index):
+        #Use the method in the Phase class
+        pass
+
+    #   Metadata
+    def getPlayerData(self) -> dict:
+        ret = {
+            "name":self.name,
+            "wins":self.wins,
+            "losses":self.losses
+            }
+        return ret
+
+
+
+##
+##
 class Game():
     def __init__(self):
         self.deck = Deck()
-        self.players = []                               # List of the players
-        self.active_player:Player = None
-        self.turn_steps = ["Draw", "Play", "Discard"]   # the steps of every turn.
+        self.discards = Stack()
+        self.players = None
+        self.player_cycle = itertools.cycle(self.players)
         self.turn_step = None
+        self.active_player:Player = None
+        self.turn_steps = ["Draw", "Play", "Discard"]
 
-    def ready(self):
-        if len(self.players) < 2:
-            print("Need more players")
+
+    def addPlayer(self, newplayer:Player):
+        if newplayer not in self.players:
+            self.players.append(newplayer)
+            return True
+        else:
             return False
-        self.active_player: Player = self.players[0]
-        self.nextTurnStep()
 
-    def addPlayer(self, newplayer: Player) -> bool:
-        self.players.append(newplayer)
-        print(f"{newplayer.name} has joined the game!")
-        return True
+    def getActivePlayer(self) -> Player:
+        if self.active_player:
+            return self.active_player
 
     def nextTurnStep(self) -> str:
         match self.turn_step:
             case None:
                 self.turn_step = self.turn_steps[0]
             case "Draw":
+                if len(self.deck.cards) <= 0:
+                    self.reshuffleDeck()
                 self.turn_step = self.turn_steps[1]
+                print("Draw -> Play")
             case "Play":
                 self.turn_step = self.turn_steps[2]
+                print("Play -> Discard")
             case "Discard":
                 self.turn_step = self.turn_steps[0]
+                self.active_player = next(self.player_cycle)
+                print(f"Discard -> Draw\nSwitching: {self.active_player.name}'s turn.")
         return self.turn_step
 
+    def checkWin(self) -> bool:
+        for p in self.players:
+            if p.getCurrentPhase().name == "Phase 10" and p.checkComplete():
+                print(f"{p.name} has won the game!!")
+                return True
 
-    def drawCard(self):
-        if self.turn_step == "Draw":
-            c = self.deck.drawCard()
-            self.active_player.drawCard(c)
-            self.nextTurnStep()
+    def reshuffleDeck(self) -> None:
+        for _ in self.deck.cards:
+            c = self.discard.pop(0)
+            self.deck.addToStack(c)
 
 
-""" GLOBAL/TEMP VARIABLES """
 colors = ["Red", "Blue", "Green", "Yellow"]
 low_numbers = ["One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine"]
 high_numbers = ["Ten", "Eleven", "Twelve"]

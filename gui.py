@@ -14,7 +14,7 @@ from kivy.graphics import Color, Rectangle
 from kivy.uix.popup import Popup
 from kivy.properties import ObjectProperty
 
-from cards import Player, Stack, Deck, Hand, Card, Game, Phase, Goal, RunGoal, SetGoal, ColorGoal, SkipCard
+
 
 
 ##
@@ -57,7 +57,6 @@ class SelectableHand(BoxLayout):
     def get_selected_cards(self):
         return Stack([widget.card for widget in self.children if widget.state == 'down'])
 
-
 ##
 class PlayerCreationScreen(Popup):
     def __init__(self, game_app, **kwargs):
@@ -83,7 +82,6 @@ class PlayerCreationScreen(Popup):
             return p
         else:
             print("Please enter a player name.")
-
 
 ##
 class ButtonBox(GridLayout):
@@ -127,27 +125,17 @@ class ButtonBox(GridLayout):
         if Phase10App().me:
             return True
 
+##
+##
 class Phase10App(App):
-    game = Game()
-    me = None
     def build(self):
         self.root = BoxLayout(orientation = "vertical")
-        self.game = Game()
         self.lbl = Label(text = "PHASE 10", size_hint = (1,0.15))
         self.btn_box = ButtonBox()
         self.root.add_widget(self.lbl)
         self.root.add_widget(self.btn_box)
         return self.root
 
-    @classmethod
-    def getGame(cls):
-        return cls.game
-
-
-
-
-if __name__ == "__main__":
-    Phase10App().run()
 
 
 
