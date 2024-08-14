@@ -5,7 +5,7 @@ from kivy.uix.button import Button
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.gridlayout import GridLayout
 from kivy.uix.togglebutton import ToggleButton
-from kivy.uix.image import AsyncImage
+from kivy.uix.image import Image, AsyncImage
 from kivy.uix.label import Label
 from kivy.uix.scrollview import ScrollView
 from kivy.uix.textinput import TextInput
@@ -22,7 +22,7 @@ class SelectableCard(ToggleButton):
     def __init__(self, card, **kwargs):
         super().__init__(**kwargs)
         self.card = card
-        self.background_normal = card.getImage()
+        self.background_normal = Image(source = card.getImage())
         self.background_color = (1, 1, 1, 1)  # White background
         self.size_hint = (None, None)
         self.size = (100, 150)  # Adjust size as needed
@@ -70,6 +70,15 @@ class GoalButton(Button):
     def goal(self, newgoal):
         self._goal = newgoal
 
+class SelectableStack(ToggleButton):
+    def __init__(self, stack, face_up = True, **kwargs):
+        super().__init__(**kwargs)
+        self.stack = Stack
+        self.img = None
+        if face_up == False:
+            self.img = AsyncImage(source = "images/stack_back.png")
+
+
 ##
 class PlayerCreationPopup(Popup):
     def __init__(self, game_app, **kwargs):
@@ -116,7 +125,6 @@ class ChooseAGoalPopup(Popup):
     def getGoal(self, instance):
         return instance.goal
 
-##
 class ButtonBox(GridLayout):
     def __init__(self, **kwargs):
         super().__init__(pos_hint = {'center_y': 0.8}, **kwargs)
@@ -158,7 +166,6 @@ class ButtonBox(GridLayout):
 
     def playPressed(self, instance):
 
-##
 ##
 class Phase10App(App):
     def build(self):

@@ -499,3 +499,116 @@ def load_players():
 
 if __name__ == "__main__":
     pass
+
+
+"""
+class Game():
+    def __init__(self):
+        self.deck = Deck()
+        self.discards = Stack()
+        self.players = None
+        self.player_cycle = itertools.cycle(self.players)
+        self.turn_step = None
+        self.active_player:Player = None
+        self.turn_steps = ["Draw", "Play", "Discard"]
+        
+        self.network_manager = AsyncNetworkManager("localhost", 12345)  # Replace with desired host and port
+        self.network_manager.on_message_callback = self.handle_message
+
+    async def start(self):
+        await self.network_manager.start_server()
+        # Game loop logic here
+
+    def handle_message(self, message):
+        message_type = message['type']
+        data = message['data']
+
+        if message_type == 'CONNECT':
+            player_name = data['player_name']
+            player = Player(player_name)
+            self.add_player(player)
+            # Send player list to all players
+            self.send_player_list()
+        elif message_type == 'DISCONNECT':
+            player_id = data['player_id']
+            # Remove player from game
+            self.remove_player(player_id)
+        elif message_type == 'CARD_PLAYED':
+            player_id = data['player_id']
+            card = Card.from_json(data['card'])
+            player = self.get_player_by_id(player_id)
+            # Validate card play and update game state
+            if self.can_play_card(player, card):
+                player.hand.remove(card)
+                # Update game state based on card played
+                self.broadcast_message(Message('CARD_PLAYED', {'player_id': player_id, 'card': card.to_json()}))
+            else:
+                # Send error message to player
+        elif message_type == 'CARD_DRAWN':
+            player_id = data['player_id']
+            player = self.get_player_by_id(player_id)
+            # Draw card from deck or discard pile
+            card = self.draw_card()
+            player.hand.add(card)
+            # Update game state and send message to player
+            self.broadcast_message(Message('CARD_DRAWN', {'player_id': player_id, 'card': card.to_json()}))
+        elif message_type == 'PHASE_COMPLETED':
+            # Handle phase completion logic
+        elif message_type == 'GAME_OVER':
+            # Handle game over logic
+        elif message_type == 'REQUEST_PLAYERS':
+            self.send_player_list()
+        else:
+            print(f"Unknown message type: {message_type}")
+
+    async def handle_turn(self):
+        current_player = self.players[self.current_player_index]
+        # Implement turn logic here, including drawing, playing, discarding, and checking for phase completion
+        # Send appropriate messages to other players
+
+    def addPlayer(self, newplayer:Player):
+        if newplayer not in self.players:
+            self.players.append(newplayer)
+            return True
+        else:
+            return False
+
+    def getActivePlayer(self) -> Player:
+        if self.active_player:
+            return self.active_player
+
+    def getAllCurrentGoals(self) -> dict:
+        ret = {}
+        goal_list = []
+        for p in self.players:
+            ret = {p.name: p.getCurrentPhase().getGoals()}
+
+    def nextTurnStep(self) -> str:
+        match self.turn_step:
+            case None:
+                self.turn_step = self.turn_steps[0]
+            case "Draw":
+                if len(self.deck.cards) <= 0:
+                    self.reshuffleDeck()
+                self.turn_step = self.turn_steps[1]
+                print("Draw -> Play")
+            case "Play":
+                self.turn_step = self.turn_steps[2]
+                print("Play -> Discard")
+            case "Discard":
+                self.turn_step = self.turn_steps[0]
+                self.active_player = next(self.player_cycle)
+                print(f"Discard -> Draw\nSwitching: {self.active_player.name}'s turn.")
+        return self.turn_step
+
+    def checkWin(self) -> bool:
+        for p in self.players:
+            if p.getCurrentPhase().name == "Phase 10" and p.checkComplete():
+                print(f"{p.name} has won the game!!")
+                return True
+
+    def reshuffleDeck(self) -> None:
+        for _ in self.deck.cards:
+            c = self.discard.pop(0)
+            self.deck.addToStack(c)
+"""
