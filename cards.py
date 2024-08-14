@@ -12,7 +12,7 @@ from itertools import cycle
 
 """ Phase 10 Card Classes """
 
-class Card():
+class Card:
     count = 0
     def __init__(self, name: str, points: int, color: str):
         self.name = name
@@ -144,100 +144,6 @@ class HighCard(BasicCard):
         super().__init__(name, points, color)
 
 
-
-""" The Phases """
-
-class Goal(ABC):
-    def __init__(self, min_cards: int):
-        self.min_cards = min_cards
-        self.cards = []
-        self.owner = None
-        self.complete = False
-        self.name = ""
-
-    @abstractmethod
-    def checkCards(self, cards: List['Card']) -> bool:
-        pass
-
-    def setOwner(self, newowner) -> None:
-        if self.owner == None:
-            self.owner = newowner
-
-    @property
-    def name(self):
-        if isinstance(self, SetGoal):
-            self._name = f"Set of \n{self.min_cards} cards"
-        if isinstance(self, RunGoal):
-            self._name = f"Run of \n{self.min_cards} cards"
-        if isinstance(self, ColorGoal):
-            self._name = f"Colors of \n{self.min_cards} cards"
-        return self._name
-
-    @name.setter
-    def name(self, newname):
-        self._name = newname
-
-    def addCards(self, cards: List['Card']) -> bool:
-        if self.checkCards(cards):
-            self.cards.extend(cards)
-            self.complete = len(self.cards) >= self.min_cards
-            return True
-        return False
-
-class Phase:
-    def __init__(self, name: str, goals: List[Goal]):
-        self.name = name
-        self.goals = goals
-        self.owner = None
-        self.complete = False
-
-
-    def setOwner(self, newowner) -> None:
-        if self.owner == None:
-            self.owner = newowner
-            for g in self.goals:
-                g.setOwner(self.owner)
-
-    def checkComplete(self) -> bool:
-        self.complete = all(goal.complete for goal in self.goals)
-        return self.complete
-
-    def addCardsToGoal(self, goal_index: int, cards: List['Card']) -> bool:
-        if 0 <= goal_index < len(self.goals):
-            return self.goals[goal_index].addCards(cards)
-        return False
-
-    def grabAllCards(self) -> Stack:
-        if checkComplete:
-            cards_list = []
-            for g in self.goals:
-                cards_list.append(g.cards)
-            return Stack(cards_list)
-
-    def getGoals(self) -> list:
-        ret [goal for goal in self.goals]
-
-class SetGoal(Goal):
-    def checkCards(self, cards: List['Card']) -> bool:
-        if not cards:
-            return False
-        return all(card.number == cards[0].number for card in cards)
-
-class RunGoal(Goal):
-    def checkCards(self, cards: List['Card']) -> bool:
-        if not cards:
-            return False
-        sorted_cards = sorted(cards, key=lambda c: c.number)
-        return all(sorted_cards[i].number - sorted_cards[i - 1].number == 1
-                   for i in range(1, len(sorted_cards)))
-
-class ColorGoal(Goal):
-    def checkCards(self, cards: List['Card']) -> bool:
-        if not cards:
-            return False
-        return all(card.color == cards[0].color for card in cards)
-
-
 """ Card Management """
 
 class Stack:
@@ -325,13 +231,110 @@ class Deck(Stack):
 
 
 
+""" The Phases """
+
+class Goal(ABC):
+    def __init__(self, min_cards: int):
+        self.min_cards = min_cards
+        self.cards = []
+        self.owner = None
+        self.complete = False
+        self.name = ""
+
+    @abstractmethod
+    def checkCards(self, cards: List['Card']) -> bool:
+        pass
+
+    def setOwner(self, newowner) -> None:
+        if self.owner == None:
+            self.owner = newowner
+
+    @property
+    def name(self):
+        if isinstance(self, SetGoal):
+            self._name = f"Set of \n{self.min_cards} cards"
+        if isinstance(self, RunGoal):
+            self._name = f"Run of \n{self.min_cards} cards"
+        if isinstance(self, ColorGoal):
+            self._name = f"Colors of \n{self.min_cards} cards"
+        return self._name
+
+    @name.setter
+    def name(self, newname):
+        self._name = newname
+
+    def addCards(self, cards: List['Card']) -> bool:
+        if self.checkCards(cards):
+            self.cards.extend(cards)
+            self.complete = len(self.cards) >= self.min_cards
+            return True
+        return False
+
+class Phase:
+    def __init__(self, name: str, goals: List[Goal]):
+        self.name = name
+        self.goals = goals
+        self.owner = None
+        self.complete = False
+
+
+    def setOwner(self, newowner) -> None:
+        if self.owner == None:
+            self.owner = newowner
+            for g in self.goals:
+                g.setOwner(self.owner)
+
+    def checkComplete(self) -> bool:
+        self.complete = all(goal.complete for goal in self.goals)
+        return self.complete
+
+    def addCardsToGoal(self, goal_index: int, cards: List['Card']) -> bool:
+        if 0 <= goal_index < len(self.goals):
+            return self.goals[goal_index].addCards(cards)
+        return False
+
+    def grabAllCards(self) -> Stack:
+        if self.checkComplete:
+            cards_list = []
+            for g in self.goals:
+                cards_list.append(g.cards)
+            return Stack(cards_list)
+
+    def getGoals(self) -> list:
+        goals_list = []
+        for goal in self.goals:
+            goals_list.append(goal)
+        return goals_list
+
+class SetGoal(Goal):
+    def checkCards(self, cards: List['Card']) -> bool:
+        if not cards:
+            return False
+        return all(card.number == cards[0].number for card in cards)
+
+class RunGoal(Goal):
+    def checkCards(self, cards: List['Card']) -> bool:
+        if not cards:
+            return False
+        sorted_cards = sorted(cards, key=lambda c: c.number)
+        return all(sorted_cards[i].number - sorted_cards[i - 1].number == 1
+                   for i in range(1, len(sorted_cards)))
+
+class ColorGoal(Goal):
+    def checkCards(self, cards: List['Card']) -> bool:
+        if not cards:
+            return False
+        return all(card.color == cards[0].color for card in cards)
+
+
 """ Player Classes """
 
 
 class Player():
     def __init__(self, name: str, **kwargs):
         self.name = name
-        self.wins, self.losses = 0
+        self.wins = 0
+        self.losses = 0
         self.hand = Hand()
         self.phases = self.createPhases()
 
@@ -385,6 +388,9 @@ class Game:
         self.deck = Deck()
         self.discards = Stack()
         self.players = None
+        self.active_player = Player("Sam")
+        self.me = self.active_player
+        self.turn_step = "Draw"
         
 
 
