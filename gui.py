@@ -57,8 +57,21 @@ class SelectableHand(BoxLayout):
     def get_selected_cards(self):
         return Stack([widget.card for widget in self.children if widget.state == 'down'])
 
+class GoalButton(Button):
+    def __init__(self, goal, **kwargs):
+        super().__init__(**kwargs)
+        self.goal = goal
+
+    @property
+    def goal(self):
+        return self._goal
+
+    @goal.setter
+    def goal(self, newgoal):
+        self._goal = newgoal
+
 ##
-class PlayerCreationScreen(Popup):
+class PlayerCreationPopup(Popup):
     def __init__(self, game_app, **kwargs):
         super().__init__(**kwargs)
         self.size_hint = (0.5,0.5)
@@ -83,6 +96,26 @@ class PlayerCreationScreen(Popup):
         else:
             print("Please enter a player name.")
 
+class ChooseAGoalPopup(Popup):
+    def __init__(self, active_player, goals, **kwargs):
+        super().__init__(**kwargs)
+        self.size_hint = (0.5,0.8)
+        self.root = BoxLayout(orientation = "vertical")
+        self.lbl = Label(text = "Choose a goal to play on.")
+        self.box_root = BoxLayout(orientation = "horizontal")
+        self.player_goal_box = BoxLayout(orientation = "vertical")
+        self.opponent_goal_box = BoxLayout(orientation = "vertical")
+        for k,v in goals:
+            if k == active_player:
+                for g in v:
+                    self.player_goal_box.add_widget(GoalButton(text = v.name, goal = v, on_press = self.getGoal()))
+            if k != active_player:
+                for g in v:
+                    self.opponent_goal_box.add_widget(GoalButton(text = v.name, goal = v, on_press = self.getGoal))
+
+    def getGoal(self, instance):
+        return instance.goal
+
 ##
 class ButtonBox(GridLayout):
     def __init__(self, **kwargs):
@@ -100,7 +133,6 @@ class ButtonBox(GridLayout):
         self.game.ready()
         self.update_display()
 
-
     def update_display(self):
         self.clear_widgets()
         if Phase10App().me == None:
@@ -115,15 +147,16 @@ class ButtonBox(GridLayout):
             if self.game.turn_step == "Discard":
                 pass
 
-
     def drawPressed(self, instance):
         self.game.drawCard()
 
     def createPlayer(self, instance):
-        pop = PlayerCreationScreen(self.game)
+        pop = PlayerCreationPopup(self.game)
         Phase10App().me = pop.open()
         if Phase10App().me:
             return True
+
+    def playPressed(self, instance):
 
 ##
 ##

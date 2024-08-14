@@ -1,42 +1,82 @@
-import socket
 
-class NetworkManager:
+import json
+import asyncio
+
+
+class AsyncNetworkManager:
     def __init__(self, host, port):
-        self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.socket.bind((host, port))
-        self.socket.listen(1)
-        self.client_socket = None
+        self.host = host
+        self.port = port
+        self.reader = None
+        self.writer = None
         self.connected = False
+        self.on_message_callback = None
 
-    def connect(self, host, port):
-        self.socket.connect((host, port))
+    async def start_server(self):
+        self.server = await asyncio.start_server(
+            self.client_connected, self.host, self.port)
+        addr = self.server.sockets[0].getsockname()
+        print(f'Serving on {addr}')
         self.connected = True
+        async with self.server:
+            await self.server.serve_forever()
 
-    def accept_connection(self):
-        self.client_socket, addr = self.socket.accept()
+    async def client_connected(self, reader, writer):
+        self.reader = reader
+        self.writer = writer
+        print('Client connected')
+        while True:
+            try:
+                data = await self.reader.read(1024)
+                message = json.loads(data)
+                if self.on_message_callback:
+                    await self.on_message_callback(message)
+            except asyncio.IncompleteReadError:
+                break
+            except Exception as e:
+                print(f"Error handling message: {e}")
+                # Handle error gracefully
+
+    async def connect_to_server(self, host, port):
+        self.reader, self.writer = await asyncio.open_connection(host, port)
         self.connected = True
+        print(f'Connected to server {host}:{port}')
 
-    def send_data(self, data):
-        self.client_socket.send(data)
+    async def send_data(self, data):
+        if self.connected:
+            data = json.dumps(data)
+            self.writer.write(data.encode())
+            await self.writer.drain()
+        else:
+            print("Not connected")
 
-    def receive_data(self):
-        data = self.client_socket.recv(1024)
-        return data
+    async def close(self):
+        if self.writer:
+            self.writer.close()
+            await self.writer.wait_closed()
 
-    def close(self):
-        self.socket.close()
 
 
 MESSAGE_TYPES = [
     "CONNECT",
     "DISCONNECT",
-    "CARD_DRAWN"]
+    "CARD_DRAWN",
     "CARD_PLAYED",
     "PHASE_COMPLETED",
-    "GAME_OVER"]
+    "GAME_OVER",
+    "PLAYER_REQUEST"]
+
 
 class Message:
     def __init__(self, type, data):
         self.type = type
         self.data = data
+
+    def to_json(self):
+        return json.dumps(self.__dict__)
+
+    @staticmethod
+    def from_json(data):
+        return Message(**json.loads(data))
+
 

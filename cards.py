@@ -151,12 +151,17 @@ class Goal(ABC):
     def __init__(self, min_cards: int):
         self.min_cards = min_cards
         self.cards = []
+        self.owner = None
         self.complete = False
         self.name = ""
 
     @abstractmethod
     def checkCards(self, cards: List['Card']) -> bool:
         pass
+
+    def setOwner(self, newowner) -> None:
+        if self.owner == None:
+            self.owner = newowner
 
     @property
     def name(self):
@@ -183,7 +188,15 @@ class Phase:
     def __init__(self, name: str, goals: List[Goal]):
         self.name = name
         self.goals = goals
+        self.owner = None
         self.complete = False
+
+
+    def setOwner(self, newowner) -> None:
+        if self.owner == None:
+            self.owner = newowner
+            for g in self.goals:
+                g.setOwner(self.owner)
 
     def checkComplete(self) -> bool:
         self.complete = all(goal.complete for goal in self.goals)
@@ -200,6 +213,9 @@ class Phase:
             for g in self.goals:
                 cards_list.append(g.cards)
             return Stack(cards_list)
+
+    def getGoals(self) -> list:
+        ret [goal for goal in self.goals]
 
 class SetGoal(Goal):
     def checkCards(self, cards: List['Card']) -> bool:
@@ -323,7 +339,7 @@ class Player():
     def createPhases(self) -> list:
         p_list = []
         for k,v in phases_dict.items():
-            v.owner = self.name
+            v.setOwner(self.name)
             p_list.append(v)
         print(f"10 Phases created for {self.name}")
         return p_list
@@ -373,7 +389,60 @@ class Game():
         self.turn_step = None
         self.active_player:Player = None
         self.turn_steps = ["Draw", "Play", "Discard"]
+        
+        self.network_manager = AsyncNetworkManager("localhost", 12345)  # Replace with desired host and port
+        self.network_manager.on_message_callback = self.handle_message
 
+    async def start(self):
+        await self.network_manager.start_server()
+        # Game loop logic here
+
+    def handle_message(self, message):
+        message_type = message['type']
+        data = message['data']
+
+        if message_type == 'CONNECT':
+            player_name = data['player_name']
+            player = Player(player_name)
+            self.add_player(player)
+            # Send player list to all players
+            self.send_player_list()
+        elif message_type == 'DISCONNECT':
+            player_id = data['player_id']
+            # Remove player from game
+            self.remove_player(player_id)
+        elif message_type == 'CARD_PLAYED':
+            player_id = data['player_id']
+            card = Card.from_json(data['card'])
+            player = self.get_player_by_id(player_id)
+            # Validate card play and update game state
+            if self.can_play_card(player, card):
+                player.hand.remove(card)
+                # Update game state based on card played
+                self.broadcast_message(Message('CARD_PLAYED', {'player_id': player_id, 'card': card.to_json()}))
+            else:
+                # Send error message to player
+        elif message_type == 'CARD_DRAWN':
+            player_id = data['player_id']
+            player = self.get_player_by_id(player_id)
+            # Draw card from deck or discard pile
+            card = self.draw_card()
+            player.hand.add(card)
+            # Update game state and send message to player
+            self.broadcast_message(Message('CARD_DRAWN', {'player_id': player_id, 'card': card.to_json()}))
+        elif message_type == 'PHASE_COMPLETED':
+            # Handle phase completion logic
+        elif message_type == 'GAME_OVER':
+            # Handle game over logic
+        elif message_type == 'REQUEST_PLAYERS':
+            self.send_player_list()
+        else:
+            print(f"Unknown message type: {message_type}")
+
+    async def handle_turn(self):
+        current_player = self.players[self.current_player_index]
+        # Implement turn logic here, including drawing, playing, discarding, and checking for phase completion
+        # Send appropriate messages to other players
 
     def addPlayer(self, newplayer:Player):
         if newplayer not in self.players:
@@ -385,6 +454,12 @@ class Game():
     def getActivePlayer(self) -> Player:
         if self.active_player:
             return self.active_player
+
+    def getAllCurrentGoals(self) -> dict:
+        ret = {}
+        goal_list = []
+        for p in self.players:
+            ret = {p.name: p.getCurrentPhase().getGoals()}
 
     def nextTurnStep(self) -> str:
         match self.turn_step:
