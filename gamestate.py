@@ -23,10 +23,8 @@ class GameState:
         # ...
 
     def to_json(self):
-        # Serialize game state to JSON for transmission
-        pass
+        return json.dumps(self.__dict__)
 
     @classmethod
-    def from_json(cls, data):
-        # Deserialize game state from JSON
-        pass
+/    def from_json(cls, data):
+        return GameState(**json.loads(data))
