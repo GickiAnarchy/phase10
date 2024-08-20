@@ -15,8 +15,6 @@ from kivy.uix.popup import Popup
 from kivy.properties import ObjectProperty
 
 
-
-
 ##
 class SelectableCard(ToggleButton):
     """Card displays as a button"""
@@ -24,10 +22,9 @@ class SelectableCard(ToggleButton):
         super().__init__(**kwargs)
         self.card = card
         self.background_normal = Image(source = card.getImage())
-        self.background_color = (1, 1, 1, 1)  # White background
+        self.background_color = (1, 1, 1, 1)
         self.size_hint = (None, None)
-        self.size = (100, 150)  # Adjust size as needed
-        # Add a colored border when selected
+        self.size = (73, 150)
         with self.canvas.before:
             self.border_color = Color(0, 1, 0, 1)  # Green border
             self.border = Rectangle(pos=self.pos, size=self.size)
@@ -57,8 +54,53 @@ class SelectableHand(BoxLayout):
         for card in self.hand.cards:
             self.add_widget(SelectableCard(card))
 
-    def get_selected_cards(self):
-        return Stack([widget.card for widget in self.children if widget.state == 'down'])
+    def get_selected_cards(self) -> list:
+        return [widget.card for widget in self.children if widget.state == 'down']
+
+class SelectableDeck(ToggleButton):
+    def __init__(self, deck: Deck, **kwargs):
+        super().__init__(**kwargs)
+        self.deck = deck
+        self.background_normal = Image(source = "images/CardBack.png")
+        self.background_color = (1, 1, 1, 1)  # White background
+        self.size_hint = (None, None)
+        self.size = (73, 150)
+        with self.canvas.before:
+            self.border_color = Color(0, 1, 0, 1)  # Green border
+            self.border = Rectangle(pos=self.pos, size=self.size)
+        self.bind(pos=self.update_border, size=self.update_border,
+                  state=self.update_border)
+
+    def update_border(self, *args):
+        self.border.pos = self.pos
+        self.border.size = self.size
+        if self.state == 'down':
+            self.border_color.a = 1  # Fully opaque
+        else:
+            self.border_color.a = 0  # Fully transparent
+
+class SelectableDiscards(ToggleButton):
+    def __init__(self, discards: Discards, **kwargs):
+        super().__init__(**kwargs)
+        self.discards = discards
+        self.background_normal = Image()
+        self.background_color = (1, 1, 1, 1)  # White background
+        self.size_hint = (None, None)
+        self.size = (73, 150)
+        with self.canvas.before:
+            self.border_color = Color(0, 1, 0, 1)  # Green border
+            self.border = Rectangle(pos=self.pos, size=self.size)
+        self.bind(pos=self.update_border, size=self.update_border,
+                  state=self.update_border)
+
+    def update_border(self, *args):
+        self.border.pos = self.pos
+        self.border.size = self.size
+        if self.state == 'down':
+            self.border_color.a = 1  # Fully opaque
+        else:
+            self.border_color.a = 0  # Fully transparent
+    
 
 class GoalButton(Button):
     """A players current phase goals thT are selectable when the intent is to play on an exiating goal, or one of their own."""
@@ -73,15 +115,6 @@ class GoalButton(Button):
     @goal.setter
     def goal(self, newgoal):
         self._goal = newgoal
-
-class SelectableStack(ToggleButton):
-    """Any Stack if Cards that can be made selectable, such as for pressing the Deck to draw, and pressing the discards stack to ask for vote on whether to reshuffle it into the deck or not."""
-    def __init__(self, stack, face_up = True, **kwargs):
-        super().__init__(**kwargs)
-        self.stack = Stack
-        self.img = None
-        if face_up == False:
-            self.img = AsyncImage(source = "images/stack_back.png")
 
 
 ##
@@ -179,7 +212,7 @@ class Phase10App(App):
     def build(self):
         self.root = BoxLayout(orientation = "vertical")
         self.lbl = Label(text = "PHASE 10", size_hint = (1,0.15))
-        self.deck = SelectableStack()
+        #self.deck
         self.root.add_widget(self.lbl)
         return self.root
 
