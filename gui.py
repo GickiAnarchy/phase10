@@ -14,7 +14,7 @@ from kivy.graphics import Color, Rectangle
 from kivy.uix.popup import Popup
 from kivy.properties import ObjectProperty
 
-from cards import Stack, Player, Game
+
 
 
 ##
@@ -141,39 +141,41 @@ class ButtonBox(GridLayout):
         self.cols = 3
         self.padding = 5
         self.spacing = 5
-        self.create_player_btn = Button(text="Create Player", on_press=self.createPlayer)
+        self.game = Phase10App().getGame()
+        self.create_player_btn = Button(text="Create Player", disabled = True, on_press=self.createPlayer)
+        self.create_player_btn.disabled = True
         self.draw_btn = Button(text = "Draw", on_press = self.drawPressed)
+
+        self.game.ready()
         self.update_display()
 
     def update_display(self):
         self.clear_widgets()
-        self.create_player_btn.disabled = False
-        self.add_widget(self.create_player_btn)
-        if Phase10App().game.active_player:
-            if Phase10App().game.turn_step == "Draw":
+        if Phase10App().me == None:
+            self.create_player_btn.disabled = False
+            self.add_widget(self.create_player_btn)
+        if self.game.active_player == Phase10App().me:
+            if self.game.turn_step == "Draw":
                 self.draw_btn.disabled = False
                 self.add_widget(self.draw_btn)
-            if Phase10App().game.turn_step == "Play":
+            if self.game.turn_step == "Play":
                 pass
-            if Phase10App().game.turn_step == "Discard":
+            if self.game.turn_step == "Discard":
                 pass
 
     def drawPressed(self, instance):
         self.game.drawCard()
 
     def createPlayer(self, instance):
-        pop = PlayerCreationPopup(Phase10App().game)
+        pop = PlayerCreationPopup(self.game)
         Phase10App().me = pop.open()
-        if Phase10App().me != None:
+        if Phase10App().me:
             return True
 
     def playPressed(self, instance):
-        pass
 
 ##
 class Phase10App(App):
-    game = Game()
-    me:Player = None
     def build(self):
         self.root = BoxLayout(orientation = "vertical")
         self.lbl = Label(text = "PHASE 10", size_hint = (1,0.15))
@@ -184,5 +186,3 @@ class Phase10App(App):
 
 
 
-if __name__ == "__main__":
-    Phase10App().run()

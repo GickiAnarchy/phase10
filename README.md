@@ -4,7 +4,7 @@ _by: GickiAnarchy_
 #### _development branch_
 ---
 ___<u>ToDo</u>___
--[ ] Remove Stack class.  too confusing
+-[x] Remove Stack class.  too confusing
 -[x] Start Game Logic  
 -[ ] Complete Game Logic  
 -[x] Start GUI  
@@ -13,8 +13,9 @@ ___<u>ToDo</u>___
 -[ ] Complete Phase 10!
 ---
 
-___<u>Game Logic Needs</u>___
-pass
+08.20.24
+    Remove Stack class
+    Added Discards class
 
 
 
