@@ -19,6 +19,7 @@ from cards import Stack, Player, Game
 
 ##
 class SelectableCard(ToggleButton):
+    """Card displays as a button"""
     def __init__(self, card, **kwargs):
         super().__init__(**kwargs)
         self.card = card
@@ -42,6 +43,8 @@ class SelectableCard(ToggleButton):
             self.border_color.a = 0  # Fully transparent
 
 class SelectableHand(BoxLayout):
+    """ A players hand as a collection
+        of SelectableCards """
     def __init__(self, hand, **kwargs):
         super().__init__(**kwargs)
         self.orientation = 'horizontal'
@@ -58,6 +61,7 @@ class SelectableHand(BoxLayout):
         return Stack([widget.card for widget in self.children if widget.state == 'down'])
 
 class GoalButton(Button):
+    """A players current phase goals thT are selectable when the intent is to play on an exiating goal, or one of their own."""
     def __init__(self, goal, **kwargs):
         super().__init__(**kwargs)
         self.goal = goal
@@ -71,6 +75,7 @@ class GoalButton(Button):
         self._goal = newgoal
 
 class SelectableStack(ToggleButton):
+    """Any Stack if Cards that can be made selectable, such as for pressing the Deck to draw, and pressing the discards stack to ask for vote on whether to reshuffle it into the deck or not."""
     def __init__(self, stack, face_up = True, **kwargs):
         super().__init__(**kwargs)
         self.stack = Stack
@@ -81,6 +86,7 @@ class SelectableStack(ToggleButton):
 
 ##
 class PlayerCreationPopup(Popup):
+    """Popup to have the user name itself"""
     def __init__(self, game_app, **kwargs):
         super().__init__(**kwargs)
         self.size_hint = (0.5,0.5)
@@ -106,6 +112,7 @@ class PlayerCreationPopup(Popup):
             print("Please enter a player name.")
 
 class ChooseAGoalPopup(Popup):
+    """OBSOLETE"""
     def __init__(self, active_player, goals, **kwargs):
         super().__init__(**kwargs)
         self.size_hint = (0.5,0.8)
@@ -126,6 +133,7 @@ class ChooseAGoalPopup(Popup):
         return instance.goal
 
 class ButtonBox(GridLayout):
+    """OBSOLETE"""
     def __init__(self, **kwargs):
         super().__init__(pos_hint = {'center_y': 0.8}, **kwargs)
         self.size_hint = (1, 0.2)
@@ -169,9 +177,8 @@ class Phase10App(App):
     def build(self):
         self.root = BoxLayout(orientation = "vertical")
         self.lbl = Label(text = "PHASE 10", size_hint = (1,0.15))
-        self.btn_box = ButtonBox()
+        self.deck = SelectableStack()
         self.root.add_widget(self.lbl)
-        self.root.add_widget(self.btn_box)
         return self.root
 
 

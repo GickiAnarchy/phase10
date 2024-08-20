@@ -3,7 +3,8 @@ _by: GickiAnarchy_
 ---
 #### _development branch_
 ---
-___<u>ToDo</u>___  
+___<u>ToDo</u>___
+-[ ] Remove Stack class.  too confusing
 -[x] Start Game Logic  
 -[ ] Complete Game Logic  
 -[x] Start GUI  
