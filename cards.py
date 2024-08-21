@@ -73,10 +73,6 @@ class Card():
     def color(self, newcolor):
         self._color = newcolor
 
-    @color.deleter
-    def color(self):
-        del self._color
-
     @property
     def points(self):
         return self._points
@@ -84,10 +80,6 @@ class Card():
     @points.setter
     def points(self, newpoints):
         self._points = newpoints
-
-    @points.deleter
-    def points(self):
-        del self._points
 
     def __eq__(self, other):
         if isinstance(other, int):
@@ -102,7 +94,6 @@ class Card():
 
     def __gt__(self, other):
         return self.number > other.number
-
 
 class WildCard(Card):
     def __init__(self, name="Wild", points=25, color="None"):
@@ -175,7 +166,6 @@ class WildCard(Card):
             self.set_mimic(other)
             return True
 
-
 class SkipCard(Card):
     def __init__(self, name="Skip", points=25, color="None"):
         self.number = 60
@@ -190,16 +180,13 @@ class SkipCard(Card):
     def __gt__(self, other):
         return False
 
-
 class BasicCard(Card):
     def __init__(self, name: str, points: int, color: str):
         super().__init__(name, points, color)
 
-
 class LowCard(BasicCard):
     def __init__(self, name: str, color: str, points=5):
         super().__init__(name, points, color)
-
 
 class HighCard(BasicCard):
     def __init__(self, name: str, color: str, points=10):
@@ -210,6 +197,12 @@ class HighCard(BasicCard):
 class Hand():
     def __init__(self):
         self.cards = []
+
+    def __iter__(self):
+        return iter(self.cards)
+
+    def __getitem__(self, index):
+        return self.cards[index]
     
     def getIndex(self, card) -> int:
         i = 0
@@ -220,11 +213,19 @@ class Hand():
         print("Hand().getIndex()")
         print("Card isnt in the hand.")
 
+    def sortNumber(self):
+        self.cards.sort(key=lambda x: x.number)
+
+    def sortColor(self):
+        self.cards.sort(key=lambda x: x.color)
 
 class Deck():
     def __init__(self):
         self.cards = []
         self.createDeck()
+
+    def __iter__(self):
+        return iter(self.cards)
 
     def createDeck(self) -> None:
         if len(self.cards) == 0:
@@ -257,16 +258,16 @@ class Deck():
         else:
             return False
 
-    def deal(self, player):
-        """ Deals 10 cards to @player """
-        for _ in range(10):
-            print(f"{player.name} was dealt a card")
-            player.recieveCard(self.drawCard())
+    def deal(self) -> list:
+        """ Deals 10 cards and returns them """
+        cards = []
+        self.shuffle()
+        return self.cards[10:]
 
-
-
-""" Player Classes """
-
+    def shuffle(self, other_cards = None):
+        if other_cards != None:
+            self.cards.extend(other_cards)
+        random.shuffle(self.cards)
 
 class Discards():
     def __init__(self):
@@ -275,5 +276,3 @@ class Discards():
     def getTopCard(self) -> Card:
         c = self.cards.pop(-1)
         return c
-
-    

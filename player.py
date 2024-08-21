@@ -1,0 +1,50 @@
+
+
+
+from cards import Hand, Card, Phase, Goal
+
+
+class Player():
+    def __init__(self, name: str, **kwargs):
+        self.name = name
+        self.wins, self.losses = 0
+        self.hand = Hand()
+        self.phases = self.createPhases()
+
+    #   Phase Interactions
+    def createPhases(self) -> list:
+        p_list = []
+        for k,v in PHASES_DICT.items():
+            v.setOwner(self.name)
+            p_list.append(v)
+        print(f"10 Phases created for {self.name}")
+        return p_list
+
+    def getCurrentPhase(self) -> Phase:
+        for phase in self.phases:
+            if not phase.complete:
+                return phase
+        return None
+        
+    #   Scoring
+    def addPoints(self) -> int:
+        for c in self.hand.cards:
+            self.points += c.points
+        print(f"{self.name} has {self.points} points")
+        return self.points
+
+    #   Turn Actions
+    def drawCard(self, card):
+        self.hand.addCards(card)
+
+    def discardCard(self, card_index) -> Card:
+        return self.hand.cards.pop(card_index)
+
+    #   Metadata
+    def getPlayerData(self) -> dict:
+        ret = {
+            "name":self.name,
+            "wins":self.wins,
+            "losses":self.losses
+            }
+        return ret

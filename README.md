@@ -16,6 +16,7 @@ ___<u>ToDo</u>___
 08.20.24
     Remove Stack class
     Added Discards class
+    Divided class catagories into seperate files.
 
 
 
