@@ -6,12 +6,18 @@ from typing import List, Union
 
 
 class Goal(ABC):
+    count = 0
     def __init__(self, min_cards: int):
         self.min_cards = min_cards
         self.cards = []
         self.owner = None
         self.complete = False
         self.name = ""
+        Goal.count += 1
+        self.id = Goal.count
+
+    def getID(self) -> int:
+        return self.id
 
     @abstractmethod
     def checkCards(self, cards: List['Card']) -> bool:
@@ -100,5 +106,4 @@ class ColorGoal(Goal):
         if not cards:
             return False
         return all(card.color == cards[0].color for card in cards)
-
 

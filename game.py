@@ -6,52 +6,66 @@ import os
 import json
 from itertools import cycle
 
+from cards import Deck, Discards, Hand
+from phases import Phase, Goal
+from player import Player
+
 
 ##
 ##
 class Game:
     def __init__(self):
-        self.deck = Deck()
-        #self.discards
-        
-        self.players = None
-        self.active_player = None
-        
-        self.turn_step = None
+        self.players = []
+        self.deck = None
+        self.discards = None
+        self.current_goals = []
 
-    def drawStep(self, active: Player) -> bool:
-        if self.turn_step != "Draw":
+    def prestart(self) -> bool:
+        if len(self.players) < 2:
+            print("Not enough players to start")
             return False
-        active.drawCard(self.deck.drawCard())
-        self.turn_step = "Play"
+        self.deck = Deck()
+        self.discards = Discard()
+        for player in self.players:
+            player.hand.extend(self.deck.deal())
         return True
+    
+    def start(self):
+        if self.prestart():
+            pass
 
-    def playStep(self, active: Player, sel_cards, goal = None):
-        if goal == None and isinstance(sel_cards, Card):
-            cindex = active.hand.getIndex(sel_cards)
-            self.discards.addCards(active.discardCard(cindex))
-        if goal != None:
-            active.
+    def addPlayer(self, player):
+        self.players.append(player)
 
+    @property
+    def current_goals(self):
+        self._current_goals = []
+        for p in self.players:
+            self._current_goals.extend(p.getCurrentPhase().getGoals())
+        return self._current_goals
 
+    @current_goals.setter
+    def current_goals(self, newgoals):
+        if isinstance(newgoals, list):
+            self._current_goals = newgoals
+        if isinstance(newgoals, Goal):
+            newgoals = [newgoals]
 
+    def getGamestate(self):
+        return json.dumps(self.__dict__)
 
+    def saveGameState(self, gstate):
+        with open("savedGame.json", "w") as f:
+            f.write(gstate)
+            f.close()
 
-PHASES_DICT = {
-    1:Phase("Phase 1", [SetGoal(3), SetGoal(3)]),
-    2:Phase("Phase 2",[SetGoal(3), RunGoal(4)]),
-    3:Phase("Phase 3", [SetGoal(4), RunGoal(4)]),
-    4:Phase("Phase 4", [RunGoal(7)]),
-    5:Phase("Phase 5", [RunGoal(8)]),
-    6:Phase("Phase 6", [RunGoal(9)]),
-    7:Phase("Phase 7", [SetGoal(4), SetGoal(4)]),
-    8:Phase("Phase 8", [ColorGoal(7)]),
-    9:Phase("Phase 9", [SetGoal(5), SetGoal(2)]),
-    10:Phase("Phase 10",[SetGoal(5), SetGoal(3)])
-}
-turn_steps = ["Draw","Play","Discard"]
+    @staticmethod
+    def from_json(data = None, load_saved = False):
+        if data == None and load_saved == True:
+            return Game(Game.loadGameState())
+        return Game(**json.loads(data))
 
-##
-playersfile = "saved_players.json"
-
-def load_players()
+    @staticmethod
+    def loadGameState():
+        with open("savedGame.json","r") as f:
+            return json.load(f)

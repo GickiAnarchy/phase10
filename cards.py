@@ -3,29 +3,6 @@ import random
 
 
 
-COLORS = ["Red", "Blue", "Green", "Yellow"]
-LOW_NUMBERS = ["One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine"]
-HIGH_NUMBERS = ["Ten", "Eleven", "Twelve"]
-NUMBER_VALUE = {
-    "One": 1,
-    "Two": 2,
-    "Three": 3,
-    "Four": 4,
-    "Five": 5,
-    "Six": 6,
-    "Seven": 7,
-    "Eight": 8,
-    "Nine": 9,
-    "Ten": 10,
-    "Eleven": 11,
-    "Twelve": 12,
-    "Skip": 99,
-    "Wild": 99,
-    "Mimic": 99
-}
-
-
-
 class Card():
     count = 0
     def __init__(self, name: str, points: int, color: str):
@@ -254,7 +231,7 @@ class Deck():
     def drawCard(self) -> Card:
         if len(self.cards) > 0:
             print("drawing card")
-            return self.cards.pop(0)
+            return self.cards.pop(-1)
         else:
             return False
 
@@ -276,3 +253,26 @@ class Discards():
     def getTopCard(self) -> Card:
         c = self.cards.pop(-1)
         return c
+
+
+
+COLORS = ["Red", "Blue", "Green", "Yellow"]
+LOW_NUMBERS = ["One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine"]
+HIGH_NUMBERS = ["Ten", "Eleven", "Twelve"]
+NUMBER_VALUE = {
+    "One": 1,
+    "Two": 2,
+    "Three": 3,
+    "Four": 4,
+    "Five": 5,
+    "Six": 6,
+    "Seven": 7,
+    "Eight": 8,
+    "Nine": 9,
+    "Ten": 10,
+    "Eleven": 11,
+    "Twelve": 12,
+    "Skip": 99,
+    "Wild": 99,
+    "Mimic": 99
+}
