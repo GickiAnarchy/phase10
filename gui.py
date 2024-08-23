@@ -205,8 +205,6 @@ class ButtonBox(GridLayout):
         if Phase10App().me:
             return True
 
-    def playPressed(self, instance):
-
 ##
 class Phase10App(App):
     def build(self):
