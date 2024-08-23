@@ -229,6 +229,7 @@ class ButtonBox(GridLayout):
             return True
 
     def playPressed(self, instance):
+        pass
 
 ##
 class Phase10App(App):
