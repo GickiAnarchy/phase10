@@ -3,29 +3,6 @@ import random
 
 
 
-COLORS = ["Red", "Blue", "Green", "Yellow"]
-LOW_NUMBERS = ["One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine"]
-HIGH_NUMBERS = ["Ten", "Eleven", "Twelve"]
-NUMBER_VALUE = {
-    "One": 1,
-    "Two": 2,
-    "Three": 3,
-    "Four": 4,
-    "Five": 5,
-    "Six": 6,
-    "Seven": 7,
-    "Eight": 8,
-    "Nine": 9,
-    "Ten": 10,
-    "Eleven": 11,
-    "Twelve": 12,
-    "Skip": 99,
-    "Wild": 99,
-    "Mimic": 99
-}
-
-
-
 class Card():
     count = 0
     def __init__(self, name: str, points: int, color: str):
@@ -73,10 +50,6 @@ class Card():
     def color(self, newcolor):
         self._color = newcolor
 
-    @color.deleter
-    def color(self):
-        del self._color
-
     @property
     def points(self):
         return self._points
@@ -84,10 +57,6 @@ class Card():
     @points.setter
     def points(self, newpoints):
         self._points = newpoints
-
-    @points.deleter
-    def points(self):
-        del self._points
 
     def __eq__(self, other):
         if isinstance(other, int):
@@ -102,7 +71,6 @@ class Card():
 
     def __gt__(self, other):
         return self.number > other.number
-
 
 class WildCard(Card):
     def __init__(self, name="Wild", points=25, color="None"):
@@ -175,7 +143,6 @@ class WildCard(Card):
             self.set_mimic(other)
             return True
 
-
 class SkipCard(Card):
     def __init__(self, name="Skip", points=25, color="None"):
         self.number = 60
@@ -190,16 +157,13 @@ class SkipCard(Card):
     def __gt__(self, other):
         return False
 
-
 class BasicCard(Card):
     def __init__(self, name: str, points: int, color: str):
         super().__init__(name, points, color)
 
-
 class LowCard(BasicCard):
     def __init__(self, name: str, color: str, points=5):
         super().__init__(name, points, color)
-
 
 class HighCard(BasicCard):
     def __init__(self, name: str, color: str, points=10):
@@ -210,6 +174,12 @@ class HighCard(BasicCard):
 class Hand():
     def __init__(self):
         self.cards = []
+
+    def __iter__(self):
+        return iter(self.cards)
+
+    def __getitem__(self, index):
+        return self.cards[index]
     
     def getIndex(self, card) -> int:
         i = 0
@@ -220,11 +190,19 @@ class Hand():
         print("Hand().getIndex()")
         print("Card isnt in the hand.")
 
+    def sortNumber(self):
+        self.cards.sort(key=lambda x: x.number)
+
+    def sortColor(self):
+        self.cards.sort(key=lambda x: x.color)
 
 class Deck():
     def __init__(self):
         self.cards = []
         self.createDeck()
+
+    def __iter__(self):
+        return iter(self.cards)
 
     def createDeck(self) -> None:
         if len(self.cards) == 0:
@@ -253,20 +231,20 @@ class Deck():
     def drawCard(self) -> Card:
         if len(self.cards) > 0:
             print("drawing card")
-            return self.cards.pop(0)
+            return self.cards.pop(-1)
         else:
             return False
 
-    def deal(self, player):
-        """ Deals 10 cards to @player """
-        for _ in range(10):
-            print(f"{player.name} was dealt a card")
-            player.recieveCard(self.drawCard())
+    def deal(self) -> list:
+        """ Deals 10 cards and returns them """
+        cards = []
+        self.shuffle()
+        return self.cards[10:]
 
-
-
-""" Player Classes """
-
+    def shuffle(self, other_cards = None):
+        if other_cards != None:
+            self.cards.extend(other_cards)
+        random.shuffle(self.cards)
 
 class Discards():
     def __init__(self):
@@ -276,4 +254,25 @@ class Discards():
         c = self.cards.pop(-1)
         return c
 
-    
+
+
+COLORS = ["Red", "Blue", "Green", "Yellow"]
+LOW_NUMBERS = ["One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine"]
+HIGH_NUMBERS = ["Ten", "Eleven", "Twelve"]
+NUMBER_VALUE = {
+    "One": 1,
+    "Two": 2,
+    "Three": 3,
+    "Four": 4,
+    "Five": 5,
+    "Six": 6,
+    "Seven": 7,
+    "Eight": 8,
+    "Nine": 9,
+    "Ten": 10,
+    "Eleven": 11,
+    "Twelve": 12,
+    "Skip": 99,
+    "Wild": 99,
+    "Mimic": 99
+}

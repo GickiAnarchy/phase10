@@ -14,6 +14,10 @@ from kivy.graphics import Color, Rectangle
 from kivy.uix.popup import Popup
 from kivy.properties import ObjectProperty
 
+from phases import Goal, Phase
+from cards import Deck, Discards, Hand, Card
+from player import Player
+
 
 ##
 class SelectableCard(ToggleButton):
@@ -57,6 +61,9 @@ class SelectableHand(BoxLayout):
     def get_selected_cards(self) -> list:
         return [widget.card for widget in self.children if widget.state == 'down']
 
+    def isPressed(self) -> bool:
+        return len(self.get_selected_cards()) > 0
+
 class SelectableDeck(ToggleButton):
     def __init__(self, deck: Deck, **kwargs):
         super().__init__(**kwargs)
@@ -79,6 +86,12 @@ class SelectableDeck(ToggleButton):
         else:
             self.border_color.a = 0  # Fully transparent
 
+    def isPressed(self) -> bool:
+        if self.state == "down":
+            return True
+        else:
+            return False
+
 class SelectableDiscards(ToggleButton):
     def __init__(self, discards: Discards, **kwargs):
         super().__init__(**kwargs)
@@ -100,12 +113,17 @@ class SelectableDiscards(ToggleButton):
             self.border_color.a = 1  # Fully opaque
         else:
             self.border_color.a = 0  # Fully transparent
-    
+
+    def isPressed(self) -> bool:
+        if self.state == "down":
+            return True
+        else:
+            return False
 
 class GoalButton(Button):
-    """A players current phase goals thT are selectable when the intent is to play on an exiating goal, or one of their own."""
     def __init__(self, goal, **kwargs):
         super().__init__(**kwargs)
+        self.disabled = True
         self.goal = goal
 
     @property
@@ -115,6 +133,11 @@ class GoalButton(Button):
     @goal.setter
     def goal(self, newgoal):
         self._goal = newgoal
+    
+    def on_press(self) -> Goal:
+        if not self.disabled:
+            return self.goal
+            
 
 
 ##
@@ -205,6 +228,12 @@ class ButtonBox(GridLayout):
         if Phase10App().me:
             return True
 
+<<<<<<< HEAD
+=======
+    def playPressed(self, instance):
+        pass
+
+>>>>>>> 91ba5970b77920c27ead2c8015e7f07d0352d6fc
 ##
 class Phase10App(App):
     def build(self):
