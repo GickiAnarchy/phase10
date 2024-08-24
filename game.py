@@ -51,6 +51,9 @@ class Game:
         if isinstance(newgoals, Goal):
             newgoals = [newgoals]
 
+
+
+
     def getGamestate(self):
         return json.dumps(self.__dict__)
 
