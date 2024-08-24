@@ -11,5 +11,7 @@ from .gui import PlayerDisplay, OpponentDisplay, SelectableCard, SelectableHand,
 from .gui import PlayerCreationScreen, SelectPlayerPopup
 from .gui import PhaseDisplay, GoalDisplay
 
+from gamestate import Gamestate
+
 
 __all__ = ["Card", "WildCard", "SkipCard", "BasicCard", "LowCard", "HighCard", "Deck", "Hand", "Player", "Phase", "Goal", "SetGoal", "RunGoal", "ColorGoal", "Game", "Phase10App"]

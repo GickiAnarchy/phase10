@@ -54,10 +54,10 @@ class Game:
 
 
 
-    def getGamestate(self):
+    def getGame(self):
         return json.dumps(self.__dict__)
 
-    def saveGameState(self, gstate):
+    def saveGame(self, gstate):
         with open("savedGame.json", "w") as f:
             f.write(gstate)
             f.close()
@@ -65,10 +65,10 @@ class Game:
     @staticmethod
     def from_json(data = None, load_saved = False):
         if data == None and load_saved == True:
-            return Game(Game.loadGameState())
+            return Game(Game.loadGame())
         return Game(**json.loads(data))
 
     @staticmethod
-    def loadGameState():
+    def loadGame():
         with open("savedGame.json","r") as f:
             return json.load(f)
