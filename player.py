@@ -1,10 +1,14 @@
 
 
 
-from cards import Hand, Card, Phase, Goal
+from cards import Hand, Card
+from phases import Goal, Phase
 
 
 class Player():
+    """
+    I love player
+    """
     def __init__(self, name: str, **kwargs):
         self.name = name
         self.wins, self.losses = 0

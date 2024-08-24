@@ -1,31 +1,36 @@
-import socket
+
+
 import pickle
+from dataclasses import dataclass
 
-"""
-TECH WITH TIM
-"""
+from cards import Hand, Deck, Discards, Card
+from phases import Goal, Phase
+from player import Player
+from game import Game
 
-class Network:
-    def __init__(self):
-        self.client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.server = "10.11.250.207"
-        self.port = 5555
-        self.addr = (self.server, self.port)
-        self.p = self.connect()
+@dataclass
+class Gamestate:
+     players:list
+     hands:list
+     deck: Deck
+     discards: Discards
+     phases: list
+     goals: list
 
-    def getP(self):
-        return self.p
 
-    def connect(self):
-        try:
-            self.client.connect(self.addr)
-            return self.client.recv(2048).decode()
-        except:
-            pass
 
-    def send(self, data):
-        try:
-            self.client.send(str.encode(data))
-            return pickle.loads(self.client.recv(2048*2))
-        except socket.error as e:
-            print(e)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
