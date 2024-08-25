@@ -4,7 +4,7 @@ import asyncio
 
 class Client:
     def __init__(self, reader, writer, name):
-        self.reader = reader
+        self.reader = readergc
         self.writer = writer
         self.name = name
 

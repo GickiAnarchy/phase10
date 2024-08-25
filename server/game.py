@@ -1,5 +1,4 @@
 
-
 import random
 import copy
 import os
@@ -7,14 +6,25 @@ import json
 from itertools import cycle
 import asyncio
 import uuid
+from functools import wraps
 
-
-
+from client import Client
 from cards import SkipCard, Deck, Discards, Hand
 from phases import Phase, Goal
 from player import Player
 
+def singleton(cls):
+    instance = None
 
+    @wraps(cls)
+    def __init__(self, *args, **kwargs):
+        if instance is not None:
+            raise Exception("Singleton already created")
+        instance = super().__init__(*args, **kwargs)
+        return instance
+    return cls
+    
+@singleton
 class Game:
     def __init__(self):
         self.players = []
@@ -23,6 +33,7 @@ class Game:
         self.current_goals = []
         self.active_player = None
         self.clients = {}
+        Game.instance = self
 
     def prestart(self) -> bool:
         if len(self.players) < 2:
@@ -42,11 +53,12 @@ class Game:
     def add_player(self, player):
         self.players.append(player)
 
-    def turn_draw(self, player):
+    def turn_draw(self, player) -> bool:
         if player.skipped:
             player.toggleSkip()
-            return
+            return False
         player.drawCard(self.deck.drawCard)
+        return True
 
     def turn_play(self, cards, goal=None):
         if goal:
@@ -89,12 +101,15 @@ class Game:
         with open("savedGame.json","r") as f:
             return json.load(f)
 
-    def add_client(self, reader, writer, name):
+    def add_client(self, client):
         client_id = self.generate_unique_id()
-        self.clients[client_id] = {'reader': reader, 'writer': writer, 'name': name}
+        self.clients[client_id] = Client(client.reader, client.writer, client.name)
 
     def remove_client(self, client_id):
         del self.clients[client_id]
+
+    def get_clients(self):
+        return self.clients
 
     def broadcast_game_state(self):
         # Serialize the game state to a JSON string
@@ -106,3 +121,9 @@ class Game:
 
     def generate_unique_id(self):
         return str(uuid.uuid4())
+
+    @staticmethod
+    def getGameInstance():
+        return Game.instance
+
+    
