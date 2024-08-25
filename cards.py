@@ -254,6 +254,8 @@ class Discards():
         c = self.cards.pop(-1)
         return c
 
+    def addCard(self, card):
+        self.cards.append(card)
 
 
 COLORS = ["Red", "Blue", "Green", "Yellow"]

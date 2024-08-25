@@ -43,12 +43,12 @@ async def handle_client(reader, writer):
     writer.close()
     print("Client connection closed")
 
+addr = 'localhost'
 
 async def main():
-    server = await asyncio.start_server(handle_client, 'localhost', 8888)
+    server = await asyncio.start_server(handle_client, addr, 8888)
     async with server:
         await server.serve_forever()
-
 
 
 if __name__ == '__main__':

@@ -5,8 +5,12 @@ import copy
 import os
 import json
 from itertools import cycle
+import asyncio
+import uuid
 
-from cards import Deck, Discards, Hand
+
+
+from cards import SkipCard, Deck, Discards, Hand
 from phases import Phase, Goal
 from player import Player
 
@@ -19,6 +23,7 @@ class Game:
         self.deck = None
         self.discards = None
         self.current_goals = []
+        self.clients = {}
 
     def prestart(self) -> bool:
         if len(self.players) < 2:
@@ -34,8 +39,20 @@ class Game:
         if self.prestart():
             pass
 
-    def addPlayer(self, player):
+    def add_player(self, player):
         self.players.append(player)
+
+    def turn_draw(self, player):
+        player.drawCard(self.deck.drawCard)
+
+    def turn_play(self, cards, goal=None):
+        if goal:
+            goal.addCards(cards)
+        if isinstance(cards, SkipCard):
+            
+    
+    def play_skip(self, skip, target):
+        pass
 
     @property
     def current_goals(self):
@@ -50,8 +67,6 @@ class Game:
             self._current_goals = newgoals
         if isinstance(newgoals, Goal):
             newgoals = [newgoals]
-
-
 
 
     def getGame(self):
@@ -72,3 +87,21 @@ class Game:
     def loadGame():
         with open("savedGame.json","r") as f:
             return json.load(f)
+
+    def add_client(self, reader, writer, name):
+        client_id = self.generate_unique_id()
+        self.clients[client_id] = {'reader': reader, 'writer': writer, 'name': name}
+
+    def remove_client(self, client_id):
+        del self.clients[client_id]
+
+    def broadcast_game_state(self):
+        # Serialize the game state to a JSON string
+        game_state_json = self.getGame()
+        # Send the game state to all connected clients
+        for client_id, client_data in self.clients.items():
+            client_data['writer'].write(game_state_json.encode())
+            await client_data['writer'].drain()
+
+    def generate_unique_id(self):
+        return str(uuid.uuid4())
