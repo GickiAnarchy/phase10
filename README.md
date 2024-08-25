@@ -6,10 +6,10 @@ _by: GickiAnarchy_
 ___<u>ToDo</u>___
 -[x] Remove Stack class.  too confusing
 -[x] Start Game Logic  
--[ ] Complete Game Logic  
+-[ ] Complete Game Logic
 -[x] Start GUI  
 -[ ] Complete GUI  
--[ ] Start online mechanic  
+-[x] Start online mechanic  
 -[ ] Complete Phase 10!
 ---
 

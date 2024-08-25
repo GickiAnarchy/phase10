@@ -15,20 +15,20 @@ from phases import Phase, Goal
 from player import Player
 
 
-##
-##
 class Game:
     def __init__(self):
         self.players = []
         self.deck = None
         self.discards = None
         self.current_goals = []
+        self.active_player = None
         self.clients = {}
 
     def prestart(self) -> bool:
         if len(self.players) < 2:
             print("Not enough players to start")
             return False
+        self.player_turn_cycle = itertools.cycle(self.players)
         self.deck = Deck()
         self.discards = Discard()
         for player in self.players:
@@ -37,12 +37,15 @@ class Game:
     
     def start(self):
         if self.prestart():
-            pass
+            self.active_player = next(self.player_turn_cycle)
 
     def add_player(self, player):
         self.players.append(player)
 
     def turn_draw(self, player):
+        if player.skipped:
+            player.toggleSkip()
+            return
         player.drawCard(self.deck.drawCard)
 
     def turn_play(self, cards, goal=None):
@@ -50,9 +53,8 @@ class Game:
             goal.addCards(cards)
         if isinstance(cards, SkipCard):
             
-    
     def play_skip(self, skip, target):
-        pass
+        target.toggleSkip()
 
     @property
     def current_goals(self):
@@ -67,7 +69,6 @@ class Game:
             self._current_goals = newgoals
         if isinstance(newgoals, Goal):
             newgoals = [newgoals]
-
 
     def getGame(self):
         return json.dumps(self.__dict__)

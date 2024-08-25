@@ -14,6 +14,7 @@ class Player():
         self.wins, self.losses = 0
         self.hand = Hand()
         self.phases = self.createPhases()
+        self.skipped = False
 
     #   Phase Interactions
     def createPhases(self) -> list:
@@ -53,6 +54,10 @@ class Player():
             "losses":self.losses
             }
         return ret
+    
+    def toggleSkip(self):
+        self.skipped = !self.skipped
+        print(f"{self.name} skipped")
 
 
 PHASES_DICT = {
