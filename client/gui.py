@@ -14,10 +14,10 @@ from kivy.graphics import Color, Rectangle
 from kivy.uix.popup import Popup
 from kivy.properties import ObjectProperty
 
-from phases import Goal, Phase
-from cards import Deck, Discards, Hand, Card
-from player import Player
-
+from server.phases import Goal, Phase
+from server.cards import Deck, Discards, Hand, Card
+from server.player import Player
+from server.game import Game
 
 ##
 class SelectableCard(ToggleButton):

@@ -19,29 +19,22 @@ async def handle_client(reader, writer):
         print(f"Received message: {message}")
         if message['type'] == 'join':
             player_name = message['name']
+            reader = message['reader']
+            writer = message['writer']
             game.add_client(reader, writer, player_name)
-            player_name = message['name']
         elif message['type'] == 'draw_card':
             # Handle card drawing
-            player = get_player_by_name(message['player'])
-            card = game.draw_card()
-            player.hand.append(card)
-            broadcast_game_state()
+            player = game.getPlayer(message['player'])
+            game.turn_draw(player)
         elif message['type'] == 'play_cards':
-            # Handle card playing
             player = get_player_by_name(message['player'])
             cards = message['cards']
-            # ... validate card play and update game state ...
-            broadcast_game_state()
         elif message['type'] == 'discard_card':
-            # Handle card discarding
             player = get_player_by_name(message['player'])
             card = message['card']
-            # ... discard card and update game state ...
-            broadcast_game_state()
         else:
             print("Unknown message type")
-
+    await game.broadcast_game_state()
     writer.close()
     print("Client connection closed")
 

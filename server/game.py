@@ -8,7 +8,6 @@ import asyncio
 import uuid
 from functools import wraps
 
-from client import Client
 from cards import SkipCard, Deck, Discards, Hand
 from phases import Phase, Goal
 from player import Player
@@ -30,9 +29,11 @@ class Game:
         self.players = []
         self.deck = None
         self.discards = None
-        self.current_goals = []
         self.active_player = None
         self.clients = {}
+        self.all_hands = []
+        self.all_phases = []
+        self.all_goals = []
         Game.instance = self
 
     def prestart(self) -> bool:
@@ -48,14 +49,20 @@ class Game:
     
     def start(self):
         if self.prestart():
-            self.active_player = next(self.player_turn_cycle)
+            pass
 
     def add_player(self, player):
         self.players.append(player)
 
+    def getPlayer(self, player_name):
+        for p in self.players:
+            if p.name == player_name:
+                return p
+
     def turn_draw(self, player) -> bool:
         if player.skipped:
             player.toggleSkip()
+            self.active_player = next(self.player_turn_cycle)
             return False
         player.drawCard(self.deck.drawCard)
         return True
@@ -64,23 +71,57 @@ class Game:
         if goal:
             goal.addCards(cards)
         if isinstance(cards, SkipCard):
+            self.play_skip(cards, target)
             
     def play_skip(self, skip, target):
         target.toggleSkip()
 
     @property
-    def current_goals(self):
-        self._current_goals = []
+    def all_goals(self):
+        self._all_goals = []
         for p in self.players:
-            self._current_goals.extend(p.getCurrentPhase().getGoals())
-        return self._current_goals
+            self._all_goals.extend(p.getCurrentPhase().getGoals())
+        return self._all_goals
 
-    @current_goals.setter
-    def current_goals(self, newgoals):
+    @all_goals.setter
+    def all_goals(self, newgoals):
         if isinstance(newgoals, list):
-            self._current_goals = newgoals
+            self._all_goals = newgoals
         if isinstance(newgoals, Goal):
             newgoals = [newgoals]
+
+    @property
+    def all_hands(self):
+        self.all_hands.clear()
+        for p in self.players:
+            self.all_hands.append(p.hand)
+        return self.all_hands
+    
+    @all_hands.setter
+    def all_hands(self, newhands):
+        if isinstance(newhands, list):
+            self._all_hands = newhands
+
+    @property
+    def all_phases(self):
+        self.all_phases = []
+        for p in self.players:
+            self.all_phases.append(p.getCurrentPhase())
+        return self.all_phases
+
+    @all_phases.setter
+    def all_phases(self, newphases):
+        if isinstance(newphases, list):
+            self._all_phases = newphases
+
+    @property
+    def active_player(self):
+        self._active_player = next(self.player_turn_cycle)
+        return self._active_player
+
+    @active_player.setter
+    def active_player(self, newactive):
+        self._active_player = newactive
 
     def getGame(self):
         return json.dumps(self.__dict__)
@@ -111,10 +152,8 @@ class Game:
     def get_clients(self):
         return self.clients
 
-    def broadcast_game_state(self):
-        # Serialize the game state to a JSON string
+    async def broadcast_game_state(self):
         game_state_json = self.getGame()
-        # Send the game state to all connected clients
         for client_id, client_data in self.clients.items():
             client_data['writer'].write(game_state_json.encode())
             await client_data['writer'].drain()
@@ -126,4 +165,13 @@ class Game:
     def getGameInstance():
         return Game.instance
 
+
+if __name__ == "__main__":
+    game = Game()
+    a = game.generate_unique_id()
+    b = game.generate_unique_id()
+    c = game.generate_unique_id()
     
+    print(a)
+    print(b)
+    print(c)

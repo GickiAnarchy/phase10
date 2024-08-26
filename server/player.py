@@ -2,7 +2,7 @@
 
 
 from cards import Hand, Card
-from phases import Goal, Phase
+from phases import Goal, Phase, SetGoal, RunGoal, ColorGoal
 
 
 class Player():
@@ -56,7 +56,7 @@ class Player():
         return ret
     
     def toggleSkip(self):
-        self.skipped = !self.skipped
+        self.skipped = not self.skipped
         print(f"{self.name} skipped")
 
 
