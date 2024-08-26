@@ -30,7 +30,10 @@ class Player():
             if not phase.complete:
                 return phase
         return None
-        
+
+    def checkCurrentPhase(self):
+        return self.getCurrentPhase().complete
+ 
     #   Scoring
     def addPoints(self) -> int:
         for c in self.hand.cards:

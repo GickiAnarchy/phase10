@@ -1,22 +1,43 @@
 
 import asyncio
-
+import uuid
 
 class Client:
     def __init__(self, reader, writer, name):
         self.reader = readergc
         self.writer = writer
         self.name = name
+        self.id = self.generate_unique_id()
+        self.updated_game = None
+        
+    async def run(self):
+        while True:
+            data = await self.reader.readuntil(b'\n')
+            if not data:
+                break
+
+            message = json.loads(data.decode())
+            # Handle the received message (e.g., update game state, display information)
+            self.updated_game
+            # ... (your game-specific logic) ...
+
+    async def send_message(self, message):
+        data = json.dumps(message).encode()
+        await self.writer.write(data + b'\n')
+         cawait asyncio.drain(self.writer)
+
+    def generate_unique_id(self):
+        return str(uuid.uuid4())
 
 
-addr = "localhost"
+addr = 'localhost'
 
-async def connect_and_send_message(message):
+async def main():
     reader, writer = await asyncio.open_connection(addr, 8888)
-    writer.write(message.encode())
-    await writer.drain()
-    data = await reader.readuntil(b'\n')
-    print(f"Received: {data.decode()}")
-    writer.close()
+    client = Client(reader, writer, 'Player1')
+    await client.run()
 
-asyncio.run(connect_and_send_message('Hello from client'))
+if __name__ == '__main__':
+    asyncio.run(main())
+
+    

@@ -16,22 +16,27 @@ async def handle_client(reader, writer):
             break
 
         message = json.loads(data.decode())
+        mtype == message['type']
+        player_name = message['name']
+        
+        #reader = message['reader']
+        #writer = message['writer']
         print(f"Received message: {message}")
-        if message['type'] == 'join':
-            player_name = message['name']
-            reader = message['reader']
-            writer = message['writer']
+        if mtype == 'join':
             game.add_client(reader, writer, player_name)
-        elif message['type'] == 'draw_card':
-            # Handle card drawing
-            player = game.getPlayer(message['player'])
-            game.turn_draw(player)
-        elif message['type'] == 'play_cards':
-            player = get_player_by_name(message['player'])
+        elif mtype == 'create_player':
+            game.add_player(message['player'])
+        elif mtype == 'draw_card':
+            game.turn_draw(message['player'])
+        elif mtype == 'play_cards':
+            player = message['player']
             cards = message['cards']
-        elif message['type'] == 'discard_card':
-            player = get_player_by_name(message['player'])
+            goal = message['goal']
+            
+        elif mtype == 'discard_card':
             card = message['card']
+            
+        
         else:
             print("Unknown message type")
     await game.broadcast_game_state()

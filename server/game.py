@@ -67,11 +67,17 @@ class Game:
         player.drawCard(self.deck.drawCard)
         return True
 
-    def turn_play(self, cards, goal=None):
+    def turn_play(self, player, cards, goal=None):
         if goal:
-            goal.addCards(cards)
+            cards_temp = []
+            for card in cards:
+                cards_temp.append(player.getCard(card))
+            goal.addCards(cards_temp)
         if isinstance(cards, SkipCard):
             self.play_skip(cards, target)
+
+    def turn_discard(self, card):
+        
             
     def play_skip(self, skip, target):
         target.toggleSkip()
@@ -114,9 +120,12 @@ class Game:
         if isinstance(newphases, list):
             self._all_phases = newphases
 
+    def next_player(self):
+        self._active_player = next(self.player_turn_cycle)
+        return self.active_player
+
     @property
     def active_player(self):
-        self._active_player = next(self.player_turn_cycle)
         return self._active_player
 
     @active_player.setter
@@ -142,9 +151,9 @@ class Game:
         with open("savedGame.json","r") as f:
             return json.load(f)
 
-    def add_client(self, client):
+    def add_client(self, reader, writer, name):
         client_id = self.generate_unique_id()
-        self.clients[client_id] = Client(client.reader, client.writer, client.name)
+        self.clients[client_id] = Client(client.reader, client.writer, client.name, client_id)
 
     def remove_client(self, client_id):
         del self.clients[client_id]
