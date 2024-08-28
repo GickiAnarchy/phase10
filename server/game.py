@@ -5,7 +5,6 @@ import os
 import json
 from itertools import cycle
 import asyncio
-import uuid
 from functools import wraps
 
 from cards import SkipCard, Deck, Discards, Hand
@@ -77,10 +76,19 @@ class Game:
             self.play_skip(cards, target)
 
     def turn_discard(self, card):
-        
-            
+        pass
+
     def play_skip(self, skip, target):
         target.toggleSkip()
+
+    def getAllPoints(self):
+        self.all_points = 0
+        for p in self.players:
+            self.all_points += p.points
+        return self.points
+
+    def getPlayerPoints(self, player):
+        return player.points
 
     @property
     def all_goals(self):
@@ -140,6 +148,9 @@ class Game:
             f.write(gstate)
             f.close()
 
+
+#############
+
     @staticmethod
     def from_json(data = None, load_saved = False):
         if data == None and load_saved == True:
@@ -151,9 +162,8 @@ class Game:
         with open("savedGame.json","r") as f:
             return json.load(f)
 
-    def add_client(self, reader, writer, name):
-        client_id = self.generate_unique_id()
-        self.clients[client_id] = Client(client.reader, client.writer, client.name, client_id)
+    def add_client(self, client):
+        self.clients[client.client_id] = client
 
     def remove_client(self, client_id):
         del self.clients[client_id]
@@ -167,20 +177,10 @@ class Game:
             client_data['writer'].write(game_state_json.encode())
             await client_data['writer'].drain()
 
-    def generate_unique_id(self):
-        return str(uuid.uuid4())
-
     @staticmethod
     def getGameInstance():
         return Game.instance
 
 
 if __name__ == "__main__":
-    game = Game()
-    a = game.generate_unique_id()
-    b = game.generate_unique_id()
-    c = game.generate_unique_id()
-    
-    print(a)
-    print(b)
-    print(c)
+    pass
