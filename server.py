@@ -5,6 +5,7 @@ import asyncio
 
 from gamestate import Gamestate
 from game import Game
+from player import Player
 
 
 
@@ -16,27 +17,29 @@ async def handle_client(reader, writer):
             break
 
         message = json.loads(data.decode())
-        mtype == message['type']
-        player_name = message['name']
+        #player_name = message['name']
         
         #reader = message['reader']
         #writer = message['writer']
         print(f"Received message: {message}")
-        if mtype == 'join':
+        if message['type'] == "test":
+            print(message["description"])
+        if message['type'] == 'join':
+            player_name = message['player'].name
             game.add_client(reader, writer, player_name)
-        elif mtype == 'create_player':
+            '''
+        elif message['type'] == 'create_player':
             game.add_player(message['player'])
-        elif mtype == 'draw_card':
+        elif message['type'] == 'draw_card':
             game.turn_draw(message['player'])
-        elif mtype == 'play_cards':
+        elif message['type'] == 'play_cards':
             player = message['player']
             cards = message['cards']
             goal = message['goal']
             
-        elif mtype == 'discard_card':
+        elif message['type'] == 'discard_card':
             card = message['card']
-            
-        
+            '''
         else:
             print("Unknown message type")
     await game.broadcast_game_state()

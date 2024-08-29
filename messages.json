@@ -1,5 +1,6 @@
 {
-    "message_types": {
+    "type": {
+        "test": {},
         "join": {
             "description": "Player joins the game",
             "required_fields": ["player"]

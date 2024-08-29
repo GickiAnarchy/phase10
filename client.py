@@ -1,21 +1,22 @@
 
 import asyncio
 import uuid
+import json
 
 class Client:
     def __init__(self, reader, writer, name):
-        self.reader = readergc
+        self.reader = reader
         self.writer = writer
         self.name = name
         self.id = self.generate_unique_id()
         self.updated_game = None
         
     async def run(self):
+        await self.send_message(message = {"type":"test","description":"connected"})
         while True:
             data = await self.reader.readuntil(b'\n')
             if not data:
                 break
-
             message = json.loads(data.decode())
             # Handle the received message (e.g., update game state, display information)
             self.updated_game
@@ -24,7 +25,7 @@ class Client:
     async def send_message(self, message):
         data = json.dumps(message).encode()
         await self.writer.write(data + b'\n')
-         cawait asyncio.drain(self.writer)
+        await asyncio.drain(self.writer)
 
     def generate_unique_id(self):
         return str(uuid.uuid4())
@@ -32,12 +33,15 @@ class Client:
 
 addr = 'localhost'
 
-async def main(player):
+async def main(player = None):
     reader, writer = await asyncio.open_connection(addr, 8888)
-    client = Client(reader, writer, player.name)
+    if player == None:
+        client = Client(reader, writer, "Default")
+    else:
+        client = Client(reader, writer, player.name)
     await client.run()
 
 if __name__ == '__main__':
-    #asyncio.run(main())
+    asyncio.run(main())
 
     

@@ -29,11 +29,13 @@ class Game:
         self.deck = None
         self.discards = None
         self.active_player = None
-        self.clients = {}
         self.all_hands = []
         self.all_phases = []
         self.all_goals = []
         Game.instance = self
+        
+        self.clients = {}
+
 
     def prestart(self) -> bool:
         if len(self.players) < 2:
@@ -50,6 +52,18 @@ class Game:
         if self.prestart():
             pass
 
+    def checkWin(self, player) -> bool:
+        '''
+        Checks if player has won
+        '''
+        if player.getCurrentPhase() == None:
+            print(f"{player.name} wins the game")
+            return True
+        else:
+            return False
+
+
+# Player handling
     def add_player(self, player):
         self.players.append(player)
 
@@ -58,38 +72,21 @@ class Game:
             if p.name == player_name:
                 return p
 
-    def turn_draw(self, player) -> bool:
-        if player.skipped:
-            player.toggleSkip()
-            self.active_player = next(self.player_turn_cycle)
-            return False
-        player.drawCard(self.deck.drawCard)
-        return True
 
-    def turn_play(self, player, cards, goal=None):
-        if goal:
-            cards_temp = []
-            for card in cards:
-                cards_temp.append(player.getCard(card))
-            goal.addCards(cards_temp)
-        if isinstance(cards, SkipCard):
-            self.play_skip(cards, target)
+# Turn handling
+    def player_draw(self, player):
+        '''
+        Called when player draws a card.
+        '''
+        player.drawCard(self.deck.drawCard())
 
-    def turn_discard(self, card):
-        pass
+    def player_discard(self, player, card):
+        card = player.getCard(card)
+        self.discards.addCard(card)
 
-    def play_skip(self, skip, target):
-        target.toggleSkip()
+    
 
-    def getAllPoints(self):
-        self.all_points = 0
-        for p in self.players:
-            self.all_points += p.points
-        return self.points
-
-    def getPlayerPoints(self, player):
-        return player.points
-
+# Property Methods  
     @property
     def all_goals(self):
         self._all_goals = []
@@ -128,40 +125,35 @@ class Game:
         if isinstance(newphases, list):
             self._all_phases = newphases
 
-    def next_player(self):
-        self._active_player = next(self.player_turn_cycle)
-        return self.active_player
-
     @property
-    def active_player(self):
+    def active_player(self):ß
         return self._active_player
 
     @active_player.setter
     def active_player(self, newactive):
         self._active_player = newactive
 
+
+# Game class methods
     def getGame(self):
         return json.dumps(self.__dict__)
 
-    def saveGame(self, gstate):
-        with open("savedGame.json", "w") as f:
-            f.write(gstate)
-            f.close()
+    @staticmethod
+    def getGameInstance():
+        Game().instance = self
+        return Game().instance
 
 
 #############
-
     @staticmethod
-    def from_json(data = None, load_saved = False):
-        if data == None and load_saved == True:
-            return Game(Game.loadGame())
+    def from_json(data = None):
+        '''
+        Updates the game instance.
+        '''
         return Game(**json.loads(data))
 
-    @staticmethod
-    def loadGame():
-        with open("savedGame.json","r") as f:
-            return json.load(f)
 
+# Client/Server methods
     def add_client(self, client):
         self.clients[client.client_id] = client
 
@@ -176,10 +168,6 @@ class Game:
         for client_id, client_data in self.clients.items():
             client_data['writer'].write(game_state_json.encode())
             await client_data['writer'].drain()
-
-    @staticmethod
-    def getGameInstance():
-        return Game.instance
 
 
 if __name__ == "__main__":

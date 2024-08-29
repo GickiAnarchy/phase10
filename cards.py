@@ -190,6 +190,42 @@ class Hand():
         print("Hand().getIndex()")
         print("Card isnt in the hand.")
 
+    def checkForRun(self, min_cards) -> bool:
+        mc = 0
+        self.sortNumber()
+        for i,c in enumerate(self.cards):
+            if c.number == self.cards[i + 1].number + 1:
+                mc += 1
+            else:
+                mc = 0
+            if mc == min_cards:
+                print("Run found in hand.")
+                return True
+        return False
+ 
+    def checkForSet(self, min_cards) -> bool:
+        mc = 0
+        self.sortNumber()
+        for i,c in enumerate(self.cards):
+            if c.number == self.cards[i + 1].number:
+                mc += 1
+            else:
+                mc = 0
+            if mc == min_cards:
+                print("Set found in hand.")
+                return True
+        return False
+    
+    def checkForColor(self, min_cards) -> bool:
+        color_counts = {}
+        for card in self.cards:
+            color_counts[card.color] = color_counts.get(card.color, 0) + 1
+        for v in color_counts.values():
+            if v >= min_cards:
+                print("Color set found in hand.")
+                return True
+        return False
+
     def sortNumber(self):
         self.cards.sort(key=lambda x: x.number)
 
