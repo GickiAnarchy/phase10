@@ -8,7 +8,7 @@ from game import Game
 
 
 
-async def handle_client(reader, writer):
+async def handle_client(reader, writer, mtype=None):
     while True:
         game = Game.getGameInstance()
         data = await reader.readuntil(b'\n')
