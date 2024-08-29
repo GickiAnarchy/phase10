@@ -2,27 +2,27 @@
     "message_types": {
         "join": {
             "description": "Player joins the game",
-            "required_fields": ["name"]
+            "required_fields": ["player"]
         },
         "create_player": {
             "description": "User is creating a player.",
-            "required_fields": ["player"]
+            "required_fields": []
         }
         "draw_card": {
             "description": "Player draws a card",
-            "required_fields": ["player"]
+            "required_fields": []
         },
         "play_cards": {
             "description": "Player plays cards on a goal",
-            "required_fields": ["player", , "cards", "goal"]
+            "required_fields": ["cards", "goal"]
         },
         "discard_card": {
             "description": "Player discards a card",
-            "required_fields": ["player","card"]
+            "required_fields": ["card"]
         },
         "game_state": {
             "description": "Server sends updated game state to clients",
-            "required_fields": ["players", "deck", "discards", "active_player", "goals","points_list"]
+            "required_fields": ["players", "deck", "discards", "active_player", "goals"]
         }
     }
 }

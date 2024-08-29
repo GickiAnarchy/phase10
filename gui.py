@@ -1,5 +1,7 @@
 
 import random
+import asyncio
+
 from kivy.app import App
 from kivy.uix.button import Button
 from kivy.uix.boxlayout import BoxLayout
@@ -18,6 +20,7 @@ from server.phases import Goal, Phase
 from server.cards import Deck, Discards, Hand, Card
 from server.player import Player
 from server.game import Game
+from client import Client
 
 ##
 class SelectableCard(ToggleButton):
@@ -226,6 +229,7 @@ class ButtonBox(GridLayout):
         pop = PlayerCreationPopup(self.game)
         Phase10App().me = pop.open()
         if Phase10App().me:
+            asyncio.run(client.main(me))
             return True
 
     def playPressed(self, instance):

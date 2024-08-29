@@ -32,12 +32,12 @@ class Client:
 
 addr = 'localhost'
 
-async def main():
+async def main(player):
     reader, writer = await asyncio.open_connection(addr, 8888)
-    client = Client(reader, writer, 'Player1')
+    client = Client(reader, writer, player.name)
     await client.run()
 
 if __name__ == '__main__':
-    asyncio.run(main())
+    #asyncio.run(main())
 
     
