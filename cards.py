@@ -73,7 +73,7 @@ class Card():
         return self.number > other.number
 
 class WildCard(Card):
-    def __init__(self, name="Wild", points=25, color="None"):
+    def __init__(self, name="Wild", points=25, color="Wild"):
         super().__init__(name, points, color)
         self.mimic = None
 
@@ -90,57 +90,50 @@ class WildCard(Card):
 
     @property
     def name(self):
-        if self.mimic != None:
-            return self.mimic.name
-        else:
-            return self.name
+        return self._name
 
     @name.setter
     def name(self, newname):
-        self.name = newname
+        self._name = newname
 
     @property
     def color(self):
-        if self.mimic != None:
-            return self.mimic.color
-        else:
-            return self.color
+        return self._color
 
     @color.setter
     def color(self, newcolor):
-        self.color = newcolor
+        self._color = newcolor
 
     @property
     def number(self):
-        if self.mimic != None:
-            return self.mimic.number
-        else:
-            return self.number
+        return self._number
 
     @number.setter
     def number(self, newnumber):
-        self.number = newnumber
+        self._number = newnumber
 
     def __eq__(self, other):
         if isinstance(other, Card):
             if other.name == "Skip":
                  return False
             else:
-                self.set_mimic(other)
+                return True
+        if isinstance(other, int):
+            if other == 99:
+                return False
+            else:
                 return True
 
     def __lt__(self, other):
         if other.name == "Skip":
             return False
         else:
-            self.set_mimic(other)
             return True
 
     def __gt__(self, other):
         if other.name == "Skip":
             return False
         else:
-            self.set_mimic(other)
             return True
 
 class SkipCard(Card):
@@ -170,8 +163,7 @@ class HighCard(BasicCard):
         super().__init__(name, points, color)
 
 
-
-class Hand():
+class Hand:
     def __init__(self):
         self.cards = []
 
@@ -180,49 +172,65 @@ class Hand():
 
     def __getitem__(self, index):
         return self.cards[index]
-    
+
+    def addCards(self, cards: list):
+        self.cards.extend(cards)
+
     def getIndex(self, card) -> int:
-        i = 0
-        for c in self.cards:
+        for i, c in enumerate(self.cards):
             if c.name == card.name and c.number == card.number:
                 return i
-            i += 1
-        print("Hand().getIndex()")
-        print("Card isnt in the hand.")
+        raise ValueError(f"Card {card} not found in the hand.")
 
-    def checkForRun(self, min_cards) -> bool:
-        mc = 0
+    def checkForRun(self, min_cards: int = 1) -> bool:
         self.sortNumber()
-        for i,c in enumerate(self.cards):
-            if c.number == self.cards[i + 1].number + 1:
-                mc += 1
+        count = 0
+        wilds = 0
+        for c in self.cards:
+            if c.name == "Wild":
+                wilds += 1
+        for i, card in enumerate(self.cards[:-1]):
+            if card.number == self.cards[i + 1].number - 1:
+                count += 1
+            elif card.number == self.cards[i + 1].number:
+                count += 0
             else:
-                mc = 0
-            if mc == min_cards:
-                print("Run found in hand.")
+                if wilds > 0:
+                    wilds -= 1
+                    count += 1
+                else:
+                    count = 0
+            if count >= min_cards - 1:  # Adjust for starting count
+                print("run found")
                 return True
         return False
- 
-    def checkForSet(self, min_cards) -> bool:
-        mc = 0
-        self.sortNumber()
-        for i,c in enumerate(self.cards):
-            if c.number == self.cards[i + 1].number:
-                mc += 1
-            else:
-                mc = 0
-            if mc == min_cards:
-                print("Set found in hand.")
-                return True
-        return False
-    
-    def checkForColor(self, min_cards) -> bool:
-        color_counts = {}
+
+    def checkForSet(self, min_cards: int = 1) -> bool:
+        number_counts = {}
+        wilds_used = 0
         for card in self.cards:
-            color_counts[card.color] = color_counts.get(card.color, 0) + 1
-        for v in color_counts.values():
-            if v >= min_cards:
-                print("Color set found in hand.")
+            if card.number == 13:
+                wilds_used += 1
+            else:
+                number_counts[card.number] = number_counts.get(card.number, 0) + 1
+        for number, count in number_counts.items():
+            if count + wilds_used >= min_cards:
+                print("set found")
+                return True
+        return False
+
+
+    def checkForColor(self, min_cards: int = 1) -> bool:
+        color_counts = {}
+        wilds = 0
+        for card in self.cards:
+            if card.name == "Wild":
+                wilds += 1
+            else:
+                color_counts[card.color] = color_counts.get(card.color, 0) + 1
+        for color, count in color_counts.items():
+            if count + wilds >= min_cards:
+                print("color set found")
                 return True
         return False
 
@@ -272,10 +280,15 @@ class Deck():
             return False
 
     def deal(self) -> list:
-        """ Deals 10 cards and returns them """
-        cards = []
+        """ 
+        Shuffles deck then deals 10 cards.
+        
+        Returns:
+            list: of 10 Card objects
+        """
+        
         self.shuffle()
-        return self.cards[10:]
+        return self.cards[:10]
 
     def shuffle(self, other_cards = None):
         if other_cards != None:
@@ -311,6 +324,30 @@ NUMBER_VALUE = {
     "Eleven": 11,
     "Twelve": 12,
     "Skip": 99,
-    "Wild": 99,
-    "Mimic": 99
+    "Wild": 13
 }
+
+
+if __name__ == "__main__":
+    deck = Deck()
+    hand = Hand()
+    hand2 = Hand()
+    hand.addCards(deck.deal())
+    hand2.addCards(deck.deal())
+    
+    print("\nhand....")
+    hand.checkForRun(4)
+    hand.checkForSet(3)
+    hand.checkForColor(3)
+    print("\nhand2.....")
+    hand2.checkForRun(4)
+    hand2.checkForSet(3)
+    hand2.checkForColor(3)
+    print("\n\n")
+    for c in hand:
+        print(c.description())
+    print("")
+    for c in hand2:
+        print(c.description())
+    
+    

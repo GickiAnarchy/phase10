@@ -36,7 +36,6 @@ class Game:
         
         self.clients = {}
 
-
     def prestart(self) -> bool:
         if len(self.players) < 2:
             print("Not enough players to start")
@@ -52,18 +51,8 @@ class Game:
         if self.prestart():
             pass
 
-    def checkWin(self, player) -> bool:
-        '''
-        Checks if player has won
-        '''
-        if player.getCurrentPhase() == None:
-            print(f"{player.name} wins the game")
-            return True
-        else:
-            return False
 
-
-# Player handling
+    # Player handling
     def add_player(self, player):
         self.players.append(player)
 
@@ -72,21 +61,44 @@ class Game:
             if p.name == player_name:
                 return p
 
+    def checkWin(self, player) -> bool:
+        """
+        Checks if player has won.
+        
+        Returns:
+            bool
+        """
+        
+        if player.getCurrentPhase() == None:
+            print(f"{player.name} wins the game")
+            return True
+        else:
+            return False
 
-# Turn handling
-    def player_draw(self, player):
+
+    # Turn handling
+    def player_draw(self, player, from_deck = True) -> bool:
         '''
         Called when player draws a card.
         '''
-        player.drawCard(self.deck.drawCard())
+        
+        if self.active_player.skipped:
+            self.active_player = next(self.player_turn_cycle)
+            return False
+        if from_deck:
+            player.drawCard(self.deck.drawCard())
+            return True
+        if not from_deck:
+            player.drawCard(self.discards.pop())
+            return True
 
     def player_discard(self, player, card):
         card = player.getCard(card)
         self.discards.addCard(card)
+        self.active_player = next(self.player_turn_cycle)
 
     
-
-# Property Methods  
+    # Property Methods  
     @property
     def all_goals(self):
         self._all_goals = []
@@ -126,7 +138,7 @@ class Game:
             self._all_phases = newphases
 
     @property
-    def active_player(self):ß
+    def active_player(self):
         return self._active_player
 
     @active_player.setter
@@ -134,7 +146,7 @@ class Game:
         self._active_player = newactive
 
 
-# Game class methods
+    # Game class methods
     def getGame(self):
         return json.dumps(self.__dict__)
 
@@ -144,7 +156,7 @@ class Game:
         return Game().instance
 
 
-#############
+    #############
     @staticmethod
     def from_json(data = None):
         '''
@@ -152,22 +164,16 @@ class Game:
         '''
         return Game(**json.loads(data))
 
-
-# Client/Server methods
+    # Client/Server methods
     def add_client(self, client):
         self.clients[client.client_id] = client
 
     def remove_client(self, client_id):
         del self.clients[client_id]
 
-    def get_clients(self):
+    def get_clients(self) -> dict:
         return self.clients
 
-    async def broadcast_game_state(self):
-        game_state_json = self.getGame()
-        for client_id, client_data in self.clients.items():
-            client_data['writer'].write(game_state_json.encode())
-            await client_data['writer'].drain()
 
 
 if __name__ == "__main__":

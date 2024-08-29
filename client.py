@@ -3,6 +3,9 @@ import asyncio
 import uuid
 import json
 
+from gamestate import Gamestate
+from gui import Phase10App
+
 class Client:
     def __init__(self, reader, writer, name):
         self.reader = reader
@@ -12,14 +15,13 @@ class Client:
         self.updated_game = None
         
     async def run(self):
-        await self.send_message(message = {"type":"test","description":"connected"})
         while True:
             data = await self.reader.readuntil(b'\n')
             if not data:
                 break
             message = json.loads(data.decode())
             # Handle the received message (e.g., update game state, display information)
-            self.updated_game
+            self.updated_game = message
             # ... (your game-specific logic) ...
 
     async def send_message(self, message):
