@@ -2,7 +2,6 @@
 import random
 
 
-
 class Card():
     count = 0
     def __init__(self, name: str, points: int, color: str):
