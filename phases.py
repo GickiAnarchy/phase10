@@ -68,6 +68,8 @@ class Phase:
                 g.setOwner(self.owner)
 
     def checkComplete(self) -> bool:
+        if self.goals == []:
+            return False
         self.complete = all(goal.complete for goal in self.goals)
         return self.complete
 

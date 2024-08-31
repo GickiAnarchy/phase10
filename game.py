@@ -29,11 +29,14 @@ class Game:
         self.deck = None
         self.discards = None
         self.active_player = None
-        self.clients = {}
         self.all_hands = []
         self.all_phases = []
         self.all_goals = []
+        
+        self.game_locked = False
         Game.instance = self
+        
+        self.clients = {}
 
     def prestart(self) -> bool:
         if len(self.players) < 2:
@@ -50,7 +53,11 @@ class Game:
         if self.prestart():
             pass
 
+
+    # Player handling
     def add_player(self, player):
+        if self.players == []:
+            self.active_player = player
         self.players.append(player)
 
     def getPlayer(self, player_name):
@@ -58,38 +65,55 @@ class Game:
             if p.name == player_name:
                 return p
 
-    def turn_draw(self, player) -> bool:
-        if player.skipped:
-            player.toggleSkip()
+    def checkWin(self, player) -> bool:
+        """
+        Checks if player has won.
+        
+        Returns:
+            bool
+        """
+        
+        if player.getCurrentPhase() == None:
+            print(f"{player.name} wins the game")
+            return True
+        else:
+            return False
+
+    # Turn handling
+    def draw(self, player, from_deck = True) -> bool:
+        '''
+        Called when player draws a card.
+        
+        Args:
+            player: player that is drawing
+            from_deck: True if player drawing from the deck, False if the player pulls from the discard pile.
+        
+        Returns:
+            bool: True if method was successful
+        '''
+        
+        if self.active_player != player:
+            return False
+        if self.active_player.skipped:
             self.active_player = next(self.player_turn_cycle)
             return False
-        player.drawCard(self.deck.drawCard)
-        return True
+        if from_deck:
+            player.drawCard(self.deck.drawCard())
+            return True
+        if not from_deck:
+            player.drawCard(self.discards.pop())
+            return True
 
-    def turn_play(self, player, cards, goal=None):
-        if goal:
-            cards_temp = []
-            for card in cards:
-                cards_temp.append(player.getCard(card))
-            goal.addCards(cards_temp)
-        if isinstance(cards, SkipCard):
-            self.play_skip(cards, target)
+    def discard(self, player, card):
+        card = player.getCard(card)
+        self.discards.addCard(card)
+        self.active_player = next(self.player_turn_cycle)
 
-    def turn_discard(self, card):
+    def play(self, player, cards, target):
         pass
 
-    def play_skip(self, skip, target):
-        target.toggleSkip()
-
-    def getAllPoints(self):
-        self.all_points = 0
-        for p in self.players:
-            self.all_points += p.points
-        return self.points
-
-    def getPlayerPoints(self, player):
-        return player.points
-
+    
+    # Property Methods  
     @property
     def all_goals(self):
         self._all_goals = []
@@ -128,10 +152,6 @@ class Game:
         if isinstance(newphases, list):
             self._all_phases = newphases
 
-    def next_player(self):
-        self._active_player = next(self.player_turn_cycle)
-        return self.active_player
-
     @property
     def active_player(self):
         return self._active_player
@@ -140,46 +160,35 @@ class Game:
     def active_player(self, newactive):
         self._active_player = newactive
 
+
+    # Game class methods
     def getGame(self):
         return json.dumps(self.__dict__)
 
-    def saveGame(self, gstate):
-        with open("savedGame.json", "w") as f:
-            f.write(gstate)
-            f.close()
-
-
-#############
-
     @staticmethod
-    def from_json(data = None, load_saved = False):
-        if data == None and load_saved == True:
-            return Game(Game.loadGame())
+    def getGameInstance():
+        Game().instance = self
+        return Game().instance
+
+
+    #############
+    @staticmethod
+    def from_json(data = None):
+        '''
+        Updates the game instance.
+        '''
         return Game(**json.loads(data))
 
-    @staticmethod
-    def loadGame():
-        with open("savedGame.json","r") as f:
-            return json.load(f)
-
+    # Client/Server methods
     def add_client(self, client):
         self.clients[client.client_id] = client
 
     def remove_client(self, client_id):
         del self.clients[client_id]
 
-    def get_clients(self):
+    def get_clients(self) -> dict:
         return self.clients
 
-    async def broadcast_game_state(self):
-        game_state_json = self.getGame()
-        for client_id, client_data in self.clients.items():
-            client_data['writer'].write(game_state_json.encode())
-            await client_data['writer'].drain()
-
-    @staticmethod
-    def getGameInstance():
-        return Game.instance
 
 
 if __name__ == "__main__":
