@@ -1,15 +1,14 @@
 
 
+import pickle
 
-from cards import Hand, Card
-from phases import Goal, Phase, SetGoal, RunGoal, ColorGoal
-#from phase10 import PHASES_DATA
-
+from cards import Card, Hand, Deck, Discards
+from phases import Phase, Goal
 
 class Player():
     """
     Represents a Player.
-    
+     
     Attributes:
         name (str): Players name.
         points (int): Players points.
@@ -103,6 +102,22 @@ class Player():
         
         ind = self.hand.getIndex(card)
         return self.hand.cards.pop(ind)
+        
+        def getCards(self, cards) -> list:
+        """
+        Gets cards from the players hand.
+        
+        Args:
+            cards: Cards to search for.
+        
+        Returns:
+            The card list from a players hand.
+        """
+        
+        c_list = []
+        for card in cards:
+            c_list.append(self.getCard(card))
+        return c_list
 
     #   Metadata
     def getPlayerData(self) -> dict:
@@ -124,7 +139,7 @@ class Player():
         """
         
         self.skipped = not self.skipped
-        print(f"{self.name} skipped")
+        print(f"{self.name} skipped = {self.skipped}")
 
     def checkForPlays(self) -> bool:
         """
@@ -147,3 +162,46 @@ class Player():
                 ret = True
         return ret
 
+    def resavePlayer(self):
+        """
+        Overwrites the player save in the player saves file.
+        
+        Returns:
+            None
+        """
+        
+        savePlayer(self, force = True)
+
+
+
+player_saves = ".player_saves.p10"
+
+def savePlayer(player, pin = "0000", force = False):
+    saves = getSaves()
+    if player.name not in saves:
+        saves[player.name] = {"data": player, "pin": pin}
+    elif player.name in saves and force == True and pin == "0000":
+        pin = saves[player.name]["pin"]
+        saves[player.name] = {"data": player, "pin": pin}
+    else:
+        print("Cant save player.")
+    with open(player_saves, "wb") as f:
+        pickle.dump(saves, f)
+
+def loadPlayer(name, pin):
+    saves = getSaves()
+    if name in saves and saves[name]["pin"] == pin:
+        player_data = saves[name]["data"]
+        return player_data
+    else:
+        print("Invalid name or PIN.")
+        return None
+
+def getSaves():
+    try:
+        with open(player_saves, "rb") as f:
+            saves = pickle.load(f)
+        return saves
+    except:
+        print("Error in loading saves")
+        return {}
