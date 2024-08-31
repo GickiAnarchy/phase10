@@ -1,10 +1,6 @@
 
 import asyncio
 import uuid
-import json
-
-from gamestate import Gamestate
-from gui import Phase10App
 
 class Client:
     def __init__(self, reader, writer, name):
@@ -19,15 +15,16 @@ class Client:
             data = await self.reader.readuntil(b'\n')
             if not data:
                 break
+
             message = json.loads(data.decode())
             # Handle the received message (e.g., update game state, display information)
-            self.updated_game = message
+            self.updated_game
             # ... (your game-specific logic) ...
 
     async def send_message(self, message):
         data = json.dumps(message).encode()
         await self.writer.write(data + b'\n')
-        await asyncio.drain(self.writer)
+         cawait asyncio.drain(self.writer)
 
     def generate_unique_id(self):
         return str(uuid.uuid4())
@@ -35,18 +32,12 @@ class Client:
 
 addr = 'localhost'
 
-async def main(player = None):
+async def main(player):
     reader, writer = await asyncio.open_connection(addr, 8888)
-    if player == None:
-        client = Client(reader, writer, "Default")
-    else:
-        client = Client(reader, writer, player.name)
+    client = Client(reader, writer, player.name)
     await client.run()
 
-    async def startClient(self, player):
-        asyncio.run(main(player))
-
 if __name__ == '__main__':
-    pass
+    #asyncio.run(main())
 
     
