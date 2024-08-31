@@ -43,7 +43,10 @@ async def main(player = None):
         client = Client(reader, writer, player.name)
     await client.run()
 
+    async def startClient(self, player):
+        asyncio.run(main(player))
+
 if __name__ == '__main__':
-    asyncio.run(main())
+    pass
 
     

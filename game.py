@@ -32,6 +32,8 @@ class Game:
         self.all_hands = []
         self.all_phases = []
         self.all_goals = []
+        
+        self.game_locked = False
         Game.instance = self
         
         self.clients = {}
@@ -54,6 +56,8 @@ class Game:
 
     # Player handling
     def add_player(self, player):
+        if self.players == []:
+            self.active_player = player
         self.players.append(player)
 
     def getPlayer(self, player_name):
@@ -75,13 +79,21 @@ class Game:
         else:
             return False
 
-
     # Turn handling
-    def player_draw(self, player, from_deck = True) -> bool:
+    def draw(self, player, from_deck = True) -> bool:
         '''
         Called when player draws a card.
+        
+        Args:
+            player: player that is drawing
+            from_deck: True if player drawing from the deck, False if the player pulls from the discard pile.
+        
+        Returns:
+            bool: True if method was successful
         '''
         
+        if self.active_player != player:
+            return False
         if self.active_player.skipped:
             self.active_player = next(self.player_turn_cycle)
             return False
@@ -92,10 +104,13 @@ class Game:
             player.drawCard(self.discards.pop())
             return True
 
-    def player_discard(self, player, card):
+    def discard(self, player, card):
         card = player.getCard(card)
         self.discards.addCard(card)
         self.active_player = next(self.player_turn_cycle)
+
+    def play(self, player, cards, target):
+        pass
 
     
     # Property Methods  

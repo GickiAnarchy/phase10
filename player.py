@@ -3,7 +3,7 @@
 
 from cards import Hand, Card
 from phases import Goal, Phase, SetGoal, RunGoal, ColorGoal
-from phase10 import PHASES_DICT
+#from phase10 import PHASES_DATA
 
 
 class Player():
