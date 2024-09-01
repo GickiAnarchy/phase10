@@ -49,10 +49,10 @@ class Goal(ABC):
         return False
 
     def sortNumber(self):
-    self.cards.sort(key=lambda x: x.number)
+        self.cards.sort(key=lambda x: x.number)
 
     def sortColor(self):
-    self.cards.sort(key=lambda x: x.color)
+        self.cards.sort(key=lambda x: x.color)
 
 class Phase:
     def __init__(self, name: str, goals: List[Goal]):
@@ -77,15 +77,15 @@ class Phase:
         return False
 
     def grabAllCards(self) -> list:
-        if checkComplete:
+        if self.checkComplete:
             cards_list = []
             for g in self.goals:
                 cards_list.extend(g.cards)
             cards_list.resetWilds()
-            return ret
+            return cards_list
 
     def getGoals(self) -> list:
-        ret [goal for goal in self.goals]
+        return [goal for goal in self.goals]
 
 class SetGoal(Goal):
     def checkCards(self, cards: List['Card']) -> bool:

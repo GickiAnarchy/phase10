@@ -1,15 +1,20 @@
 
 
 
-from cards import Hand, Card, Phase, Goal
+from cards import Hand, Card
+from phases import Goal, Phase, SetGoal, RunGoal, ColorGoal
 
 
 class Player():
+    """
+    I love player
+    """
     def __init__(self, name: str, **kwargs):
         self.name = name
         self.wins, self.losses = 0
         self.hand = Hand()
         self.phases = self.createPhases()
+        self.skipped = False
 
     #   Phase Interactions
     def createPhases(self) -> list:
@@ -25,7 +30,10 @@ class Player():
             if not phase.complete:
                 return phase
         return None
-        
+
+    def checkCurrentPhase(self):
+        return self.getCurrentPhase().complete
+ 
     #   Scoring
     def addPoints(self) -> int:
         for c in self.hand.cards:
@@ -49,6 +57,10 @@ class Player():
             "losses":self.losses
             }
         return ret
+    
+    def toggleSkip(self):
+        self.skipped = not self.skipped
+        print(f"{self.name} skipped")
 
 
 PHASES_DICT = {

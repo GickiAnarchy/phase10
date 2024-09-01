@@ -95,7 +95,7 @@ class WildCard(Card):
         else:
             return self.name
 
-    @setter.name
+    @name.setter
     def name(self, newname):
         self.name = newname
 
@@ -106,7 +106,7 @@ class WildCard(Card):
         else:
             return self.color
 
-    @setter.color
+    @color.setter
     def color(self, newcolor):
         self.color = newcolor
 
@@ -117,7 +117,7 @@ class WildCard(Card):
         else:
             return self.number
 
-    @setter.number
+    @number.setter
     def number(self, newnumber):
         self.number = newnumber
 
@@ -254,6 +254,8 @@ class Discards():
         c = self.cards.pop(-1)
         return c
 
+    def addCard(self, card):
+        self.cards.append(card)
 
 
 COLORS = ["Red", "Blue", "Green", "Yellow"]
