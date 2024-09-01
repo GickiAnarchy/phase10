@@ -252,13 +252,7 @@ class ButtonBox(GridLayout):
             asyncio.run(client.main(me))
             return True
 
-<<<<<<< HEAD
-=======
-    def playPressed(self, instance):
-        pass
 
->>>>>>> 91ba5970b77920c27ead2c8015e7f07d0352d6fc
-##
 class Phase10App(App):
     def build(self):
         self.root = BoxLayout(orientation = "vertical")
