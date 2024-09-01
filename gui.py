@@ -16,10 +16,10 @@ from kivy.graphics import Color, Rectangle
 from kivy.uix.popup import Popup
 from kivy.properties import ObjectProperty
 
-from server.phases import Goal, Phase
-from server.cards import Deck, Discards, Hand, Card
-from server.player import Player
-from server.game import Game
+from phases import Goal, Phase
+from cards import Deck, Discards, Hand, Card
+from player import Player, loadPlayer, savePlayer
+from game import Game
 from client import Client
 
 ##
@@ -153,17 +153,37 @@ class PlayerCreationPopup(Popup):
         self.root = BoxLayout(orientation = "vertical")
         self.name_label = Label(text='Player Name:')
         self.name_input = TextInput(multiline=False)
+        self.pin_input = TextInput(multiline = False)
         self.create_button = Button(text='Create Player')
         self.create_button.bind(on_press=self.create_player)
+        self.load_button = Button(text = "Load Player")
+        self.load_button.bind(on_press = self.load_player)
         self.root.add_widget(self.name_label)
         self.root.add_widget(self.name_input)
-        self.root.add_widget(self.create_button)
+        self.root.add_widget(Label(text = "PIN:"))
+        self.root.add_widget(self.pin_input)
+        self.buttons = BoxLayout(orientation = "horizontal")
+        self.buttons.add_widget(self.create_button)
+        self.buttons.add_widget(self.load_button)
+        self.root.add_widget(self.buttons)
         self.add_widget(self.root)
 
     def create_player(self, instance) -> Player:
         player_name = self.name_input.text
+        pin = self.pin_input.text
         if player_name:
             p = Player(player_name)
+            self.game.addPlayer(p)
+            self.dismiss()
+            return p
+        else:
+            print("Please enter a player name.")
+
+    def load_player(self) -> Player:
+        player_name = self.name_input.text
+        pin = self.pin_input.text
+        if player_name:
+            p = loadPlayer(player_name, pin)
             self.game.addPlayer(p)
             self.dismiss()
             return p
