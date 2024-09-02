@@ -1,6 +1,7 @@
 
 import asyncio
 import uuid
+import json
 
 class Client:
     def __init__(self, reader, writer, name):
@@ -24,7 +25,7 @@ class Client:
     async def send_message(self, message):
         data = json.dumps(message).encode()
         await self.writer.write(data + b'\n')
-         cawait asyncio.drain(self.writer)
+        await asyncio.drain(self.writer)
 
     def generate_unique_id(self):
         return str(uuid.uuid4())
@@ -39,5 +40,6 @@ async def main(player):
 
 if __name__ == '__main__':
     #asyncio.run(main())
+    pass
 
     

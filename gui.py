@@ -15,6 +15,7 @@ from kivy.clock import Clock
 from kivy.graphics import Color, Rectangle
 from kivy.uix.popup import Popup
 from kivy.properties import ObjectProperty
+from kivy.uix.screenmanager import ScreenManager, Screen
 
 from phases import Goal, Phase
 from cards import Deck, Discards, Hand, Card
@@ -22,7 +23,7 @@ from player import Player, loadPlayer, savePlayer
 from game import Game
 from client import Client
 
-##
+'''
 class SelectableCard(ToggleButton):
     """Card displays as a button"""
     def __init__(self, card, **kwargs):
@@ -141,15 +142,15 @@ class GoalButton(Button):
         if not self.disabled:
             return self.goal
             
-
+'''
 
 ##
-class PlayerCreationPopup(Popup):
+class PlayerCreationPopup(Screen):
     """Popup to have the user name itself"""
-    def __init__(self, game_app, **kwargs):
+    def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.size_hint = (0.5,0.5)
-        self.game = game_app
+        self.game = Game().getGameInstance()
         self.root = BoxLayout(orientation = "vertical")
         self.name_label = Label(text='Player Name:')
         self.name_input = TextInput(multiline=False)
@@ -172,95 +173,71 @@ class PlayerCreationPopup(Popup):
         player_name = self.name_input.text
         pin = self.pin_input.text
         if player_name:
-            p = Player(player_name)
-            self.game.addPlayer(p)
-            self.dismiss()
-            return p
+            self.p = Player(player_name)
+            if savePlayer(self.p, pin):
+                self.game.add_player(self.p)
+            #self.dismiss()
+            self.manager.current = 'Main'
+            return self.p
         else:
             print("Please enter a player name.")
 
-    def load_player(self) -> Player:
+    def load_player(self, instance) -> Player:
         player_name = self.name_input.text
         pin = self.pin_input.text
         if player_name:
-            p = loadPlayer(player_name, pin)
-            self.game.addPlayer(p)
-            self.dismiss()
-            return p
+            self.p = loadPlayer(player_name, pin)
+            self.game.add_player(self.p)
+            #self.dismiss()
+            self.manager.current = 'Main'
+            return self.p
         else:
             print("Please enter a player name.")
 
-class ChooseAGoalPopup(Popup):
-    """OBSOLETE"""
-    def __init__(self, active_player, goals, **kwargs):
-        super().__init__(**kwargs)
-        self.size_hint = (0.5,0.8)
-        self.root = BoxLayout(orientation = "vertical")
-        self.lbl = Label(text = "Choose a goal to play on.")
-        self.box_root = BoxLayout(orientation = "horizontal")
-        self.player_goal_box = BoxLayout(orientation = "vertical")
-        self.opponent_goal_box = BoxLayout(orientation = "vertical")
-        for k,v in goals:
-            if k == active_player:
-                for g in v:
-                    self.player_goal_box.add_widget(GoalButton(text = v.name, goal = v, on_press = self.getGoal()))
-            if k != active_player:
-                for g in v:
-                    self.opponent_goal_box.add_widget(GoalButton(text = v.name, goal = v, on_press = self.getGoal))
 
-    def getGoal(self, instance):
-        return instance.goal
 
-class ButtonBox(GridLayout):
-    """OBSOLETE"""
+class HomeScreen(Screen):
+
+    def make_player(self):
+        self.manager.current = 'Create'
+
+
+
+class MainScreen(Screen):
     def __init__(self, **kwargs):
-        super().__init__(pos_hint = {'center_y': 0.8}, **kwargs)
-        self.size_hint = (1, 0.2)
-        #self.pos_hint = {'center_y': 0.8}
-        self.cols = 3
-        self.padding = 5
-        self.spacing = 5
-        self.game = Phase10App().getGame()
-        self.create_player_btn = Button(text="Create Player", disabled = True, on_press=self.createPlayer)
-        self.create_player_btn.disabled = True
-        self.draw_btn = Button(text = "Draw", on_press = self.drawPressed)
+        super().__init__(**kwargs)
 
-        self.game.ready()
-        self.update_display()
+    def on_current(self, instance, value):
+        print("Main on_current")
+        try:
+            pl = self.get_screen('Create').p
+            self.manager.me = self.get_screen('Create').p
+            print(f"Self.ME = {pl.name}")
+        except:
+            print("Some error somewhere")
 
-    def update_display(self):
-        self.clear_widgets()
-        if Phase10App().me == None:
-            self.create_player_btn.disabled = False
-            self.add_widget(self.create_player_btn)
-        if self.game.active_player == Phase10App().me:
-            if self.game.turn_step == "Draw":
-                self.draw_btn.disabled = False
-                self.add_widget(self.draw_btn)
-            if self.game.turn_step == "Play":
-                pass
-            if self.game.turn_step == "Discard":
-                pass
 
-    def drawPressed(self, instance):
-        self.game.drawCard()
+class Phase10Manager(ScreenManager):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.me = None
+        self.add_widget(HomeScreen(name = "Home"))
+        self.add_widget(MainScreen(name = "Main"))
+        self.add_widget(PlayerCreationPopup(name = "Create"))
 
-    def createPlayer(self, instance):
-        pop = PlayerCreationPopup(self.game)
-        Phase10App().me = pop.open()
-        if Phase10App().me:
-            asyncio.run(client.main(me))
-            return True
+
 
 
 class Phase10App(App):
     def build(self):
-        self.root = BoxLayout(orientation = "vertical")
-        self.lbl = Label(text = "PHASE 10", size_hint = (1,0.15))
-        #self.deck
-        self.root.add_widget(self.lbl)
-        return self.root
+        self.man = Phase10Manager()
+        return self.man
 
 
 
+
+
+if __name__ == "__main__":
+    game = Game()
+    Phase10App().run()
 

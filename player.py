@@ -3,7 +3,7 @@
 import pickle
 
 from cards import Card, Hand, Deck, Discards
-from phases import Phase, Goal
+from phases import Phase, Goal, SetGoal, ColorGoal, RunGoal
 
 class Player():
     """
@@ -22,7 +22,8 @@ class Player():
     def __init__(self, name: str, **kwargs):
         self.name = name
         self.points = 0
-        self.wins, self.losses = 0
+        self.wins = 0
+        self.losses = 0
         self.hand = Hand()
         self.phases = self.createPhases()
         self.skipped = False
@@ -37,7 +38,7 @@ class Player():
         """
         
         p_list = []
-        for k,v in PHASES_DICT.items():
+        for k,v in PHASES_DATA.items():
             v.setOwner(self.name)
             p_list.append(v)
         print(f"10 Phases created for {self.name}")
@@ -71,7 +72,8 @@ class Player():
         Returns:
             int: Total points of player points.
         """
-        
+
+        pts = 0
         for c in self.hand.cards:
             pts += c.points
         print(f"{self.name} gained {pts} points")
@@ -104,15 +106,15 @@ class Player():
         return self.hand.cards.pop(ind)
         
         def getCards(self, cards) -> list:
-        """
-        Gets cards from the players hand.
+            """
+            Gets cards from the players hand.
         
-        Args:
-            cards: Cards to search for.
+            Args:
+                cards: Cards to search for.
         
-        Returns:
-            The card list from a players hand.
-        """
+            Returns:
+                The card list from a players hand.
+            """
         
         c_list = []
         for card in cards:
@@ -176,7 +178,7 @@ class Player():
 
 player_saves = ".player_saves.p10"
 
-def savePlayer(player, pin = "0000", force = False):
+def savePlayer(player, pin = "0000", force = False) -> bool:
     saves = getSaves()
     if player.name not in saves:
         saves[player.name] = {"data": player, "pin": pin}
@@ -185,8 +187,10 @@ def savePlayer(player, pin = "0000", force = False):
         saves[player.name] = {"data": player, "pin": pin}
     else:
         print("Cant save player.")
+        return False
     with open(player_saves, "wb") as f:
         pickle.dump(saves, f)
+    return True
 
 def loadPlayer(name, pin):
     saves = getSaves()
@@ -205,3 +209,21 @@ def getSaves():
     except:
         print("Error in loading saves")
         return {}
+
+
+
+
+
+PHASES_DATA = {
+    1:Phase("Phase 1", [SetGoal(3), SetGoal(3)]),
+    2:Phase("Phase 2",[SetGoal(3), RunGoal(4)]),
+    3:Phase("Phase 3", [SetGoal(4), RunGoal(4)]),
+    4:Phase("Phase 4", [RunGoal(7)]),
+    5:Phase("Phase 5", [RunGoal(8)]),
+    6:Phase("Phase 6", [RunGoal(9)]),
+    7:Phase("Phase 7", [SetGoal(4), SetGoal(4)]),
+    8:Phase("Phase 8", [ColorGoal(7)]),
+    9:Phase("Phase 9", [SetGoal(5), SetGoal(2)]),
+    10:Phase("Phase 10",[SetGoal(5), SetGoal(3)]),
+    11:Phase("All complete!",[])
+    }

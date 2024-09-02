@@ -1,6 +1,6 @@
 
 import random
-import phase10
+
 
 
 class Card():
@@ -330,4 +330,24 @@ if __name__ == "__main__":
     for c in hand2:
         print(c.description())
     
-    
+
+
+COLORS = ["Red", "Blue", "Green", "Yellow"]
+LOW_NUMBERS = ["One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine"]
+HIGH_NUMBERS = ["Ten", "Eleven", "Twelve"]
+NUMBER_VALUE = {
+    "One": 1,
+    "Two": 2,
+    "Three": 3,
+    "Four": 4,
+    "Five": 5,
+    "Six": 6,
+    "Seven": 7,
+    "Eight": 8,
+    "Nine": 9,
+    "Ten": 10,
+    "Eleven": 11,
+    "Twelve": 12,
+    "Skip": 99,
+    "Wild": 13
+}

@@ -7,7 +7,7 @@ from itertools import cycle
 import asyncio
 from functools import wraps
 
-from cards import Card, SkipCard, Deck, Discsrds
+from cards import Card, SkipCard, Deck, Discards
 from player import Player
 from phases import Goal, Phase
 
@@ -42,9 +42,9 @@ class Game:
         if len(self.players) < 2:
             print("Not enough players to start")
             return False
-        self.player_turn_cycle = itertools.cycle(self.players)
+        self.player_turn_cycle = cycle(self.players)
         self.deck = Deck()
-        self.discards = Discard()
+        self.discards = Discards()
         for player in self.players:
             player.hand.extend(self.deck.deal())
         return True
@@ -58,6 +58,7 @@ class Game:
         if self.players == []:
             self.active_player = player
         self.players.append(player)
+        print(f"{player.name} added to the game")
 
     def getPlayer(self, player_name):
         for p in self.players:
@@ -72,7 +73,7 @@ class Game:
             bool
         """
 
-        if player.getCurrentPhase() == None:
+        if player.getCurrentPhase() == None or player.getCurrentPhase().name == "All complete!":
             print(f"{player.name} wins the game")
             return True
         else:
@@ -173,7 +174,6 @@ class Game:
 
     @staticmethod
     def getGameInstance():
-        Game().instance = self
         return Game().instance
 
 
