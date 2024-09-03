@@ -23,7 +23,7 @@ from game.player import Player, loadPlayer, savePlayer
 from game.game import Game
 from client import Client
 
-'''
+
 class SelectableCard(ToggleButton):
     """Card displays as a button"""
     def __init__(self, card, **kwargs):
@@ -123,7 +123,6 @@ class SelectableDiscards(ToggleButton):
             return True
         else:
             return False
-'''
 
 class SelectableGoals(BoxLayout):
     def __init__(self, phase, **kwargs):
@@ -163,7 +162,6 @@ class GoalButton(Button):
     def on_press(self) -> Goal:
         if not self.disabled:
             return self.goal
-            
 
 
 ##
@@ -242,8 +240,8 @@ class Phase10Manager(ScreenManager):
 
 
 class Phase10App(App):
-    def build(self):
-        self.game = None
+    def build(self, game):
+        self.game = ObjectProperty(None)
         self.man = Phase10Manager()
         return self.man
 

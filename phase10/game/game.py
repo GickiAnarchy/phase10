@@ -28,23 +28,22 @@ def singleton(cls):
 class Game:
     def __init__(self):
         self.players = []
+        self.active_player = None
         self.deck = None
         self.discards = None
-        self.active_player = None
         self.all_hands = []
         self.all_phases = []
         self.all_goals = []
 
         self.game_locked = False
+        
         Game.instance = self
-
         self.clients = {}
 
     def prestart(self) -> bool:
         if len(self.players) < 2:
             print("Not enough players to start")
             return False
-        self.player_turn_cycle = cycle(self.players)
         self.deck = Deck()
         self.discards = Discards()
         for player in self.players:
@@ -97,7 +96,7 @@ class Game:
         if self.active_player != player:
             return False
         if self.active_player.skipped:
-            self.active_player = next(self.player_turn_cycle)
+            #skip player
             return False
         if from_deck:
             player.drawCard(self.deck.drawCard())
@@ -109,7 +108,7 @@ class Game:
     def discard(self, player, card) -> bool:
         card = player.getCard(card)
         self.discards.addCard(card)
-        self.active_player = next(self.player_turn_cycle)
+        #next players turn
         return True
 
     def play(self, player, cards, target):
@@ -170,16 +169,12 @@ class Game:
     def active_player(self, newactive):
         self._active_player = newactive
 
+
+    ####
     # Game class methods
     @staticmethod
     def getGameInstance():
         return Game().instance
-    
-    @staticmethod
-    def pickleInstance():
-        data = Game().instance.getGame()
-        p_data = pickle.dumps(data)
-        return p_data
 
     def to_json(self):
         return json.dumps(self.__dict__)
@@ -204,7 +199,5 @@ class Game:
         return self.clients
 
 
-
 if __name__ == "__main__":
-    game1 = Game()
-    pprint.pprint(game1.to_json())
+    pass
