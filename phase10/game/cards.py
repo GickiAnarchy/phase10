@@ -301,7 +301,11 @@ class Discards():
 
     def getTopCard(self) -> Card:
         c = self.cards.pop(-1)
-        return c
+        if isinstance(c, SkipCard):
+            self.cards.append(c)
+            return None
+        else:
+            return c
 
     def addCard(self, card):
         self.cards.append(card)
