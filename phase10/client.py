@@ -1,45 +1,27 @@
-
 import asyncio
-import uuid
 import json
 
-class Client:
-    def __init__(self, reader, writer, name):
-        self.reader = reader
-        self.writer = writer
-        self.name = name
-        self.id = self.generate_unique_id()
-        self.updated_game = None
-        
-    async def run(self):
-        while True:
-            data = await self.reader.readuntil(b'\n')
-            if not data:
-                break
+async def send_message(message):
+    reader, writer = await asyncio.open_connection('localhost', 8888)
+    print(f"Sending message: {message}")
+    writer.write(json.dumps(message).encode() + b'\n')
+    await writer.drain()
+    data = await reader.readuntil(b'\n')
+    try:
+        Game().from_json(data.decode())
+    except:
+        print("idk")
+    print(f"Received: {data.decode()}")
+    writer.close()
+    await writer.wait_closed()
 
-            message = json.loads(data.decode())
-            # Handle the received message (e.g., update game state, display information)
-            self.updated_game
-            # ... (your game-specific logic) ...
-
-    async def send_message(self, message):
-        data = json.dumps(message).encode()
-        await self.writer.write(data + b'\n')
-        await asyncio.drain(self.writer)
-
-    def generate_unique_id(self):
-        return str(uuid.uuid4())
-
-
-addr = 'localhost'
-
-async def main(player):
-    reader, writer = await asyncio.open_connection(addr, 8888)
-    client = Client(reader, writer, player.name)
-    await client.run()
+async def main():
+    while True:
+        m = input("Enter your message (or 'quit' to exit): ")
+        if m.lower() == 'quit':
+            break
+        message = {"msg": m}
+        await send_message(message)
 
 if __name__ == '__main__':
-    #asyncio.run(main())
-    pass
-
-    
+    asyncio.run(main())

@@ -240,7 +240,7 @@ class Hand:
     def sortColor(self):
         self.cards.sort(key=lambda x: x.color)
 
-class Deck():
+class Deck:
     def __init__(self):
         self.cards = []
         self.createDeck()
@@ -295,9 +295,15 @@ class Deck():
             self.cards.extend(other_cards)
         random.shuffle(self.cards)
 
-class Discards():
+class Discards:
     def __init__(self):
         self.cards = []
+
+    def getImage(self):
+        if self.cards[-1]:
+            return self.discards[-1].getImage()
+        else:
+            return None
 
     def getTopCard(self) -> Card:
         c = self.cards.pop(-1)

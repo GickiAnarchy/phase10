@@ -77,6 +77,11 @@ class Game:
             if p.name == player_name:
                 return p
 
+    def getOpponent(self, player_name):
+        for p in self.players:
+            if p.name != player_name:
+                return p
+
     def checkWin(self, player) -> bool:
         """
         Checks if player has won.
@@ -90,6 +95,15 @@ class Game:
             return True
         else:
             return False
+
+    def deal_cards(self):
+        for p in self.players:
+            p.addCards(self.deck.deal())
+
+    def checkPlayerSkip(self, player):
+        if player.skipped:
+            player.toggleSkip()
+            self.active_player = next(self.player_cycle)
 
     # Turn handling
     def draw_from_deck(self, player) -> bool:
@@ -130,9 +144,12 @@ class Game:
             print("play skip failed")
             return False
 
+    def getGoals(self):
+        ret = []
+        for p in self.players:
+            ret.append(p.getCurrentPhase().getGoals())
+        return ret
 
-
-    ####
     # Game class methods
     @staticmethod
     def getGameInstance():
@@ -148,8 +165,6 @@ class Game:
         '''
         return Game(**json.loads(data))
 
-
-############
     # Client/Server methods
     def add_client(self, client):
         self.clients[client.client_id] = client

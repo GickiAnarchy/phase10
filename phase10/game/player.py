@@ -121,6 +121,9 @@ class Player():
             c_list.append(self.getCard(card))
         return c_list
 
+    def addCards(self, cards):
+        self.hand.addCards(cards)
+
     #   Metadata
     def getPlayerData(self) -> dict:
         """
