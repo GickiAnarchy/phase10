@@ -153,12 +153,20 @@ class P10TopBorder(BoxLayout):
         self.goal_2 = ObjectProperty(None)
         self.opp_name_lbl = ObjectProperty(None)
 
+class P10BottomBorder(BoxLayout):
+    def __init__(self):
+        self.draw_button = ObjectProperty(None)
+        self.discard_button = ObjectProperty(None)
+
 
 
 
 
 class Phase10App(App):
     def build(self, client):
+        self.p10_top = ObjectProperty(None)
+        self.p10_bottom = ObjectProperty(None)
+        self.p10_table = ObjectProperty(None)
         self.client = client
         self.game = Game().getGameInstance()
         self.player = self.game.getPlayer(self.client.name)
@@ -170,7 +178,7 @@ class Phase10App(App):
         self.discards = None
 
     def update_display(self):
-        
+        pass
         
 
 

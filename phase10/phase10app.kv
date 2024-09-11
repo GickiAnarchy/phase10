@@ -3,11 +3,38 @@
     goal_2: goal_2
     opp_name_lbl: opp_name_lbl
     orientation: "horizontal"
-    size_hint: 0.8, 0.15
+    size_hint: 1.0, 0.15
         GoalButton:
             id: goal_1
         Label:
             id: opp_name_lbl
         GoalButton:
             id: goal_2
-        
+
+
+<P10BottomBorder>:
+    draw_button: draw_button
+    discard_button: discard_button
+    orientation: "horizontal"
+    size_hint: 1.0, 0.10
+    Button:
+        id: draw_button
+        text: "Draw"
+    Button:
+        id: discard_button
+        text: "Discard"
+
+
+<Phase10App>:
+    p10_top: p10_top
+    p10_bottom: p10_bottom
+    p10_table: p10_table
+    BoxLayout:
+        orientation: "horizontal"
+        size: self.width, self.height
+        P10TopBorder:
+            id: p10_top
+        GridLayout:
+            id: p10_table
+        P10BottomBorder:
+            id: p10_bottom
