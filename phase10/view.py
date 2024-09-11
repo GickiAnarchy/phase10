@@ -6,6 +6,7 @@ from kivy.app import App
 from kivy.uix.button import Button
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.gridlayout import GridLayout
+from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.togglebutton import ToggleButton
 from kivy.uix.image import Image, AsyncImage
 from kivy.uix.label import Label
@@ -147,10 +148,9 @@ class GoalButton(Button):
         if not self.disabled:
             return self.goal
 
+
 class P10TopBorder(BoxLayout):
-    def __init__(self):
-        self.goal_1 = ObjectProperty(None)
-        self.goal_2 = ObjectProperty(None)
+    def __init__(self):m
         self.opp_name_lbl = ObjectProperty(None)
 
 class P10BottomBorder(BoxLayout):
@@ -158,8 +158,15 @@ class P10BottomBorder(BoxLayout):
         self.draw_button = ObjectProperty(None)
         self.discard_button = ObjectProperty(None)
 
-
-
+class P10Table(FloatLayout):
+    def __init__(self):
+    self.deck_center = ObjectProperty(None)
+    self.discards_center = ObjectProperty(None)
+    self.goal_tl = ObjectProperty(None)
+    self.goal_tr = ObjectProperty(None)
+    self.goal_bl = ObjectProperty(None)
+    self.goal_br = ObjectProperty(None)
+    self.hand_bc = ObjectProperty(None)
 
 
 class Phase10App(App):
