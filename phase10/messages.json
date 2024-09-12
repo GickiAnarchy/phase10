@@ -1,0 +1,28 @@
+messages = {
+    "type": {
+        "join": {
+            "description": "Player joins the game",
+            "required_fields": []
+        },
+        "create_player": {
+            "description": "User is creating a player.",
+            "required_fields": ["player"]
+        }
+        "draw_card": {
+            "description": "Player draws a card",
+            "required_fields": ["target"]
+        },
+        "play_cards": {
+            "description": "Player plays cards on a goal",
+            "required_fields": ["cards", "target"]
+        },
+        "discard_card": {
+            "description": "Player discards a card",
+            "required_fields": ["card"]
+        },
+        "game_state": {
+            "description": "Server sends updated game state to clients",
+            "required_fields": ["players", "deck", "discards", "active_player", "goals"]
+        }
+    }
+}

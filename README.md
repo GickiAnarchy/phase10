@@ -3,14 +3,27 @@ _by: GickiAnarchy_
 ---
 #### _development branch_
 ---
-___<u>ToDo</u>___  
+___<u>ToDo</u>___
+-[x] Remove Stack class.  too confusing
 -[x] Start Game Logic  
--[ ] Complete Game Logic  
--[ ] Start GUI  
+-[ ] Complete Game Logic
+-[x] Start GUI  
 -[ ] Complete GUI  
--[ ] Start online mechanic  
+-[x] Start online mechanic  
 -[ ] Complete Phase 10!
 ---
+
+08.20.24
+    Remove Stack class
+    Added Discards class
+    Divided class catagories into seperate files.
+    Added server/client folders. 
+    NEED TO REDO IT AGAIN!
+
+
+
+
+
 
 ## The game of Phase 10:
 
