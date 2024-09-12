@@ -133,8 +133,13 @@ class Game:
             print("discard failed")
             return False
 
-    def play_on_goal(self, player, card, goal):
-        pass
+    def play_on_goal(self, player, card, goal) -> bool:
+        if not isinstance(card, list):
+            card = [card]
+        if goal in player.getCurrentPhase().getGoals():
+            goal.addCards(card)
+        else:
+            return False
 
     def play_skip(self, card, opp) -> bool:
         try:
