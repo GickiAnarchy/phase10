@@ -9,6 +9,7 @@ from kivy.uix.togglebutton import ToggleButton
 from kivy.uix.image import Image, AsyncImage
 from kivy.uix.label import Label
 from kivy.uix.scrollview import ScrollView
+
 from kivy.uix.textinput import TextInput
 from kivy.clock import Clock
 from kivy.graphics import Color, Rectangle
@@ -28,6 +29,12 @@ class TestWidget(BoxLayout):
 
     def update_player(self, player):
         self.player_name = player.name
+
+
+class GetPlayer(Popup):
+    def __init__(self):
+        self.box = BoxLayout(orientation = 'vertical')
+        self.name_lbl = Label(text = "Name ")
 
 
 class P10TestApp(App):
