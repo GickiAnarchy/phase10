@@ -1,9 +1,26 @@
 <P10TopBorder>:
     opp_name_lbl: opp_name_lbl
+    opp_cur_phase: opp_cur_phase
+    goal_1: goal_1
+    goal_2: goal_2
     orientation: "horizontal"
     size_hint: 1.0, 0.10
+    Label:
+        id: opp_name_lbl
+        size_hint: 0.35, 1.0
+    BoxLayout:
+        orientation: "vertical"
+        size_hint: 0.65, 1.0
         Label:
-            id: opp_name_lbl
+            id: opp_cur_phase
+            size_hint: 1.0, 0.5
+        BoxLayout:
+            orientation: "horizontal"
+            size_hint: 1.0, 0.5
+            Label:
+                id: goal_1
+            Label:
+                id: goal_2
 
 
 <P10BottomBorder>:
@@ -14,9 +31,18 @@
     Button:
         id: draw_button
         text: "Draw"
+        disabled: True
+        on_press: root.draw_card()
+    Button:
+        id: play_button
+        text: "Play"
+        disabled: True
+        on_press: root.play_card()
     Button:
         id: discard_button
         text: "Discard"
+        disabled: True
+        on_press: root.discard_card()
 
 
 <P10Table>:

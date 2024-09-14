@@ -51,6 +51,8 @@ async def main():
 
     addr = server.sockets[0].getsockname()
     print(f"Serving on {addr}")
+    
+    game = Game()
 
     async with server:
         await server.serve_forever()

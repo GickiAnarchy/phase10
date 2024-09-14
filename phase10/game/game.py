@@ -133,11 +133,17 @@ class Game:
             print("discard failed")
             return False
 
+    def play_pass(self, player) -> bool:
+        if player != self.active_player:
+            return False
+        print(f"{player.name} passed their turn.")
+        return True
+
     def play_on_goal(self, player, card, goal) -> bool:
         if not isinstance(card, list):
             card = [card]
-        if goal in player.getCurrentPhase().getGoals():
-            goal.addCards(card)
+        if g in self.getGoals(player):
+            g.addCards(card)
         else:
             return False
 
@@ -149,11 +155,8 @@ class Game:
             print("play skip failed")
             return False
 
-    def getGoals(self):
-        ret = []
-        for p in self.players:
-            ret.append(p.getCurrentPhase().getGoals())
-        return ret
+    def getGoals(self, player) -> list:
+        return player.getCurrentPhase().getGoals()
 
     # Game class methods
     @staticmethod

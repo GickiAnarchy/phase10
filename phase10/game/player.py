@@ -63,6 +63,9 @@ class Player():
         """
         
         return self.getCurrentPhase().complete
+
+    def getCurrentGoals(self):
+        self.getCurrentPhase().getGoals()
  
     #   Scoring
     def addPoints(self) -> int:

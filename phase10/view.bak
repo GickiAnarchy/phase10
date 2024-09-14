@@ -150,23 +150,42 @@ class GoalButton(Button):
 
 
 class P10TopBorder(BoxLayout):
-    def __init__(self):m
+    def __init__(self, opp):
+        self.opponent = opp
         self.opp_name_lbl = ObjectProperty(None)
+        self.opp_cur_phase = ObjectProperty(None)
+        self.goal_1 = ObjectProperty(None)
+        self.goal_2 = ObjectProperty(None)
 
+    def update_display(self, opp):
+        self.opponent = opp
+        self.opp_name_lbl.text = self.opponent.name
+        self.opp_cur_phase = self.opponent.getCurrentPhase().name
+        self.goal_1.text = ""
+        
 class P10BottomBorder(BoxLayout):
     def __init__(self):
         self.draw_button = ObjectProperty(None)
-        self.discard_button = ObjectProperty(None)
+        self.discard_button = Button()
+
+    def discard_card(self):
 
 class P10Table(FloatLayout):
-    def __init__(self):
-    self.deck_center = ObjectProperty(None)
-    self.discards_center = ObjectProperty(None)
-    self.goal_tl = ObjectProperty(None)
-    self.goal_tr = ObjectProperty(None)
-    self.goal_bl = ObjectProperty(None)
-    self.goal_br = ObjectProperty(None)
-    self.hand_bc = ObjectProperty(None)
+    def __init__(self, game):
+        self.game = game
+        self.deck_center = SelectableDeck(self.game.deck)
+        self.discards_center = SelectableDiscards(self.game.discards)
+        
+        self.hand_bc = ObjectProperty(None)
+        
+        self.goal_tl = ObjectProperty(None)
+        self.goal_tr = ObjectProperty(None)
+        self.goal_bl = ObjectProperty(None)
+        self.goal_br = ObjectProperty(None)
+        
+
+    def update_display(self):
+        self.deck = 
 
 
 class Phase10App(App):

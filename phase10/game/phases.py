@@ -23,6 +23,10 @@ class Goal(ABC):
     def checkCards(self, cards: List['Card']) -> bool:
         pass
 
+    @abstractmethod
+    def goalTitle(self) -> str:
+        pass
+
     def setOwner(self, newowner) -> None:
         if self.owner == None:
             self.owner = newowner
@@ -95,6 +99,9 @@ class SetGoal(Goal):
             return False
         return all(card.number == cards[0].number for card in cards)
 
+    def goalTitle(self) -> str:
+        return f"Set of {str(self.min_cards)}"
+
 class RunGoal(Goal):
     def checkCards(self, cards: List['Card']) -> bool:
         if not cards:
@@ -103,9 +110,14 @@ class RunGoal(Goal):
         return all(sorted_cards[i].number - sorted_cards[i - 1].number == 1
                    for i in range(1, len(sorted_cards)))
 
+    def goalTitle(self) -> str:
+        return f"Run of {str(self.min_cards)}"
+
 class ColorGoal(Goal):
     def checkCards(self, cards: List['Card']) -> bool:
         if not cards:
             return False
         return all(card.color == cards[0].color for card in cards)
 
+    def goalTitle(self) -> str:
+        return f"Color set of {str(self.min_cards)}"
