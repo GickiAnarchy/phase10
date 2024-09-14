@@ -75,7 +75,7 @@ class Game:
     def getPlayer(self, player_name):
         for p in self.players:
             if p.name == player_name:
-                return p
+                    return p
 
     def getOpponent(self, player_name):
         for p in self.players:

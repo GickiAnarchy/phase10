@@ -21,25 +21,54 @@ from game.phases import Goal, Phase
 from game.cards import Deck, Discards, Hand, Card
 from game.player import Player, loadPlayer, savePlayer
 from game.game import Game
-from client import 
+import client
+
 
 class TestWidget(BoxLayout):
-    def __init__(self):
-        self.player_name = ObjectProperty(None)
+    def __init__(self, p):
+        self.player = Game().getGameInstance().getPlayer(p.name)
+        self.lbl = Label()
+        self.add_widget(self.lbl)
+        self.update_player(self.player)
 
     def update_player(self, player):
-        self.player_name = player.name
+        self.lbl.text = player.name
 
 
 class GetPlayer(Popup):
-    def __init__(self):
-        self.box = BoxLayout(orientation = 'vertical')
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.auto_dismiss = False
+        #self.box = BoxLayout(orientation = 'vertical', size_hint = (0.5,0.5))
         self.name_lbl = Label(text = "Name ")
+        self.name_in = TextInput(multiline = False)
+        self.make_btn = Button(text = "Test Me!")
+        #self.box.add_widget(self.name_lbl)
+        #self.box.add_widget(self.name_in)
+        #self.box.add_widget(self.make_btn)
+        self.make_btn.bind(on_press = self.dismiss)
+        self.bind(on_dismiss = self.make_player)
+
+    def make_player(self):
+        my_name = self.name_in.text
+        #self.dismiss()
+        return my_name
+
+
 
 
 class P10TestApp(App):
-    def build(self, game):
+    def build(self):
         game = Game().getGameInstance()
-        self.twidget = TestWidget()
+        popme = GetPlayer()
+        self.me = ""
+        while self.me == "":
+            self.me = popme.open()
+        game.add_player(Player(self.me))
+        self.twidget = TestWidget(self.me)
+        return self.twidget
+
         
-        
+if __name__ == "__main__":
+    client.send_message({"type": 'join'})
+    P10TestApp().run()

@@ -1,6 +1,8 @@
 import asyncio
 import json
 
+from game.game import Game
+
 async def send_message(message):
     reader, writer = await asyncio.open_connection('localhost', 8888)
     print(f"Sending message: {message}")
@@ -17,11 +19,15 @@ async def send_message(message):
 
 async def main():
     while True:
+        """
         m = input("Enter your message (or 'quit' to exit): ")
         if m.lower() == 'quit':
             break
-        message = {"msg": m}
+        """
+        message = {"type": 'join'}
         await send_message(message)
+
+
 
 if __name__ == '__main__':
     asyncio.run(main())

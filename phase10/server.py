@@ -28,10 +28,13 @@ async def handle_client(reader, writer):
             message = json.loads(data.decode().strip())
             logger.info(f"Received message from Client {client.id}: {message}")
 
-            # Process the message here
+            # Process the message here]
+            """
             response = Game().getGameInstance()
             await client.writer.write(json.dumps(response).encode() + b'\n')
             await writer.drain()
+            """
+            await broadcast_game()
     except asyncio.CancelledError:
         logger.info(f"Connection {client.id} canceled")
         clients.remove(client)
@@ -40,7 +43,7 @@ async def broadcast_game():
     g_instance = Game().getGameInstance()
     for client in clients:
         await client.writer.write(g_instance.to_json().encode())
-        await writer.drain()
+        await client.writer.drain()
 
 async def main():
     logging.basicConfig(level=logging.DEBUG)
@@ -52,7 +55,7 @@ async def main():
     addr = server.sockets[0].getsockname()
     print(f"Serving on {addr}")
     
-    game = Game()
+
 
     async with server:
         await server.serve_forever()
