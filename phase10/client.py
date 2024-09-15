@@ -24,8 +24,7 @@ async def main():
         if m.lower() == 'quit':
             break
         """
-        message = {"type": 'join'}
-        await send_message(message)
+        await send_message()
 
 
 

@@ -67,6 +67,7 @@ class Game:
 
     # Player handling
     def add_player(self, player):
+        player = Player(Player)
         if self.players == []:
             self.active_player = player
         self.players.append(player)

@@ -26,6 +26,12 @@ async def handle_client(reader, writer):
                 break
 
             message = json.loads(data.decode().strip())
+            mt = message["type"]
+            switch mt:
+                case "join":
+                    pass
+                case "create player":
+                    Game().getGameInstance().add_player(message["name"])
             logger.info(f"Received message from Client {client.id}: {message}")
 
             # Process the message here]

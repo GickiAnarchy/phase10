@@ -1,5 +1,11 @@
-
-
-
-<P10TestApp>:
-    TestWidget:
+<MakePlayer>:
+    name_lbl: name_lbl
+    name_in: name_in
+    make_btn: make_btn
+    Label:
+        id: name_lbl
+    TextInput:
+        id: name_in
+    Button:
+        id: make_btn
+        on_press: app.make_player(name_in.text)

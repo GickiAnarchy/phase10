@@ -35,38 +35,28 @@ class TestWidget(BoxLayout):
         self.lbl.text = player.name
 
 
-class GetPlayer(Popup):
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        self.auto_dismiss = False
-        #self.box = BoxLayout(orientation = 'vertical', size_hint = (0.5,0.5))
-        self.name_lbl = Label(text = "Name ")
-        self.name_in = TextInput(multiline = False)
-        self.make_btn = Button(text = "Test Me!")
-        #self.box.add_widget(self.name_lbl)
-        #self.box.add_widget(self.name_in)
-        #self.box.add_widget(self.make_btn)
-        self.make_btn.bind(on_press = self.dismiss)
-        self.bind(on_dismiss = self.make_player)
+class MakePlayer(Popup):
+    name_lbl = ObjectProperty()
+    name_in = ObjectProperty()
+    make_btn = ObjectProperty()
 
-    def make_player(self):
-        my_name = self.name_in.text
-        #self.dismiss()
-        return my_name
+    def __init__(self, **kwargs):
+        super().__init__(orientation='vertical', spacing=10, padding=10, auto_dismiss=False, **kwargs)
 
 
 
 
 class P10TestApp(App):
     def build(self):
-        game = Game().getGameInstance()
-        popme = GetPlayer()
-        self.me = ""
-        while self.me == "":
-            self.me = popme.open()
-        game.add_player(Player(self.me))
-        self.twidget = TestWidget(self.me)
+        self.twidget = TestWidget()
+        MakePlayer().open()
         return self.twidget
+
+
+
+    def make_player(self, name):
+        m = {"type":"create player", "name": name}
+        client.send_message(m)
 
         
 if __name__ == "__main__":
