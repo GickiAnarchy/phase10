@@ -21,7 +21,7 @@ async def handle_client(reader, writer):
         clients[client_id] = client
         print(f"Client {client_id} (server ID: {client.server_id}) connected")
     elif client_id["type"] == "lobbyinfo":
-        await send_message_to_client({"type":"lobbyinfo","id":client_id["client_id"],"players":clients})
+        await send_message_to_client({"type":"lobbyinfo","id":client_id["client_id"]})
     else:
         print("Client registration failed. No client ID sent.")
         writer.close()

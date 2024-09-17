@@ -4,11 +4,13 @@ import json
 from cclass import Client
 from view_test import Lobby
 
+from view_test import P10TestApp
 from game.game import Game  # Assuming game.game is a separate module
 
 
 
 _client = None
+p10 = P10TestApp()
 
 async def send_message(client = None, message = None):
     if client == None:
@@ -38,10 +40,12 @@ async def run(client):
         elif message["type"] == "your_turn":
             await play_turn(client)
         elif message["type"] == "lobbyinfo":
-            Lobby().update_connection({"id":client_id["client_id"],"players":clients})
+            message["target"] = "lobby"
+            p10.update(message)
         # Handle other message types (e.g., game start, game end)
 
 async def main():
+    p10.run()
     reader, writer = await asyncio.open_connection('localhost', 8888)
     client = Client(reader, writer)
     _client = client

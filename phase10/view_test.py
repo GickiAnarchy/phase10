@@ -29,26 +29,30 @@ class Screens(ScreenManager):
     pass
 
 class Lobby(Screen):
-    conn_lbl = ObjectProperty()
     id_lbl = ObjectProperty()
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
     def ask_update(self):
         client.update_lobby()
-
-    @staticmethod
-    def update_connection(self, update):
-        self.id_lbl.text = update["id"]
-        self.conn_lbl.text = update["players"]
+    
+    def update(self, info):
+        self.id_lbl.txt = info["id"]
 
 
 class P10TestApp(App):
+    lobby = ObjectProperty()
     def build(self):
         self.screens = Screens()
         self.add_widget(self.screens)
         return self.screens
-
+    
+    def update(self, info):
+        target = info["target"]
+        if target == "all":
+            pass
+        elif target == "lobby":
+            self.lobby.update(info)
     
         
 if __name__ == "__main__":
