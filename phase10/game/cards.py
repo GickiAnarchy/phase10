@@ -1,5 +1,28 @@
 
 import random
+import json
+
+
+
+COLORS = ["Red", "Blue", "Green", "Yellow"]
+LOW_NUMBERS = ["One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine"]
+HIGH_NUMBERS = ["Ten", "Eleven", "Twelve"]
+NUMBER_VALUE = {
+    "One": 1,
+    "Two": 2,
+    "Three": 3,
+    "Four": 4,
+    "Five": 5,
+    "Six": 6,
+    "Seven": 7,
+    "Eight": 8,
+    "Nine": 9,
+    "Ten": 10,
+    "Eleven": 11,
+    "Twelve": 12,
+    "Skip": 99,
+    "Wild": 13
+}
 
 
 
@@ -8,10 +31,11 @@ class Card():
     def __init__(self, name: str, points: int, color: str):
         self.name = name
         self.points = points
-        Card.count += 1
         self.color = color
         self.number = NUMBER_VALUE[self.name]
-
+        Card.count += 1
+        self.card_id = Card.count
+        
     def description(self):
         if self.color == "None":
             return self.name
@@ -71,6 +95,20 @@ class Card():
 
     def __gt__(self, other):
         return self.number > other.number
+    
+    def send_card_to_gui(self):
+        return {
+            "image":self.getImage(),
+            "id":self.card_id,
+            "desc":self.description()
+        }
+    
+    def to_json(self):
+        return json.dumps(self.__dict__)
+    
+    @staticmethod
+    def from_json(data = None):
+        return Card(**json.loads(data))
 
 class WildCard(Card):
     def __init__(self, name="Wild", points=25, color="Wild"):
@@ -162,7 +200,6 @@ class HighCard(BasicCard):
     def __init__(self, name: str, color: str, points=10):
         super().__init__(name, points, color)
 
-
 class Hand:
     def __init__(self):
         self.cards = []
@@ -175,6 +212,19 @@ class Hand:
 
     def addCards(self, cards: list):
         self.cards.extend(cards)
+
+    def get_card_by_id(self, card_id):
+        for i, card in enumerate(self.cards):
+            if card.card_id == card_id:
+                return self.cards.pop(i)
+        print(f"ID {str(card_id)} not found in hand")
+        return None 
+
+    def send_hand_to_gui(self):
+        ret = []
+        for card in self.cards:
+            ret.append(card.send_card_to_gui())
+        return ret
 
     def getIndex(self, card) -> int:
         for i, c in enumerate(self.cards):
@@ -218,7 +268,6 @@ class Hand:
                 print("set found")
                 return True
         return False
-
 
     def checkForColor(self, min_cards: int = 1) -> bool:
         color_counts = {}
@@ -319,45 +368,16 @@ class Discards:
 
 
 if __name__ == "__main__":
+    
+    #test card ID
+    
     deck = Deck()
-    hand = Hand()
-    hand2 = Hand()
-    hand.addCards(deck.deal())
-    hand2.addCards(deck.deal())
+    with open("test_card_id.json","w") as f:
+        cardsdict = {}
+        for c in deck:
+            cardsdict[str(c.card_id)] = c.to_json()
+        json.dump(cardsdict, f, indent = 2)
+        
+            
+        
     
-    print("\nhand....")
-    hand.checkForRun(4)
-    hand.checkForSet(3)
-    hand.checkForColor(3)
-    print("\nhand2.....")
-    hand2.checkForRun(4)
-    hand2.checkForSet(3)
-    hand2.checkForColor(3)
-    print("\n\n")
-    for c in hand:
-        print(c.description())
-    print("")
-    for c in hand2:
-        print(c.description())
-    
-
-
-COLORS = ["Red", "Blue", "Green", "Yellow"]
-LOW_NUMBERS = ["One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine"]
-HIGH_NUMBERS = ["Ten", "Eleven", "Twelve"]
-NUMBER_VALUE = {
-    "One": 1,
-    "Two": 2,
-    "Three": 3,
-    "Four": 4,
-    "Five": 5,
-    "Six": 6,
-    "Seven": 7,
-    "Eight": 8,
-    "Nine": 9,
-    "Ten": 10,
-    "Eleven": 11,
-    "Twelve": 12,
-    "Skip": 99,
-    "Wild": 13
-}

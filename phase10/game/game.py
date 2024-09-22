@@ -8,11 +8,13 @@ import asyncio
 from functools import wraps
 import pprint
 import pickle
+import uuid
 
 from .cards import Card, SkipCard, Deck, Discards, Hand
 from .player import Player, savePlayer, loadPlayer, getSaves
 from .phases import Goal, Phase
 
+'''
 def singleton(cls):
     instance = None
 
@@ -23,43 +25,27 @@ def singleton(cls):
         instance = super().__init__(*args, **kwargs)
         return instance
     return cls
+'''
 
-@singleton
+#@singleton
+
 class Game:
     def __init__(self):
+        self.game_id = uuid.uuid4()
         self.players = []
-        self.active_player = None
         self.deck = None
         self.discards = None
-        
-        """
-        self.all_hands = []
-        self.all_phases = []
-        self.all_goals = []
-        """
 
-        self.game_locked = False
-        
-        Game.instance = self
-        self.clients = {}
 
     def prestart(self) -> bool:
         if len(self.players) < 2:
             print("Not enough players to start")
             return False
-        self.player_cycle = cycle(self.players)
         self.deck = Deck()
         self.discards = Discards()
         for player in self.players:
             player.hand.extend(self.deck.deal())
-        self.random_starting_player()
         return True
-
-    def random_starting_player(self):
-        i = random.randint(1,10)
-        for _ in i:
-            self.active_player = next(self.player_cycle)
-        print(f"{self.active_player.name} goes first.")
 
     def start(self):
         if self.prestart():
@@ -68,10 +54,9 @@ class Game:
     # Player handling
     def add_player(self, player):
         player = Player(Player)
-        if self.players == []:
-            self.active_player = player
-        self.players.append(player)
         print(f"{player.name} added to the game")
+        if len(self.players) >= 2:
+            self.start()
 
     def getPlayer(self, player_name):
         for p in self.players:
@@ -84,13 +69,6 @@ class Game:
                 return p
 
     def checkWin(self, player) -> bool:
-        """
-        Checks if player has won.
-
-        Returns:
-            bool
-        """
-
         if player.getCurrentPhase().name == "All complete!":
             print(f"{player.name} wins the game")
             return True
@@ -104,7 +82,6 @@ class Game:
     def checkPlayerSkip(self, player):
         if player.skipped:
             player.toggleSkip()
-            self.active_player = next(self.player_cycle)
 
     # Turn handling
     def draw_from_deck(self, player) -> bool:
@@ -135,8 +112,6 @@ class Game:
             return False
 
     def play_pass(self, player) -> bool:
-        if player != self.active_player:
-            return False
         print(f"{player.name} passed their turn.")
         return True
 
@@ -156,14 +131,16 @@ class Game:
             print("play skip failed")
             return False
 
+
+#Game Data
     def getGoals(self, player) -> list:
         return player.getCurrentPhase().getGoals()
+    
+    @staticmethod
+    def check_card_count() -> bool:
+        return Card().count == 108
 
     # Game class methods
-    @staticmethod
-    def getGameInstance():
-        return Game().instance
-
     def to_json(self):
         return json.dumps(self.__dict__)
 
@@ -171,19 +148,7 @@ class Game:
     def from_json(data = None):
         '''
         Updates the game instance.
+        This shouldn't needed, since the client doesnt make any changes directly to the Game
         '''
         return Game(**json.loads(data))
 
-    # Client/Server methods
-    def add_client(self, client):
-        self.clients[client.client_id] = client
-
-    def remove_client(self, client_id):
-        del self.clients[client_id]
-
-    def get_clients(self) -> dict:
-        return self.clients
-
-
-if __name__ == "__main__":
-    pass
