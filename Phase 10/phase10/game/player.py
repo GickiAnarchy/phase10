@@ -39,10 +39,13 @@ class Player:
                 possible_plays += self.current_phase.check_for_plays(group)
         return possible_plays
 
-
-
-
     # TURN HANDLING
-
-
-
+    def toggle_active(self):
+        self.is_active = not self.is_active
+    
+    def draw_card(self, card):
+        if self.is_active:
+            self.hand.add_card(card)
+            return True
+        else:
+            return False

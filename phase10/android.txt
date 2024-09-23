@@ -1,3 +1,0 @@
-title=Test p10
-author=GA
-orientation=landscape
