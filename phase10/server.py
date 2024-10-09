@@ -1,60 +1,52 @@
 import asyncio
 import json
-import logging
-from game.game import Game
 
-class Client:
-    def __init__(self, reader, writer):
-        self.reader = reader
-        self.writer = writer
-        self.id = id(self)  # Unique identifier
+from common import Client
 
-clients = []  # List to store Client objects
+clients = {}
+
 
 async def handle_client(reader, writer):
-    client = Client(reader, writer)
-    clients.append(client)
-    logger = logging.getLogger(__name__)
-    logger.info(f"New connection from Client {client.id}")
+    while True:
+        data = await reader.read(1024)
+        if not data:
+            break
+        message_json = data.decode()
+        message = json.loads(message_json)
 
-    try:
-        while True:
-            data = await client.reader.readuntil(b'\n')
-            if data is None:
-                logger.info(f"Client {client.id} disconnected")
-                clients.remove(client)
-                break
+        type = None
 
-            message = json.loads(data.decode().strip())
-            logger.info(f"Received message from Client {client.id}: {message}")
+        try:
+            type = message["type"]
+        except:
+            print("There is no 'type' value in the message.")
+            break
 
-            # Process the message here
-            response = Game().getGameInstance()
-            await client.writer.write(json.dumps(response).encode() + b'\n')
+        if type == "register":
+            new_client = Client(reader,writer)
+            new_client.set_client_id(message["client_id"])
+
+            c_id = message["client_id"]
+            clients[c_id] = new_client
+
+            print(f"Received message: {message}")
+            writer.write(b"Message received: Registered Client {c_id}")
             await writer.drain()
-    except asyncio.CancelledError:
-        logger.info(f"Connection {client.id} canceled")
-        clients.remove(client)
 
-async def broadcast_game():
-    g_instance = Game().getGameInstance()
-    for client in clients:
-        await client.writer.write(g_instance.to_json().encode())
-        await writer.drain()
+        if type == "get_player":
+            print(f"GET PLAYER MESSAGE\n{message}")
+
+
 
 async def main():
-    logging.basicConfig(level=logging.DEBUG)
-
     server = await asyncio.start_server(
         handle_client, "127.0.0.1", 8888
     )
 
-    addr = server.sockets[0].getsockname()
-    print(f"Serving on {addr}")
-
     async with server:
+        print("Server Listening")
         await server.serve_forever()
 
+
 if __name__ == "__main__":
-    game = Game()
     asyncio.run(main())
