@@ -4,7 +4,7 @@ import json
 import uuid
 from json import JSONEncoder
 
-from phase import Phase
+from .phase import Phase
 
 
 class PlayerEncoder(JSONEncoder):

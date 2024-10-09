@@ -2,7 +2,7 @@
 
 from typing import List
 
-from card import Card
+from .card import Card
 
 
 class Goal:

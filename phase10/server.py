@@ -21,16 +21,22 @@ async def handle_client(reader, writer):
         except:
             print("There is no 'type' value in the message.")
             break
+
         if type == "register":
             new_client = Client(reader,writer)
             new_client.set_client_id(message["client_id"])
 
             c_id = message["client_id"]
-            clients[c_id] = json.dumps(new_client)
+            clients[c_id] = new_client
 
             print(f"Received message: {message}")
             writer.write(b"Message received: Registered Client {c_id}")
             await writer.drain()
+
+        if type == "get_player":
+            print(f"GET PLAYER MESSAGE\n{message}")
+
+
 
 async def main():
     server = await asyncio.start_server(
@@ -40,6 +46,7 @@ async def main():
     async with server:
         print("Server Listening")
         await server.serve_forever()
+
 
 if __name__ == "__main__":
     asyncio.run(main())

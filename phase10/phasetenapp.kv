@@ -4,3 +4,33 @@
         AsyncImage:
             source: "./assets/images/CardBack.png"
             pos_hint: {"center_x":0.5}
+
+<GetPlayerScreen>:
+    conn_btn: conn_btn
+    name_input: name_input
+    BoxLayout:
+        orientation: "vertical"
+        Label:
+            text: "Name"
+        TextInput:
+            id: name_input
+        GridLayout:
+            cols: 3
+            Button:
+                id: conn_btn
+                text:"Go!"
+            Button:
+                text: "1"
+                on_press: root.send_five()
+            Button:
+                text: "2"
+                on_press: root.send_five()
+            Button:
+                text: "3"
+                on_press: root.send_five()
+            Button:
+                text: "4"
+                on_press: root.send_five()
+            Button:
+                text: "5"
+                on_press: root.send_five()

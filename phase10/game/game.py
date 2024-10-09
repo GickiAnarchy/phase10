@@ -2,9 +2,9 @@
 
 import random
 
-from deck import Deck
-from discards import Discards
-from player import Player
+from .deck import Deck
+from .discards import Discards
+from .player import Player
 
 
 class Game:

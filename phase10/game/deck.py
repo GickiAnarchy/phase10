@@ -2,7 +2,7 @@
 
 from random import shuffle
 
-from card import Card, Wild, Skip
+from .card import Card, Wild, Skip
 
 
 class Deck:
