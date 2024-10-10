@@ -48,11 +48,10 @@ loop = asyncio.new_event_loop()
 
 if __name__ == '__main__':
     
-    async def mainThread():
-        p10 = PhaseTenApp()
-        b = loop.create_task(p10.async_run())
-        a = loop.create_task(cl.run())
-        (done, pending) = await asyncio.wait({a}, return_when='FIRST_COMPLETED')
-
-
-    asyncio.run(mainThread())
+    
+    # async def mainThread():
+#         p10 = PhaseTenApp()
+#         b = loop.create_task(p10.async_run())
+#         a = loop.create_task(cl.run())
+#         (done, pending) = await asyncio.wait({a}, return_when='FIRST_COMPLETED')
+#     asyncio.run(mainThread())
