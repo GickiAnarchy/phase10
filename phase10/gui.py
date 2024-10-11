@@ -13,7 +13,7 @@ from kivy.uix.screenmanager import Screen, ScreenManager
 from phase10.client import GameClient
 
 
-class GetPlayerScreen(Screen):
+class TestScreen(Screen):
 
     async def send_five(self):
         message = {"type": "ready", "player": cl.client_id}
@@ -28,19 +28,15 @@ class PageMaster(ScreenManager):
 
 
 class PhaseTenApp(App):
-    def __init__(self,**kwargs):
-        super().__init__(**kwargs)
-
+    # def __init__(self,**kwargs):
+#         super().__init__(**kwargs)
 
     def build(self):
         self.root = PageMaster()
         self.root.add_widget(Loading(name = "loading"))
-        self.root.add_widget(GetPlayerScreen(name = "getplayer"))
-        self.root.current = "getplayer"
+        self.root.add_widget(TestScreen(name = "testscreen"))
+        self.root.current = "testscreen"
         return self.root
-
-
-
 
 
 cl = GameClient()
