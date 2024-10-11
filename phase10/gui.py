@@ -43,8 +43,8 @@ cl = GameClient()
 loop = asyncio.new_event_loop()
 
 if __name__ == '__main__':
-    
-    
+    p10 = PhaseTenApp()
+    p10.run()
     # async def mainThread():
 #         p10 = PhaseTenApp()
 #         b = loop.create_task(p10.async_run())
