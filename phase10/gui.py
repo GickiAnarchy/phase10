@@ -39,25 +39,28 @@ class PhaseTenApp(App):
         return self.root
 
 
-    def start_app(self, msg):
+    def start_app(self, msg = None):
         self.other_task = asyncio.ensure_future(self.waste_time_freely())
         async def run_wrapper():
             await self.async_run()
 
         m_type = ""
-        try:
-            m_type = msg["type"]
-        except:
-            print("No 'type' in msg -> start_app")
+        if msg == "booo":
+            try:
+                m_type = msg["type"]
+            except:
+                print("No 'type' in msg -> start_app")
+
         async def send_test():
-            pass
+            loop = asyncio.get_event_loop()
+            loop.run_until_complete(cl.run())
+            loop.close()
         
         return asyncio.gather(run_wrapper(), self.other_task)
         
-        return asyncio.gather(run_wrapper(), self.other_task)
-    
     
     async def waste_time_freely(self):
+        """
         try:
             i = 0
             while True:
@@ -76,6 +79,7 @@ class PhaseTenApp(App):
             print('Wasting time was canceled', e)
         finally:
             print('Done wasting time')
+        """
 
 
 cl = GameClient()
