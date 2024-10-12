@@ -1,7 +1,6 @@
 import asyncio
 import json
 
-
 from common import Client
 
 
