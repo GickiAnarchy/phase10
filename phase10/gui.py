@@ -39,12 +39,55 @@ class PhaseTenApp(App):
         return self.root
 
 
+    def start_app(self, msg):
+        self.other_task = asyncio.ensure_future(self.waste_time_freely())
+        async def run_wrapper():
+            await self.async_run()
+
+        m_type = ""
+        try:
+            m_type = msg["type"]
+        except:
+            print("No 'type' in msg -> start_app")
+        async def send_test():
+            pass
+        
+        return asyncio.gather(run_wrapper(), self.other_task)
+        
+        return asyncio.gather(run_wrapper(), self.other_task)
+    
+    
+    async def waste_time_freely(self):
+        try:
+            i = 0
+            while True:
+                if self.root is not None:
+                    status = self.root.ids.label.status
+                    print('{} on the beach'.format(status))
+
+                    if self.root.ids.btn1.state != 'down' and i >= 2:
+                        i = 0
+                        print('Yawn, getting tired. Going to sleep')
+                        self.root.ids.btn1.trigger_action()
+
+                i += 1
+                await asyncio.sleep(2)
+        except asyncio.CancelledError as e:
+            print('Wasting time was canceled', e)
+        finally:
+            print('Done wasting time')
+
+
 cl = GameClient()
-loop = asyncio.new_event_loop()
+#loop = asyncio.new_event_loop()
 
 if __name__ == '__main__':
-    p10 = PhaseTenApp()
-    p10.run()
+    loop = asyncio.get_event_loop()
+    loop.run_until_complete(AsyncApp().app_func())
+    loop.close()
+
+
+
     # async def mainThread():
 #         p10 = PhaseTenApp()
 #         b = loop.create_task(p10.async_run())
