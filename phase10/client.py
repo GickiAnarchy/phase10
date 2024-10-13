@@ -68,3 +68,10 @@ class GameClient(Client):
         await self.send_message(msg)
         await self.receive_message()
 
+
+"""-------------PLAYER--------------"""
+    def has_player(self) -> bool:
+        if self.player is None:
+            return False
+        else:
+            return True
