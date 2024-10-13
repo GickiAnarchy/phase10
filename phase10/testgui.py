@@ -96,3 +96,61 @@ if __name__ == '__main__':
 
     # Start the asyncio event loop
     loop.run_forever()
+
+#------------------------------------------------------------------
+
+import asyncio
+from kivy.app import App
+from kivy.uix.label import Label
+from kivy.uix.button import Button
+from kivy.uix.boxlayout import BoxLayout
+from kivy.clock import Clock
+from threading import Thread
+
+from client import GameClient  # Import your GameClient class
+
+
+class MyApp(App):
+    def build(self):
+        self.layout = BoxLayout(orientation='vertical')
+
+        self.label = Label(text="Waiting for client to start...")
+        self.layout.add_widget(self.label)
+
+        self.start_button = Button(text="Draw Card")
+        self.start_button.bind(on_press=self.test_client)
+        self.layout.add_widget(self.start_button)
+
+        # Schedule the async tasks after app start
+        Clock.schedule_once(self.start_async_loop, 0)
+        return self.layout
+
+    def start_async_loop(self, dt):
+        """Start a separate thread to run the asyncio event loop."""
+        self.loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(self.loop)
+
+        # Start the event loop in a separate thread
+        t = Thread(target=self.loop.run_forever)
+        t.start()
+
+        # Now we can schedule async tasks in this loop
+        asyncio.run_coroutine_threadsafe(self.init_client(), self.loop)
+
+    async def init_client(self):
+        """Initialize the GameClient and connect to the server."""
+        self.client = GameClient()
+        await self.client.run()
+
+    def test_client(self, instance):
+        """Trigger client to send a message and then wait for the server response."""
+        asyncio.run_coroutine_threadsafe(self.client.test_message(), self.loop)  # Send the message
+
+    def update_label(self, message):
+        """Update the label text with a message (for feedback purposes)."""
+        self.label.text = message
+
+
+if __name__ == '__main__':
+    app = MyApp()
+    app.run()

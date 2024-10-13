@@ -30,11 +30,30 @@ async def handle_client(reader, writer):
             clients[c_id] = new_client
 
             print(f"Received message: {message}")
-            writer.write(b"Message received: Registered Client {c_id}")
+            rep = {"type":"success","client_id":c_id}
+            rep_e = json.dumps(rep)
+            writer.write(rep_e.encode())
+            print(f"Message received: Registered Client {c_id}")
             await writer.drain()
 
         if type == "get_player":
             print(f"GET PLAYER MESSAGE\n{message}")
+
+        if type == "ready":
+            print("GOT READY MESSAGE")
+            rep = {"type": "success", "client_id": c_id, "desc":"Got Ready Message"}
+            rep_e = json.dumps(rep)
+            writer.write(rep_e.encode())
+            print(f"Message received: Registered Client {c_id}")
+            await writer.drain()
+
+        if type == "test":
+            print("Test Successful")
+            rep = {"type": "success", "client_id": c_id, "desc":"BUTTON SMASHER"}
+            rep_e = json.dumps(rep)
+            writer.write(rep_e.encode())
+            print(f"Message sending to Client {c_id}")
+            await writer.drain()
 
 
 
