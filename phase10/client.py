@@ -75,3 +75,4 @@ class GameClient(Client):
             return False
         else:
             return True
+            
