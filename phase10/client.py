@@ -59,6 +59,7 @@ class GameClient(Client):
 
         print(f"Received: {message_dict}")
 
+#-----------MESSAGES------------------
     async def test_message(self, msg = None):
         if msg is None:
             msg = {
