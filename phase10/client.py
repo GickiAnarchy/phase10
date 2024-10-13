@@ -29,7 +29,6 @@ class GameClient(Client):
             "client_id": self.client_id
         }
         await self.send_message(message_d)
-
         await self.receive_message()  # Ensure this is listening for the server's response
 
     async def send_message(self, message: dict):
