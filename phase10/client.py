@@ -43,9 +43,21 @@ class GameClient(Client):
             data = await self.reader.read(1024)
             message_json = data.decode()
             message_dict = json.loads(message_json)
-            print(f"Received: {message_dict}")
         except Exception as e:
             print(f"Error receiving message: {e}")
+            return
+
+        try:
+            msg_type = message_dict["type"]
+        except Exception as e:
+            print(f"Message has no type\n{e}")
+            return
+
+        if msg_type == "connect_player":
+            self.player = message_dict["name"]
+            print(f"Client has {self.player} as player name")
+
+        print(f"Received: {message_dict}")
 
     async def test_message(self, msg = None):
         if msg is None:
@@ -55,6 +67,7 @@ class GameClient(Client):
             }
         await self.send_message(msg)
         await self.receive_message()
+
 
 
 

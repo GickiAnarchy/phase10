@@ -1,10 +1,12 @@
 import asyncio
 import json
+from dataclasses import dataclass
 
 from common import Client
+from phase10 import Player, Game
+
 
 clients = {}
-
 
 async def handle_client(reader, writer):
     while True:
@@ -14,18 +16,17 @@ async def handle_client(reader, writer):
         message_json = data.decode()
         message = json.loads(message_json)
 
-        type = None
+        msg_type = None
 
         try:
-            type = message["type"]
+            msg_type = message["type"]
         except:
             print("There is no 'type' value in the message.")
             break
 
-        if type == "register":
+        if msg_type == "register":
             new_client = Client(reader,writer)
             new_client.set_client_id(message["client_id"])
-
             c_id = message["client_id"]
             clients[c_id] = new_client
 
@@ -36,24 +37,34 @@ async def handle_client(reader, writer):
             print(f"Message received: Registered Client {c_id}")
             await writer.drain()
 
-        if type == "get_player":
-            print(f"GET PLAYER MESSAGE\n{message}")
-
-        if type == "ready":
-            print("GOT READY MESSAGE")
+        if msg_type == "ready":
             rep = {"type": "success", "client_id": c_id, "desc":"Got Ready Message"}
             rep_e = json.dumps(rep)
             writer.write(rep_e.encode())
             print(f"Message received: Registered Client {c_id}")
             await writer.drain()
 
-        if type == "test":
-            print("Test Successful")
+        if msg_type == "test":
             rep = {"type": "success", "client_id": c_id, "desc":"BUTTON SMASHER"}
             rep_e = json.dumps(rep)
             writer.write(rep_e.encode())
-            print(f"Message sending to Client {c_id}")
+            print(f"Test Successful\nMessage sending to Client {c_id}")
             await writer.drain()
+
+        if msg_type == "connect_player":
+            player_name = message["name"]
+            c_id = message["client_id"]
+            pl_client = clients.get(c_id)
+            pl_client.player = player_name
+
+            rep = {"type":"connect_player","desc":"added player name"}
+            rep_e = json.dumps(rep)
+            writer.write(rep_e.encode())
+            print(f"Client {c_id} added the player name: {player_name}")
+            await writer.drain()
+
+        else:
+            print(f"Type:{msg_type} is not recognized by the server")
 
 
 

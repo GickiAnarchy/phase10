@@ -8,6 +8,7 @@ class Client:
         self.reader = reader
         self.writer = writer
         self.client_id = None
+        self.player = None
 
     def set_client_id(self, client_id):
         self.client_id = client_id

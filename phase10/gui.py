@@ -20,8 +20,16 @@ class Loading(Screen):
     pass
 
 
-class PageMaster(ScreenManager):
+class NameScreen(Screen):
     pass
+
+
+class PageMaster(ScreenManager):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.add_widget(Loading(name="loading"))
+        self.add_widget(TestScreen(name="testscreen"))
+        self.add_widget(NameScreen(name="namescreen"))
 
 
 class PhaseTenApp(App):
@@ -31,8 +39,6 @@ class PhaseTenApp(App):
 
     def build(self):
         self.root = PageMaster()
-        self.root.add_widget(Loading(name="loading"))
-        self.root.add_widget(TestScreen(name="testscreen"))
         self.root.current = "testscreen"
 
         # Start the async loop in the same thread as Kivy
@@ -40,13 +46,13 @@ class PhaseTenApp(App):
 
         return self.root
 
+
     def start_async_loop(self, dt):
         """Start the asyncio loop in the same thread as Kivy."""
         self.loop = asyncio.new_event_loop()  # Create a new event loop
         asyncio.set_event_loop(self.loop)
         self.in_cl = asyncio.ensure_future(self.init_client())  # Start the client asynchronously
         self.loop.run_until_complete(self.in_cl)
-
 
     async def init_client(self):
         """Initialize the GameClient and connect to the server."""
@@ -63,6 +69,18 @@ class PhaseTenApp(App):
     def update_label(self, message):
         """Update the label text with a message (for feedback purposes)."""
         Clock.schedule_once(lambda dt: setattr(self, 'title', message), 0)  # Update UI safely in the main thread
+
+    def connect_player(self, name, instance = None):
+        """Trigger the client to bind the client_id to this player, adding them to the game"""
+        msg = {
+            "type": "connect_player",
+            "client_id": self.client.client_id,
+            "name": name,
+            "instance": instance
+        }
+        con_pl = asyncio.ensure_future(self.client.send_message(msg))
+        self.loop.run_until_complete(con_pl)
+
 
 
 if __name__ == '__main__':

@@ -5,8 +5,6 @@
             source: "./assets/images/CardBack.png"
             pos_hint: {"center_x":0.5}
 
-
-
 <PlayerInfo>:
     cols: 2
     rows: 2
@@ -23,13 +21,18 @@
         id: player_active_lbl
         size_hint: 0.5,0.5
 
-
-
-#<HandArea>:
-#    RecycleView:
-
-
-
+<NameScreen>:
+    BoxLayout:
+        orientation: "vertical"
+        Label:
+            text: "What is your name?"
+        TextInput:
+            id: name_input
+            multiline: False
+        Button:
+            id: connect_button
+            text: "Connect"
+            on_release: app.connect_player(name_input.text)
 
 <TestScreen>:
     conn_btn: conn_btn
@@ -51,7 +54,7 @@
             text:"Go!"
         Button:
             text: "1"
-            on_press: root.send_five()
+            on_press: app.root.current = "namescreen"
         Button:
             text: "2"
             on_press: root.send_five()
