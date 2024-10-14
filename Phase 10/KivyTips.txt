@@ -1,9 +1,0 @@
-KEEP TEXT INSIDE BUTTON DURING RESIZE
-
-Button:
-        ...
-        font_size: 14
-        larger_font: min(14, self.font_size + 1)  # one point larger but not over maximum
-        on_texture_size:
-            if self.texture_size[0] > self.width: self.font_size -= 1  # reduce font size if too wide
-            elif self.texture_size[0] + self.font_size / 2 < self.width: self.font_size = self.larger_font  # increase font size if able

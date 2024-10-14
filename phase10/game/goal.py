@@ -1,19 +1,23 @@
+#!/usr/bin/env python
+
 from typing import List
+
 from .card import Card
 
 
 class Goal:
     goal_counter = 0
+
     def __init__(self, min_cards: int):
+        Goal.goal_counter += 1
         self.min_cards = min_cards
         self.cards = []
-        self.complete = False
         self.name = ""
-        Goal.goal_counter += 1
+        self.complete = False
+        self.g_type = self.get_type()
         self.goal_id = Goal.goal_counter
 
-
-    def checkCards(self, cards: List['Card']) -> bool:
+    def check_cards(self, cards: List['Card']) -> bool:
         pass
 
     def get_id(self):
@@ -33,29 +37,53 @@ class Goal:
     def name(self, newname):
         self._name = newname
 
-    def addCards(self, cards: List['Card']) -> bool:
-        if self.checkCards(cards):
+    def add_cards(self, cards: List['Card']) -> bool:
+        if self.check_cards(cards):
             self.cards.extend(cards)
             self.complete = len(self.cards) >= self.min_cards
             return True
         return False
 
-    def sortNumber(self):
+    def check_complete(self):
+        if self.cards >= self.min_cards:
+            if self.check_cards(self.cards):
+                self.complete = True
+        return False
+
+    def sort_number(self):
         self.cards.sort(key=lambda x: x.number)
 
-    def sortColor(self):
+    def sort_color(self):
         self.cards.sort(key=lambda x: x.color)
+
+    def get_type(self):
+        if isinstance(self, SetGoal):
+            return "Set"
+        if isinstance(self, RunGoal):
+            return "Run"
+        if isinstance(self, ColorGoal):
+            return "Color"
+    
+    def to_dict(self):
+        return {
+            "min_cards": self.min_cards,
+            "cards": [c.to_dict() for c in self.cards],
+            "name": self.name,
+            "complete": self.complete,
+            "g_type": self.g_type,
+            "goal_id": self.goal_id
+            }
 
 
 class SetGoal(Goal):
-    def checkCards(self, cards: List['Card']) -> bool:
+    def check_cards(self, cards: List['Card']) -> bool:
         if not cards:
             return False
         return all(card.number == cards[0].number for card in cards)
 
 
 class RunGoal(Goal):
-    def checkCards(self, cards: List['Card']) -> bool:
+    def check_cards(self, cards: List['Card']) -> bool:
         if not cards:
             return False
         sorted_cards = sorted(cards, key=lambda c: c.number)
@@ -64,7 +92,7 @@ class RunGoal(Goal):
 
 
 class ColorGoal(Goal):
-    def checkCards(self, cards: List['Card']) -> bool:
+    def check_cards(self, cards: List['Card']) -> bool:
         if not cards:
             return False
         return all(card.color == cards[0].color for card in cards)

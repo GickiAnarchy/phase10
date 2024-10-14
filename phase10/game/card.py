@@ -1,19 +1,19 @@
-
-import random
-
-from kivy.parser import color_error
+#!/usr/bin/env python
 
 
 class Card:
     count = 0
-    def __init__(self, number = None, color = None, is_skip = False, is_wild = False):
+
+    def __init__(self, number=None, color=None, is_skip=False, is_wild=False):
+        Card.count += 1
+        self.id = Card.count
         self.number = number
         self.color = color
         self.is_skip = is_skip
         self.is_wild = is_wild
         self.image = self.get_image()
-        Card.count += 1
         print(f"{self.get_description()}\n{Card.count} cards created")
+
 
     def get_description(self):
         if self.is_wild:
@@ -32,9 +32,26 @@ class Card:
         else:
             return f"{img_path}/{self.color}_{self.number}.png"
 
+    def point_value(self):
+        if self.is_wild or self.is_skip:
+            return 25
+        if self.number <= 9:
+            return 5
+        if self.number >= 10:
+            return 10
+
     @classmethod
     def get_count(cls):
         return cls.count
+
+    @property
+    def points(self):
+        if self.is_wild or self.is_wild:
+            return 25
+        if self.number >= 10:
+            return 10
+        if self.number <= 9:
+            return 5
 
     def __eq__(self, other):
         if isinstance(other, int):
@@ -43,16 +60,29 @@ class Card:
             return self.color == other
         else:
             return self == other
+
     def __lt__(self, other):
         if isinstance(other, int):
             return self.number < other
+
     def __gt__(self, other):
         if isinstance(other, int):
             return self.number > other
 
+    def to_dict(self):
+        return {"Card": {
+            "id": self.id,
+            "number": self.number,
+            "color": self.color,
+            "is_skip": self.is_skip,
+            "is_wild":self.is_wild,
+            "point value": self.points,
+            "image": self.image
+            }}
+
 class Wild(Card):
-    def __init__(self,number = 0, color = "Wild", is_wild = True):
-        super().__init__(number,color,False,is_wild)
+    def __init__(self, number=0, color="Wild", is_wild=True):
+        super().__init__(number, color, False, is_wild)
 
     def __eq__(self, other):
         if isinstance(other, int):
@@ -61,20 +91,27 @@ class Wild(Card):
             return True
         else:
             return self == other
+
     def __lt__(self, other):
         if isinstance(other, int):
             return True
+
     def __gt__(self, other):
         if isinstance(other, int):
             return True
 
+
 class Skip(Card):
-    def __init__(self,number = 0, color = "Skip", is_skip = True):
-        super().__init__(number,color,is_skip,False)
+    def __init__(self, number=0, color="Skip", is_skip=True):
+        super().__init__(number, color, is_skip, False)
 
     def __eq__(self, other):
         return False
+
     def __gt__(self, other):
         return False
+
     def __lt__(self, other):
         return False
+    
+    

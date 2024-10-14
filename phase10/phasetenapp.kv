@@ -1,0 +1,83 @@
+<Loading>:
+    BoxLayout:
+        orientation: "vertical"
+        AsyncImage:
+            source: "./assets/images/CardBack.png"
+            pos_hint: {"center_x":0.5}
+
+<PlayerInfoScreen>:
+    p_info: p_info
+    PlayerInfo:
+        id: p_info
+        size_hint: 0.3, 0.3
+        pos_hint: {'left':0, 'bottom':0}
+
+<PlayerInfo>:
+    player_name_lbl:player_name_lbl
+    player_score_lbl:player_score_lbl
+    player_phase_lbl:player_phase_lbl
+    player_active_lbl:player_active_lbl
+    cols: 2
+    rows: 2
+    Label:
+        id: player_name_lbl
+        size_hint: 0.5,0.5
+    Label:
+        id: player_score_lbl
+        size_hint: 0.5,0.5
+    Label:
+        id: player_phase_lbl
+        size_hint: 0.5,0.5
+    Label:
+        id: player_active_lbl
+        size_hint: 0.5,0.5
+
+<NameScreen>:
+    BoxLayout:
+        orientation: "vertical"
+        Label:
+            text: "What is your name?"
+        TextInput:
+            id: name_input
+            multiline: False
+        Button:
+            id: connect_button
+            text: "Connect"
+            on_release: app.connect_player(name_input.text)
+
+<TestScreen>:
+    conn_btn: conn_btn
+    name_input: name_input
+    BoxLayout:
+        orientation: "vertical"
+        size_hint: 0.6, 0.4
+        pos_hint: {'center_y':0.8, 'center_x': 0.5}
+        Label:
+            text: "Name"
+        TextInput:
+            id: name_input
+    GridLayout:
+        cols: 3
+        size_hint: 0.6,0.2
+        pos_hint: {'center_y':0.1, 'center_x':0.5}
+        Button:
+            id: conn_btn
+            text:"Home"
+            disabled: True
+        Button:
+            text: "Get Player"
+            on_press: app.root.current = "namescreen"
+        Button:
+            text: "Player Info Box"
+            on_press: root.player_info_box()
+        Button:
+            text: "3"
+            on_press: root.send_five()
+            disabled: True
+        Button:
+            text: "4"
+            on_press: root.send_five()
+            disabled: True
+        Button:
+            text: "Test Server Msg"
+            on_press: app.test_client()
