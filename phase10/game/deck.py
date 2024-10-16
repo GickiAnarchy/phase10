@@ -8,6 +8,7 @@ from .card import Card, Wild, Skip
 class Deck:
     def __init__(self):
         self.cards = []
+        self.name = "Deck"
         self.image = "phase10/assets/images/CardBack.png"
 
     def create_deck(self):

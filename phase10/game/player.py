@@ -20,11 +20,19 @@ class Player:
         self.win = False
         self.is_skipped = False
         self.player_id = str(uuid.uuid4())
+        self.is_active = False
+        self.current_turn_step = None
 
 
     # PLAYER
     def toggle_skipped(self):
         self.is_skipped = not self.is_skipped
+
+    def toggle_active(self):
+        self.is_active = not self.is_active
+
+    def get_turn_step(self):
+        return self.current_turn_step
 
     # PHASE HANDLING
     def phase_desc(self):
@@ -44,6 +52,11 @@ class Player:
     def add_card(self, card):
         self.hand.append(card)
 
+    def take_card_by_id(self, card_id):
+        for i, card in enumerate(self.hand):
+            if card.id == card_id:
+                return self.hand.pop(i)
+
     def total_hand_points(self):
         return sum([c.points for c in self.hand])
 
@@ -56,26 +69,6 @@ class Player:
     def to_dict(self):
         data = json.dumps(self, indent = 4, cls = PlayerEncoder)
         return data
-
-"""
-    def __dict__(self):
-        h = [dict(c) for c in self.hand]
-        return {"name":self.name,"hand":h,"current_phase":self.current_phase,"score":self.score,"win":self.win,"is_skipped":self.is_skipped,"player_id":self.player_id}
-
-
-    def __slots__(self):
-        return {
-            "name":self.name,
-            "hand":self.hand,
-            "current_phase":self.current_phase,
-            "score":self.score,
-            "win":self.win,
-            "is_skipped":self.is_skipped,
-            "player_id":self.player_id
-            }
-
-"""
-
 
 
 ##########################

@@ -15,6 +15,9 @@ class GameClient(Client):
         self.writer = None
 
     def has_player(self):
+        """Checks if the GameClient's player attribute is null or not.
+        :return bool: True if GameClient().player is not null"""
+
         if self.player is None:
             return False
         else:
@@ -44,9 +47,9 @@ class GameClient(Client):
 
     async def send_message(self, message: dict):
         message_json = json.dumps(message)
-        print(f"Sending message: {message_json}")
-        self.writer.write(message_json.encode())
+        self.writer.write(message_json)
         await self.writer.drain()
+        print(f"Sent message: {message}")
 
     async def receive_message(self):
         try:
@@ -56,13 +59,11 @@ class GameClient(Client):
         except Exception as e:
             print(f"Error receiving message: {e}")
             return
-
         try:
             msg_type = message_dict["type"]
         except Exception as e:
             print(f"Message has no type\n{e}")
             return
-
         if msg_type == "connect_player":
             self.player = message_dict["name"]
             print(f"Client has {self.player} as player name")
@@ -71,33 +72,32 @@ class GameClient(Client):
 
     async def test_message(self, msg = None):
         if msg is None:
-            msg = {
-                "type":"test",
-                "desc":"Test sending message"
-            }
+            msg = {"type":"test","desc":"Test sending message"}
         await self.send_message(msg)
         await self.receive_message()
 
-    def message_factory(self, msg_type, msg:dict):
+    async def draw_card(self, target):
+        message = self.message_factory()
+
+    async def message_factory(self, msg_type, msg:dict = None):
         """ Function to create a message for the server.
             Adds the client_id and player name automatically.
 
         :arg    msg_type: The message type the server looks for.
-        :arg    msg: A dictionary of other data needed for the message
-
-        :return encoded_message: Dictionary in bytes ready to be sent to the server"""
+        :arg    msg: A dictionary of other data needed for the message"""
 
         message = {
             "type": msg_type,
             "client_id": self.client_id,
             "player": self.player.name
         }
-
-        for k,v in msg.items():
-            message[k] = v
-
+        if msg:
+            for k,v in msg.items():
+                message[k] = v
         message_json = json.dumps(message)
         encoded_message = message_json.encode()
-        return encoded_message
+        self.writer.write(encoded_message)
+        await self.writer.drain()
+
 
 
