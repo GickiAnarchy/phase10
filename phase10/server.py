@@ -6,6 +6,14 @@ from common import Client
 from phase10 import Player, Game
 
 
+@dataclass
+class Room:
+    game: Game
+    players: list[Player]
+    
+    def 
+
+
 clients = {}
 
 async def handle_client(reader, writer):
@@ -68,8 +76,19 @@ async def handle_client(reader, writer):
             case _:
                 print(f"Type:{msg_type} is not recognized by the server")
 
-
-
+async def broadcast_game(room: Room):
+    game_json = room.game.to_json()
+    message = {"type": "game_update", "game": game_json}
+    message_encoded = json.dumps(message).encode()
+    for player in room.players:
+        client = clients.get(player.player_id)
+        if client:
+            try:
+                client.writer.write(message_encoded)
+                await client.writer.drain()
+            except Exception as e:
+                print(f"Error broadcasting game to client {player.player_id}: {e}")
+        
 async def main():
     server = await asyncio.start_server(
         handle_client, "127.0.0.1", 8888
@@ -78,7 +97,6 @@ async def main():
     async with server:
         print("Server Listening")
         await server.serve_forever()
-
 
 if __name__ == "__main__":
     asyncio.run(main())

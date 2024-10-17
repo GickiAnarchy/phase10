@@ -1,4 +1,7 @@
 #!/usr/bin/env python
+import json
+from json import JSONEncoder
+
 
 class Discards:
     def __init__(self):
@@ -40,7 +43,13 @@ class Discards:
     def __iter__(self):
         return iter(self.cards)
     
-    def to_dict(self):
-        return {
-            "cards": [c.to_dict() for c in self.cards]
-        }
+        # JSON
+    def to_json(self):
+        data = json.dumps(self, indent = 4, cls = DiscardsEncoder)
+        return data
+
+
+#   #   #   #   #   #   #   #   #   #
+class DiscardsEncoder(JSONEncoder):
+    def default(self, o):
+        return o.__dict__

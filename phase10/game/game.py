@@ -3,6 +3,7 @@
 import random
 import json
 from json import JSONEncoder
+import pickle
 
 from deck import Deck
 from discards import Discards
@@ -14,7 +15,7 @@ class Game:
         self.players = []
         self.deck = Deck()
         self.discards = Discards()
-        self.turn_steps = {1:"Waiting",2:"Draw",3:"Main",4:"Discard"}
+        self.turn_steps = {1:"Waiting",2:"Draw",3:"Main",4:"Discard", 5:"Done"}
 
     def ready(self):
         if len(self.players) >= 2:
@@ -46,6 +47,15 @@ class Game:
     def random_first_active(self):
         random.choice(self.players).toggle_active()
         self.active_player.current_turn_step = self.turn_steps[2]
+    
+    def next_turn(self):
+        for p in self.players:
+            if p.is_active:
+                p.toggle_active()
+                p.current_turn_step = self.turn_steps[1]
+            elif not p.is_active: 
+                p.toggle_active()
+                p.current_turn_step = self.turn_steps[2]
 
     # "DRAW" STEP
     def draw_card(self, target:str, player:Player):
@@ -72,20 +82,21 @@ class Game:
                     if goal.goal_id == goal_id:
                         if goal.check_cards(card):
                             goal.add_cards(card)
+                            player.current_turn_step = self.turn_steps[4]
                             return True
             case "play_skip":
                 self.discards.add_card(card)
+                player.current_turn_step = self.turn_steps[4]
                 #add add skip to player
                 return True
         player.add_card(card)
         return False
-                
-                        
 
     # "DISCARD" STEP
     def discard_card(self, card_id, player):
         if self.active_player == player:
             self.discards.add_card(player.take_card_by_id(card_id))
+            player.current_turn_step = self.turn_steps[5]
 
     # PROPERTIES
     @property
@@ -98,7 +109,6 @@ class Game:
     def to_json(self):
         data = json.dumps(self, indent = 4, cls = GameEncoder)
         return data
-
 
 #   #   #   #   #   #   #   #   #   #
 class GameEncoder(JSONEncoder):

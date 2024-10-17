@@ -64,10 +64,10 @@ class GameClient(Client):
         except Exception as e:
             print(f"Message has no type\n{e}")
             return
+        
         if msg_type == "connect_player":
             self.player = message_dict["name"]
             print(f"Client has {self.player} as player name")
-
         print(f"Received: {message_dict}")
 
     async def test_message(self, msg = None):
