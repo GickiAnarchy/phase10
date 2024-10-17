@@ -4,6 +4,7 @@ from dataclasses import dataclass
 
 from common import Client
 from phase10 import Player, Game
+from room import Room
 
 
 @dataclass

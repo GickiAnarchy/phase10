@@ -1,18 +1,11 @@
 #!/usr/bin/env python
+from dataclasses import dataclass
+from phase10 import GameClient
 
-from game import Game
-from phase10 import Player
-
-
+@dataclass
 class Room:
-    def __init__(self):
-        self.game = None
-        self.players = []
+    game: Game
+    players: list[GameClient]
 
-    def add_player(self, player: Player):
-        self.players.append(player.player_id)
-        self.game.add_player(player)
-
-    def remove_player(self, player: Player):
-        self.players.remove(player.player_id)
-        self.game.
+    def 
+    

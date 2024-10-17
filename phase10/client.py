@@ -8,9 +8,10 @@ from phase10 import Player
 
 
 class GameClient(Client):
-    def __init__(self):
+    def __init__(self, gui = None):
         super().__init__()
         self.player = None
+        self.gui = gui
         self.reader = None
         self.writer = None
 
@@ -64,6 +65,9 @@ class GameClient(Client):
         except Exception as e:
             print(f"Message has no type\n{e}")
             return
+
+        if msg_type == "game_update":
+            self.gui.game = Game(message_dict["game"])
         
         if msg_type == "connect_player":
             self.player = message_dict["name"]

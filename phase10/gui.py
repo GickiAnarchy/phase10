@@ -1,5 +1,4 @@
 import asyncio
-from threading import Thread
 
 from kivy.app import App
 from kivy.properties import ObjectProperty, StringProperty, BooleanProperty
@@ -30,22 +29,28 @@ class TestScreen(Screen):
         the_player = Player(the_player)
         App.get_running_app().app_root.current = "player_info"
 
-
-
 class Loading(Screen):
     pass
-
 
 class NameScreen(Screen):
     pass
 
-
 class PlayerInfoScreen(Screen):
+    pl = ObjectProperty(None)
     p_info = ObjectProperty(None)
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-
-
+        self.bind(pl = self.update_info)
+    
+    def update_info(self, instance, value):
+        self.p_info.player_name_lbl.text = value.name
+        self.p_info.player_score_lbl.text = value.score
+        self.p_info.player_phase_lbl.text = value.current_phase.name
+        if value.is_active:
+            self.player_active_lbl.text = "☆☆☆"
+        else:
+            self.player_active_lbl.text = "-"
+        
 class PlayerInfo(GridLayout):
     player_name_lbl = ObjectProperty()
     player_score_lbl = ObjectProperty()
@@ -66,10 +71,13 @@ class PlayerInfo(GridLayout):
             self.player_phase_lbl = "--"
             self.player_active_lbl = "--"
 
-    def watch_player(self, player):
-        self.player = player
-
-
+    def update(self):
+        self.clear_widgets()
+        self.player_name_lbl = player.name
+        self.player_score_lbl = str(player.score)
+        self.player_phase_lbl = player.current_phase.name
+        self.player_active_lbl = "False"
+        
 class PageMaster(ScreenManager):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -78,21 +86,26 @@ class PageMaster(ScreenManager):
         self.add_widget(NameScreen(name="namescreen"))
         self.add_widget(PlayerInfoScreen(name = "player_info"))
 
+class
 
+#   #   #   #   #   #   #   #   #   #
 class PhaseTenApp(App):
+    game = ObjectProperty(None)
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.client = GameClient()
-        self.client.make_client_id()  # Ensure this method sets client_id correctly
-        self.loop = asyncio.new_event_loop()  # Create a new event loop
+        self.client = GameClient(self)
+        self.client.make_client_id()
+        self.loop = asyncio.new_event_loop()
 
     def build(self):
         self.app_root = PageMaster()
         self.app_root.current = "namescreen"
-
+        self.bind(game = self.update_game)
         return self.app_root
-
-
+ 
+    def update_game(self, instance, value):
+        
+    
     def start_async_loop(self, dt = None):
         if self.client.has_player():
             in_cl = asyncio.ensure_future(self.init_client())  # Start the client asynchronously
@@ -135,6 +148,7 @@ class PhaseTenApp(App):
         con_pl = asyncio.ensure_future(self.client.send_message(msg))
         self.loop.run_until_complete(con_pl)
 
+    
 
 
 if __name__ == '__main__':
