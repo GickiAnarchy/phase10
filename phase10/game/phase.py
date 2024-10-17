@@ -1,7 +1,9 @@
 from typing import List
+import json
+from json import JSONEncoder
 
-from .card import Card
-from .goal import SetGoal, RunGoal, ColorGoal, Goal
+from card import Card
+from goal import SetGoal, RunGoal, ColorGoal, Goal
 
 
 class Phase:
@@ -80,6 +82,15 @@ class Phase:
 
 
 
+    def to_dict(self):
+        data = json.dumps(self, indent = 4, cls = PhaseEncoder)
+        return data
+
+
+#   #   #   #   @   #   #   #   #   #
+class PhaseEncoder(JSONEncoder):
+        def default(self, o):
+            return o.__dict__
 
 PHASES_DATA = {
     1: Phase(1, "Phase 1", [SetGoal(3), SetGoal(3)]),

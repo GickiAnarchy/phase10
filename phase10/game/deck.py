@@ -11,6 +11,12 @@ class Deck:
         self.name = "Deck"
         self.image = "phase10/assets/images/CardBack.png"
 
+    def can_take_card():
+        if len(self.cards) >= 1:
+            return True
+        else:
+            return False
+
     def create_deck(self):
         if Card.count >= 108:
             raise Exception("Too many Cards")

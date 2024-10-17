@@ -4,12 +4,7 @@ import json
 import uuid
 from json import JSONEncoder
 
-from .phase import Phase
-
-
-class PlayerEncoder(JSONEncoder):
-        def default(self, o):
-            return o.__dict__
+from phase import Phase
 
 class Player:
     def __init__(self, name, hand=[],current_phase=None,score=0,win=False,is_skipped=False,player_id=None):
@@ -71,7 +66,7 @@ class Player:
         return data
 
 
-##########################
-def iterate_by_groups(cards, group_size):
-    for i in range(len(cards) - group_size + 1):
-        yield cards[i:i + group_size]
+#   #   #   #   @   #   #   #   #   #
+class PlayerEncoder(JSONEncoder):
+        def default(self, o):
+            return o.__dict__

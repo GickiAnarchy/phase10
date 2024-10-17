@@ -7,6 +7,13 @@ class Discards:
 
     def number_of_cards(self):
         return len(self.cards)
+    
+    def can_take_card(self) -> bool:
+        if self.number_of_cards() <= 0:
+            return False
+        if self.cards[-1].name == "Skip":
+            return False
+        return True
 
     def get_top_card(self):
         if self.number_of_cards() <= 0:
@@ -15,9 +22,10 @@ class Discards:
         return (c.get_description(), c.get_image())
 
     def take_top_card(self):
-        if self.number_of_cards() <= 0 or self.cards[-1].name == "Skip":
+        if self.can_take_card():
+            return self.cards.pop(-1)
+        else:
             return None
-        return self.cards.pop(-1)
 
     def add_card(self, card):
         self.cards.append(card)
