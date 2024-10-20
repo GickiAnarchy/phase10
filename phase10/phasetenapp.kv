@@ -5,32 +5,6 @@
             source: "./assets/images/CardBack.png"
             pos_hint: {"center_x":0.5}
 
-<PlayerInfoScreen>:
-    p_info: p_info
-    PlayerInfo:
-        id: p_info
-        size_hint: 0.3, 0.3
-        pos_hint: {'left':0, 'bottom':0}
-
-<PlayerInfo>:
-    player_name_lbl:player_name_lbl
-    player_score_lbl:player_score_lbl
-    player_phase_lbl:player_phase_lbl
-    player_active_lbl:player_active_lbl
-    cols: 2
-    rows: 2
-    Label:
-        id: player_name_lbl
-        size_hint: 0.5,0.5
-    Label:
-        id: player_score_lbl
-        size_hint: 0.5,0.5
-    Label:
-        id: player_phase_lbl
-        size_hint: 0.5,0.5
-    Label:
-        id: player_active_lbl
-        size_hint: 0.5,0.5
 
 <NameScreen>:
     BoxLayout:
@@ -45,10 +19,33 @@
             text: "Connect"
             on_release: app.connect_player(name_input.text)
 
+<PlayerInfo>:
+    AnchorLayout:
+        anchor_x: 'left'
+        anchor_y: 'bottom'
+        size_hint: 0.15,0.15
+        GridLayout:
+            cols: 2
+            rows: 2
+            Label:
+                size_hint: 0.5,0.5
+                text: player_name
+            Label:
+                size_hint: 0.5,0.5
+                text: player_score
+            Label:
+                size_hint: 0.5,0.5
+                text: player_phase
+            Label:
+                size_hint: 0.5,0.5
+                text: player_is_active
+
 <TestScreen>:
     conn_btn: conn_btn
     name_input: name_input
+    top_box: top_box
     BoxLayout:
+        id: top_box
         orientation: "vertical"
         size_hint: 0.6, 0.4
         pos_hint: {'center_y':0.8, 'center_x': 0.5}
@@ -69,7 +66,7 @@
             on_press: app.root.current = "namescreen"
         Button:
             text: "Player Info Box"
-            on_press: root.player_info_box()
+            on_press: root.show_player_info()
         Button:
             text: "3"
             on_press: root.send_five()

@@ -4,7 +4,7 @@ from typing import List
 import json
 from json import JSONEncoder
 
-from card import Card
+from .card import Card
 
 
 class Goal:

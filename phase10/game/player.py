@@ -4,7 +4,7 @@ import json
 import uuid
 from json import JSONEncoder
 
-from phase import Phase
+from .phase import Phase
 
 class Player:
     def __init__(self, name, hand=[],current_phase=None,score=0,win=False,is_skipped=False,player_id=None):

@@ -2,8 +2,8 @@ from typing import List
 import json
 from json import JSONEncoder
 
-from card import Card
-from goal import SetGoal, RunGoal, ColorGoal, Goal
+from .card import Card
+from .goal import SetGoal, RunGoal, ColorGoal, Goal
 
 
 class Phase:

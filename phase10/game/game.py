@@ -5,9 +5,9 @@ import json
 from json import JSONEncoder
 import pickle
 
-from deck import Deck
-from discards import Discards
-from player import Player
+from .deck import Deck
+from .discards import Discards
+from .player import Player
 
 
 class Game:

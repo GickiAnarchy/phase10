@@ -4,7 +4,7 @@ from random import shuffle
 import json
 from json import JSONEncoder
 
-from card import Card, Wild, Skip
+from .card import Card, Wild, Skip
 
 
 class Deck:
@@ -13,7 +13,7 @@ class Deck:
         self.name = "Deck"
         self.image = "phase10/assets/images/CardBack.png"
 
-    def can_take_card():
+    def can_take_card(self):
         if len(self.cards) >= 1:
             return True
         else:
@@ -47,7 +47,7 @@ class Deck:
     def __iter__(self):
         return iter(self.cards)
         
-        def to_dict(self):
+    def to_dict(self):
         data = json.dumps(self, indent = 4, cls = DeckEncoder)
         return data
 
