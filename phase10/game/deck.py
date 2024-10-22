@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 
-from random import shuffle
 import json
 from json import JSONEncoder
+from random import shuffle
 
 from .card import Card, Wild, Skip
 
@@ -46,13 +46,13 @@ class Deck:
 
     def __iter__(self):
         return iter(self.cards)
-        
+
     def to_dict(self):
-        data = json.dumps(self, indent = 4, cls = DeckEncoder)
+        data = json.dumps(self, indent=4, cls=DeckEncoder)
         return data
 
 
 #   #   #   #   @   #   #   #   #   #
 class DeckEncoder(JSONEncoder):
-        def default(self, o):
-            return o.__dict__
+    def default(self, o):
+        return o.__dict__

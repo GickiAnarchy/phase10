@@ -1,23 +1,22 @@
 #!/usr/bin/env python
 
 import json
-import uuid
 from json import JSONEncoder
 
 from .phase import Phase
 
+
 class Player:
-    def __init__(self, name, hand=[],current_phase=None,score=0,win=False,is_skipped=False,player_id=None):
+    def __init__(self, name, hand=[], current_phase=None, score=0, win=False, is_skipped=False, player_id=None):
         self.name = name
         self.hand = []
         self.current_phase = Phase.make_phase(1)
         self.score = 0
         self.win = False
         self.is_skipped = False
-        self.player_id = str(uuid.uuid4())
+        self.player_id = None
         self.is_active = False
         self.current_turn_step = None
-
 
     # PLAYER
     def toggle_skipped(self):
@@ -57,16 +56,16 @@ class Player:
 
     def sort_by_number(self):
         self.hand.sort(key=lambda x: x.number)
-        
+
     def sort_by_color(self):
         self.hand.sort(key=lambda x: x.color)
 
     def to_dict(self):
-        data = json.dumps(self, indent = 4, cls = PlayerEncoder)
+        data = json.dumps(self, indent=4, cls=PlayerEncoder)
         return data
 
 
 #   #   #   #   @   #   #   #   #   #
 class PlayerEncoder(JSONEncoder):
-        def default(self, o):
-            return o.__dict__
+    def default(self, o):
+        return o.__dict__

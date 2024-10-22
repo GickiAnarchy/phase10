@@ -1,6 +1,6 @@
-from typing import List
 import json
 from json import JSONEncoder
+from typing import List
 
 from .card import Card
 from .goal import SetGoal, RunGoal, ColorGoal, Goal
@@ -47,13 +47,14 @@ class Phase:
                     goal.add_cards(cards)
 
     def to_dict(self):
-        data = json.dumps(self, indent = 4, cls = PhaseEncoder)
+        data = json.dumps(self, indent=4, cls=PhaseEncoder)
         return data
+
 
 #   #   #   #   @   #   #   #   #   #
 class PhaseEncoder(JSONEncoder):
-        def default(self, o):
-            return o.__dict__
+    def default(self, o):
+        return o.__dict__
 
 
 #   #   #   #   @   #   #   #   #   #

@@ -1,15 +1,10 @@
 import asyncio
 import json
-from dataclasses import dataclass
 
 from common import Client
-from phase10 import Player, Game
-
-@dataclass
-class GameManager:
-    pass
 
 clients = {}
+
 
 async def handle_client(reader, writer):
     c_id = None
@@ -45,14 +40,14 @@ async def handle_client(reader, writer):
                     await writer.drain()
 
                 case "ready":
-                    rep = {"type": "success", "client_id": c_id, "desc":"Got Ready Message"}
+                    rep = {"type": "success", "client_id": c_id, "desc": "Got Ready Message"}
                     rep_e = json.dumps(rep)
                     writer.write(rep_e.encode())
                     print(f"Message received: Registered Client {c_id}")
                     await writer.drain()
 
                 case "test":
-                    rep = {"type": "success", "client_id": c_id, "desc":"BUTTON SMASHER"}
+                    rep = {"type": "success", "client_id": c_id, "desc": "BUTTON SMASHER"}
                     rep_e = json.dumps(rep)
                     writer.write(rep_e.encode())
                     print(f"Test Successful\nMessage sending to Client {c_id}")
@@ -64,7 +59,7 @@ async def handle_client(reader, writer):
                     pl_client = clients.get(c_id)
                     pl_client.player = player_name
 
-                    rep = {"type":"connect_player","desc":"added player name"}
+                    rep = {"type": "connect_player", "desc": "added player name"}
                     rep_e = json.dumps(rep)
                     writer.write(rep_e.encode())
                     print(f"Client {c_id} added the player name: {player_name}")
@@ -78,6 +73,7 @@ async def handle_client(reader, writer):
         writer.close()
         await writer.wait_closed()
 
+
 async def broadcast_game(room):
     game_json = room.game.to_json()
     message = {"type": "game_update", "game": game_json}
@@ -90,7 +86,8 @@ async def broadcast_game(room):
                 await client.writer.drain()
             except Exception as e:
                 print(f"Error broadcasting game to client {player.player_id}: {e}")
-        
+
+
 async def main():
     try:
         server = await asyncio.start_server(handle_client, "127.0.0.1", 8888)

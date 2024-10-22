@@ -1,8 +1,5 @@
-
-import random
 import json
-
-
+import random
 
 COLORS = ["Red", "Blue", "Green", "Yellow"]
 LOW_NUMBERS = ["One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine"]
@@ -25,9 +22,9 @@ NUMBER_VALUE = {
 }
 
 
-
 class Card():
     count = 0
+
     def __init__(self, name: str, points: int, color: str):
         self.name = name
         self.points = points
@@ -35,7 +32,7 @@ class Card():
         self.number = NUMBER_VALUE[self.name]
         Card.count += 1
         self.card_id = Card.count
-        
+
     def description(self):
         if self.color == "None":
             return self.name
@@ -95,20 +92,21 @@ class Card():
 
     def __gt__(self, other):
         return self.number > other.number
-    
+
     def send_card_to_gui(self):
         return {
-            "image":self.getImage(),
-            "id":self.card_id,
-            "desc":self.description()
+            "image": self.getImage(),
+            "id": self.card_id,
+            "desc": self.description()
         }
-    
+
     def to_json(self):
         return json.dumps(self.__dict__)
-    
+
     @staticmethod
-    def from_json(data = None):
+    def from_json(data=None):
         return Card(**json.loads(data))
+
 
 class WildCard(Card):
     def __init__(self, name="Wild", points=25, color="Wild"):
@@ -153,7 +151,7 @@ class WildCard(Card):
     def __eq__(self, other):
         if isinstance(other, Card):
             if other.name == "Skip":
-                 return False
+                return False
             else:
                 return True
         if isinstance(other, int):
@@ -174,6 +172,7 @@ class WildCard(Card):
         else:
             return True
 
+
 class SkipCard(Card):
     def __init__(self, name="Skip", points=25, color="None"):
         self.number = 60
@@ -188,17 +187,21 @@ class SkipCard(Card):
     def __gt__(self, other):
         return False
 
+
 class BasicCard(Card):
     def __init__(self, name: str, points: int, color: str):
         super().__init__(name, points, color)
+
 
 class LowCard(BasicCard):
     def __init__(self, name: str, color: str, points=5):
         super().__init__(name, points, color)
 
+
 class HighCard(BasicCard):
     def __init__(self, name: str, color: str, points=10):
         super().__init__(name, points, color)
+
 
 class Hand:
     def __init__(self):
@@ -218,7 +221,7 @@ class Hand:
             if card.card_id == card_id:
                 return self.cards.pop(i)
         print(f"ID {str(card_id)} not found in hand")
-        return None 
+        return None
 
     def send_hand_to_gui(self):
         ret = []
@@ -289,6 +292,7 @@ class Hand:
     def sortColor(self):
         self.cards.sort(key=lambda x: x.color)
 
+
 class Deck:
     def __init__(self):
         self.cards = []
@@ -335,14 +339,15 @@ class Deck:
         Returns:
             list: of 10 Card objects
         """
-        
+
         self.shuffle()
         return self.cards[:10]
 
-    def shuffle(self, other_cards = None):
+    def shuffle(self, other_cards=None):
         if other_cards != None:
             self.cards.extend(other_cards)
         random.shuffle(self.cards)
+
 
 class Discards:
     def __init__(self):
@@ -366,18 +371,13 @@ class Discards:
         self.cards.append(card)
 
 
-
 if __name__ == "__main__":
-    
-    #test card ID
-    
+
+    # test card ID
+
     deck = Deck()
-    with open("test_card_id.json","w") as f:
+    with open("test_card_id.json", "w") as f:
         cardsdict = {}
         for c in deck:
             cardsdict[str(c.card_id)] = c.to_json()
-        json.dump(cardsdict, f, indent = 2)
-        
-            
-        
-    
+        json.dump(cardsdict, f, indent=2)

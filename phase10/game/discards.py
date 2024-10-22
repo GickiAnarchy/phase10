@@ -10,7 +10,7 @@ class Discards:
 
     def number_of_cards(self):
         return len(self.cards)
-    
+
     def can_take_card(self) -> bool:
         if self.number_of_cards() <= 0:
             return False
@@ -42,10 +42,11 @@ class Discards:
 
     def __iter__(self):
         return iter(self.cards)
-    
+
         # JSON
+
     def to_json(self):
-        data = json.dumps(self, indent = 4, cls = DiscardsEncoder)
+        data = json.dumps(self, indent=4, cls=DiscardsEncoder)
         return data
 
 

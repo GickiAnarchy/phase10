@@ -1,14 +1,13 @@
 #!/usr/bin/env python
 
-import random
 import json
+import random
 from json import JSONEncoder
-import pickle
 from uuid import uuid4
 
-from deck import Deck
-from discards import Discards
-from player_idplayer import Player
+from .deck import Deck
+from .discards import Discards
+from .player import Player
 
 
 class Game:
@@ -17,7 +16,7 @@ class Game:
         self.players = []
         self.deck = Deck()
         self.discards = Discards()
-        self.turn_steps = {1:"Waiting",2:"Draw",3:"Main",4:"Discard", 5:"Done"}
+        self.turn_steps = {1: "Waiting", 2: "Draw", 3: "Main", 4: "Discard", 5: "Done"}
 
     def ready(self):
         if len(self.players) >= 2:
@@ -25,7 +24,7 @@ class Game:
             self.deck.shuffle()
             self.deal_cards()
             self.random_first_active()
-            self.game_id = str(uuid.uuid4)
+            self.game_id = str(uuid4())
 
     def add_player(self, pl):
         self.players.append(pl)
@@ -40,7 +39,7 @@ class Game:
         for player in self.players:
             for i in range(10):
                 player.add_card(self.deck.draw_card())
-    
+
     def reshuffle_discards(self):
         print("reshuffling discards into deck")
         self.deck.cards.extend(self.discards.cards)
@@ -50,18 +49,18 @@ class Game:
     def random_first_active(self):
         random.choice(self.players).toggle_active()
         self.active_player.current_turn_step = self.turn_steps[2]
-    
+
     def next_turn(self):
         for p in self.players:
             if p.is_active:
                 p.toggle_active()
                 p.current_turn_step = self.turn_steps[1]
-            elif not p.is_active: 
+            elif not p.is_active:
                 p.toggle_active()
                 p.current_turn_step = self.turn_steps[2]
 
     # "DRAW" STEP
-    def draw_card(self, target:str, player:Player):
+    def draw_card(self, target: str, player: Player):
         if self.active_player == player:
             match target:
                 case "Deck":
@@ -77,7 +76,7 @@ class Game:
             return True
 
     # "MAIN" STEP
-    def play_card(self, target:str, card_id:int, player:Player, goal_id = None, target_player_id = None) -> bool:
+    def play_card(self, target: str, card_id: int, player: Player, goal_id=None, target_player_id=None) -> bool:
         card = player.take_card_by_id(card_id)
         match target:
             case "play_goal":
@@ -90,7 +89,7 @@ class Game:
             case "play_skip":
                 self.discards.add_card(card)
                 player.current_turn_step = self.turn_steps[4]
-                #add add skip to player
+                # add skip to player
                 return True
         player.add_card(card)
         return False
@@ -110,8 +109,9 @@ class Game:
 
     # JSON
     def to_json(self):
-        data = json.dumps(self, indent = 4, cls = GameEncoder)
+        data = json.dumps(self, indent=4, cls=GameEncoder)
         return data
+
 
 #   #   #   #   #   #   #   #   #   #
 class GameEncoder(JSONEncoder):

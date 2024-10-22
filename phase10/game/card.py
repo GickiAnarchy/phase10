@@ -2,6 +2,7 @@
 import json
 from json import JSONEncoder
 
+
 class Card:
     count = 0
 
@@ -14,7 +15,6 @@ class Card:
         self.is_wild = is_wild
         self.image = self.get_image()
         print(f"{self.get_description()}\n{Card.count} cards created")
-
 
     def get_description(self):
         if self.is_wild:
@@ -72,9 +72,8 @@ class Card:
 
     # JSON
     def to_json(self):
-        data = json.dumps(self, indent = 4, cls = CardEncoder)
+        data = json.dumps(self, indent=4, cls=CardEncoder)
         return data
-
 
 
 class Wild(Card):
@@ -110,8 +109,8 @@ class Skip(Card):
 
     def __lt__(self, other):
         return False
-    
-    
+
+
 #   #   #   #   #   #   #   #   #   #
 class CardEncoder(JSONEncoder):
     def default(self, o):
