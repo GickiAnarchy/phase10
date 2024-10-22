@@ -5,7 +5,9 @@ from dataclasses import dataclass
 from common import Client
 from phase10 import Player, Game
 
-
+@dataclass
+class GameManager:
+    pass
 
 clients = {}
 

@@ -4,14 +4,16 @@ import random
 import json
 from json import JSONEncoder
 import pickle
+from uuid import uuid4
 
-from .deck import Deck
-from .discards import Discards
-from .player import Player
+from deck import Deck
+from discards import Discards
+from player_idplayer import Player
 
 
 class Game:
     def __init__(self):
+        self.game_id = None
         self.players = []
         self.deck = Deck()
         self.discards = Discards()
@@ -23,6 +25,7 @@ class Game:
             self.deck.shuffle()
             self.deal_cards()
             self.random_first_active()
+            self.game_id = str(uuid.uuid4)
 
     def add_player(self, pl):
         self.players.append(pl)
