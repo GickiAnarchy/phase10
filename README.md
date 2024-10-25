@@ -2,7 +2,7 @@
 
 _by: GickiAnarchy_
 ---
-#### _dev branch 3_
+####
 ---
 ___<u>ToDo</u>___
 
@@ -15,13 +15,6 @@ ___<u>ToDo</u>___
 -[ ] Complete Phase 10!
 
 ---
-
-08.20.24
-Remove Stack class
-Added Discards class
-Divided class catagories into seperate files.
-Added server/client folders.
-NEED TO REDO IT AGAIN!
 
 ## The game of Phase 10:
 
