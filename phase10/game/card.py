@@ -1,4 +1,6 @@
 #!/usr/bin/env python
+import json
+from json import JSONEncoder
 
 
 class Card:
@@ -13,7 +15,6 @@ class Card:
         self.is_wild = is_wild
         self.image = self.get_image()
         print(f"{self.get_description()}\n{Card.count} cards created")
-
 
     def get_description(self):
         if self.is_wild:
@@ -69,16 +70,11 @@ class Card:
         if isinstance(other, int):
             return self.number > other
 
-    def to_dict(self):
-        return {"Card": {
-            "id": self.id,
-            "number": self.number,
-            "color": self.color,
-            "is_skip": self.is_skip,
-            "is_wild":self.is_wild,
-            "point value": self.points,
-            "image": self.image
-            }}
+    # JSON
+    def to_json(self):
+        data = json.dumps(self, indent=4, cls=CardEncoder)
+        return data
+
 
 class Wild(Card):
     def __init__(self, number=0, color="Wild", is_wild=True):
@@ -113,5 +109,9 @@ class Skip(Card):
 
     def __lt__(self, other):
         return False
-    
-    
+
+
+#   #   #   #   #   #   #   #   #   #
+class CardEncoder(JSONEncoder):
+    def default(self, o):
+        return o.__dict__

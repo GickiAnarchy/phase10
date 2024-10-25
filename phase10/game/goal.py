@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+import json
+from json import JSONEncoder
 from typing import List
 
 from .card import Card
@@ -63,16 +65,10 @@ class Goal:
             return "Run"
         if isinstance(self, ColorGoal):
             return "Color"
-    
+
     def to_dict(self):
-        return {
-            "min_cards": self.min_cards,
-            "cards": [c.to_dict() for c in self.cards],
-            "name": self.name,
-            "complete": self.complete,
-            "g_type": self.g_type,
-            "goal_id": self.goal_id
-            }
+        data = json.dumps(self, indent=4, cls=GoalEncoder)
+        return data
 
 
 class SetGoal(Goal):
@@ -96,3 +92,9 @@ class ColorGoal(Goal):
         if not cards:
             return False
         return all(card.color == cards[0].color for card in cards)
+
+
+#   #   #   #   @   #   #   #   #   #
+class GoalEncoder(JSONEncoder):
+    def default(self, o):
+        return o.__dict__

@@ -1,30 +1,36 @@
 #!/usr/bin/env python
 
 import json
-import uuid
 from json import JSONEncoder
+import pickle
+import io
 
 from .phase import Phase
 
 
-class PlayerEncoder(JSONEncoder):
-        def default(self, o):
-            return o.__dict__
-
 class Player:
-    def __init__(self, name, hand=[],current_phase=None,score=0,win=False,is_skipped=False,player_id=None):
+    def __init__(self, name, hand=[], current_phase=None, score=0, win=False, is_skipped=False, player_id=None):
         self.name = name
         self.hand = []
         self.current_phase = Phase.make_phase(1)
         self.score = 0
         self.win = False
         self.is_skipped = False
-        self.player_id = str(uuid.uuid4())
+        self.is_active = False
+        self.current_turn_step = None
 
+        self.player_id = None
+        self.pin = None
 
     # PLAYER
     def toggle_skipped(self):
         self.is_skipped = not self.is_skipped
+
+    def toggle_active(self):
+        self.is_active = not self.is_active
+
+    def get_turn_step(self):
+        return self.current_turn_step
 
     # PHASE HANDLING
     def phase_desc(self):
@@ -44,41 +50,26 @@ class Player:
     def add_card(self, card):
         self.hand.append(card)
 
+    def take_card_by_id(self, card_id):
+        for i, card in enumerate(self.hand):
+            if card.id == card_id:
+                return self.hand.pop(i)
+
     def total_hand_points(self):
         return sum([c.points for c in self.hand])
 
     def sort_by_number(self):
         self.hand.sort(key=lambda x: x.number)
-        
+
     def sort_by_color(self):
         self.hand.sort(key=lambda x: x.color)
 
     def to_dict(self):
-        data = json.dumps(self, indent = 4, cls = PlayerEncoder)
+        data = json.dumps(self, indent=4, cls=PlayerEncoder)
         return data
 
-"""
-    def __dict__(self):
-        h = [dict(c) for c in self.hand]
-        return {"name":self.name,"hand":h,"current_phase":self.current_phase,"score":self.score,"win":self.win,"is_skipped":self.is_skipped,"player_id":self.player_id}
 
-
-    def __slots__(self):
-        return {
-            "name":self.name,
-            "hand":self.hand,
-            "current_phase":self.current_phase,
-            "score":self.score,
-            "win":self.win,
-            "is_skipped":self.is_skipped,
-            "player_id":self.player_id
-            }
-
-"""
-
-
-
-##########################
-def iterate_by_groups(cards, group_size):
-    for i in range(len(cards) - group_size + 1):
-        yield cards[i:i + group_size]
+#   #   #   #   @   #   #   #   #   #
+class PlayerEncoder(JSONEncoder):
+    def default(self, o):
+        return o.__dict__
