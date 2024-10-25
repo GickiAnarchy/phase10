@@ -136,12 +136,12 @@ class OpenScreen(Screen):
         
 class PlayerPopup(Popup):
     def make_player(self, instance):
+        name_in = self.ids.name_input.text
+        pin_in = self.ids.pin_input.text
         if instance.text == "Load":
-            name_in = self.ids.name_input.text
-            pin_in = self.ids.pin_input.text
-            App.get_running_app().load_player()
+            App.get_running_app().load_player(name_in,pin_in)
         if instance.text == "Create":
-            pass
+            App.get_running_app().create_player(name_in,pin_in)
         
 #   #   #   #   #   #   #   #   #   #
 class PhaseTenApp(App):
@@ -180,6 +180,24 @@ class PhaseTenApp(App):
         print("Sending load_player message...")
         t_cl = asyncio.ensure_future(self.client.send_message(message))  # Send the message asynchronously
         self.loop.run_until_complete(t_cl)
+        if self.client.player:
+            self.player = self.client.player
+
+    def create_player(self, name, pin):
+        """User requests to create a player"""
+        message = {"type": "create", "client_id": self.client.client_id, "name": name, "pin": pin,
+                   "description": "Create player"}
+        print("Sending create message...")
+        t_cl = asyncio.ensure_future(self.client.send_message(message))  # Send the message asynchronously
+        self.loop.run_until_complete(t_cl)
+        if self.client.player:
+            self.player = self.client.player
+
+    def save_player(self):
+        message = {"type": "save", "client_id": self.client.client_id, "player": self.player, "description": "Create player"}
+        print("Sending save message...")
+        t_cl = asyncio.ensure_future(self.client.send_message(message))  # Send the message asynchronously
+        self.loop.run_until_complete(t_cl)
 
     def update_label(self, message):
         """Update the label text with a message (for feedback purposes)."""
@@ -199,6 +217,14 @@ class PhaseTenApp(App):
         }
         con_pl = asyncio.ensure_future(self.client.send_message(msg))
         self.loop.run_until_complete(con_pl)
+
+    def on_stop(self):
+        print("stop")
+        self.save_player()  # Save player before close.
+
+    def on_pause(self):
+        print("pause")
+        self.save_player()  # Save player before close.
 
 
 if __name__ == '__main__':

@@ -9,7 +9,7 @@ from .phase import Phase
 
 
 class Player:
-    def __init__(self, name, hand=[], current_phase=None, score=0, win=False, is_skipped=False, player_id=None):
+    def __init__(self, name, hand=[], current_phase=None, score=0, win=False, is_skipped=False, player_id=None, pin = None):
         self.name = name
         self.hand = []
         self.current_phase = Phase.make_phase(1)
@@ -20,7 +20,7 @@ class Player:
         self.current_turn_step = None
 
         self.player_id = None
-        self.pin = None
+        self.pin = pin
 
     # PLAYER
     def toggle_skipped(self):

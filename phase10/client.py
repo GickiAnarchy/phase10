@@ -49,6 +49,19 @@ class GameClient(Client):
             self.player = message_dict.get("player")
             print(f"client {self.client_id} has loaded {self.player.name}")
 
+        if message_dict["type"] == "create":
+            self.player = message_dict.get("player")
+            print(f"client {self.client_id} has created {self.player.name}")
+
+        else:
+            print("Message from server:")
+            try:
+                print(message_dict.keys())
+                print(message_dict.values())
+            except Exception as e:
+                print(e)
+
+
     async def test_message(self, msg=None):
         if msg is None:
             msg = {"type": "test", "name": self.player.name, "desc": "Test sending message"}
