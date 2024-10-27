@@ -4,7 +4,7 @@ import os
 import pickle
 
 from common import Client
-from phase10.game import Player
+from phase10.game.player import Player
 
 saved_players_file = "assets/data/playersaves.p10"
 
@@ -62,21 +62,22 @@ async def handle_client(reader, writer):
                     await writer.drain()
 
                 case "create":
-                    name = message["name"]
-                    pin = message["pin"]
+                    name = message.get('name')
+                    pin = message.get('pin')
                     try:
                         new_player = Player(name = name, pin = pin) # Add to the game. then update all gui in game.
+                        new_player.from_json(message['player'])
                     except Exception as e:
                         print(e)
                         return
-                    reply = {"type": "create", "client_id": c_id, "player": new_player}
+                    reply = {"type": "create", "client_id": c_id, "player_name": new_player.name}
                     rep_e = json.dumps(reply)
                     writer.write(rep_e.encode())
-                    print(f"Message received: Client {c_id} loaded their player")
+                    print(f"Message received: Client {c_id} created their player")
                     await writer.drain()
 
                 case "save":
-                    player = message["player"]
+                    player = Player.generate_from_json(message["player"])
                     save_player(player)
                     reply = {"type": "save", "client_id": c_id, "desc": "Saved a player"}
                     rep_e = json.dumps(reply)
@@ -118,21 +119,11 @@ async def handle_client(reader, writer):
         writer.close()
         await writer.wait_closed()
 
-async def broadcast_game(room):
-    game_json = room.game.to_json()
-    message = {"type": "game_update", "game": game_json}
-    message_encoded = json.dumps(message).encode()
-    for player in room.players:
-        client = clients.get(player.player_id)
-        if client:
-            try:
-                client.writer.write(message_encoded)
-                await client.writer.drain()
-            except Exception as e:
-                print(f"Error broadcasting game to client {player.player_id}: {e}")
+
+async def broadcast_game():
+    pass
 
 async def main():
-    saved_players_file = "assets/data/playersaves.p10"
     """ Create saved_players_file file if nonexistant"""
     if not os.path.exists(saved_players_file):
         with open(saved_players_file, "wb") as f:
@@ -151,9 +142,6 @@ async def main():
 """
     Saving and loading players
 """
-
-
-
 def get_saved_players() -> dict:
     global saved_players_file
     with open(saved_players_file, "rb") as rf:
@@ -169,11 +157,9 @@ def save_player(player):
 
 def load_player(name, pin):
     saved_players = get_saved_players()
-    for k,v in saved_players.items():
-        if k == name:
-            if v.pin == pin:
-                return v
-    print(f"Saved {v.name}")
+    print(saved_players)
+    return saved_players
+
 
 if __name__ == "__main__":
     asyncio.run(main())

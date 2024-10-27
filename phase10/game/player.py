@@ -4,16 +4,18 @@ import json
 from json import JSONEncoder
 import pickle
 import io
+from textwrap import indent
 
-from .phase import Phase
+from phase10.game.phase import Phase
 
 
 class Player:
     def __init__(self, name, hand=[], current_phase=None, score=0, win=False, is_skipped=False, player_id=None, pin = None):
         self.name = name
         self.hand = []
-        self.current_phase = Phase.make_phase(1)
         self.score = 0
+
+        self.current_phase = Phase.make_phase(1)
         self.win = False
         self.is_skipped = False
         self.is_active = False
@@ -64,9 +66,28 @@ class Player:
     def sort_by_color(self):
         self.hand.sort(key=lambda x: x.color)
 
-    def to_dict(self):
-        data = json.dumps(self, indent=4, cls=PlayerEncoder)
-        return data
+    def to_json(self):
+        return json.dumps(self, indent=4, cls=PlayerEncoder)
+
+    def from_json(self, data):
+        self.__dict__.update(**data)
+
+    @staticmethod
+    def generate_from_json(data):
+        if isinstance(data, dict) and isinstance(data['name'], str):
+            return Player(**data)
+
+    def __repr__(self):
+        sup = super().__repr__()
+        try:
+            ret = dict(self)
+            print("player to_json was good")
+        except Exception as e:
+            print(e)
+            print("player to_json was bad")
+            return sup
+        return ret
+
 
 
 #   #   #   #   @   #   #   #   #   #

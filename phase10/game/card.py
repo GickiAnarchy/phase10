@@ -114,4 +114,4 @@ class Skip(Card):
 #   #   #   #   #   #   #   #   #   #
 class CardEncoder(JSONEncoder):
     def default(self, o):
-        return o.__dict__
+        return o.to_dict

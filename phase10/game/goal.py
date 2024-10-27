@@ -4,7 +4,7 @@ import json
 from json import JSONEncoder
 from typing import List
 
-from .card import Card
+from phase10.game.card import Card
 
 
 class Goal:
@@ -47,7 +47,7 @@ class Goal:
         return False
 
     def check_complete(self):
-        if self.cards >= self.min_cards:
+        if len(self.cards) >= self.min_cards:
             if self.check_cards(self.cards):
                 self.complete = True
         return False
@@ -66,10 +66,18 @@ class Goal:
         if isinstance(self, ColorGoal):
             return "Color"
 
-    def to_dict(self):
+    def to_json(self):
         data = json.dumps(self, indent=4, cls=GoalEncoder)
         return data
 
+    def __repr__(self):
+        sup = super().__repr__()
+        try:
+            ret = self.to_json()
+        except Exception as e:
+            print(e)
+            return sup
+        return ret
 
 class SetGoal(Goal):
     def check_cards(self, cards: List['Card']) -> bool:

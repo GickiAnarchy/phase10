@@ -2,8 +2,9 @@ import json
 from json import JSONEncoder
 from typing import List
 
-from .card import Card
-from .goal import SetGoal, RunGoal, ColorGoal, Goal
+
+from phase10.game.card import Card
+from phase10.game.goal import Goal, SetGoal, ColorGoal, RunGoal
 
 
 class Phase:
@@ -46,10 +47,20 @@ class Phase:
                 if goal.goal_id == goal_id:
                     goal.add_cards(cards)
 
-    def to_dict(self):
-        data = json.dumps(self, indent=4, cls=PhaseEncoder)
-        return data
+    def to_json(self):
+        return json.dumps(self.__dict__(), indent=4, cls=PhaseEncoder)
 
+    def __dict__(self):
+        return {"number": self.number,"name": self.name, "goals": self.goals}
+    
+    def __repr__(self):
+        sup = super().__repr__()
+        try:
+            ret = self.to_json()
+        except Exception as e:
+            print(e)
+            return sup
+        return ret
 
 #   #   #   #   @   #   #   #   #   #
 class PhaseEncoder(JSONEncoder):
