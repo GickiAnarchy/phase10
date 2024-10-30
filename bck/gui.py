@@ -3,11 +3,8 @@ import asyncio
 from kivy.app import App
 from kivy.clock import Clock
 from kivy.graphics import Color, Rectangle
-from kivy.properties import ObjectProperty
 from kivy.uix.boxlayout import BoxLayout
-from kivy.uix.button import Button
 from kivy.uix.image import Image
-from kivy.uix.label import Label
 from kivy.uix.popup import Popup
 from kivy.uix.screenmanager import Screen, ScreenManager
 from kivy.uix.togglebutton import ToggleButton
@@ -62,7 +59,6 @@ class SelectableHand(BoxLayout):
 
     def isPressed(self) -> bool:
         return len(self.get_selected_cards()) > 0
-
 
 class SelectableDeck(ToggleButton):
     def __init__(self, deck: Deck, **kwargs):
@@ -230,6 +226,11 @@ class PhaseTenApp(App):
         print("stop")
         if self.client.player:
             self.save_player()  # Save player before close.
+
+    def on_pause(self):
+        super().on_pause()
+        print("pause")
+        self.save_player()  # Save player before close.
 
     def on_start(self):
         super().on_start()

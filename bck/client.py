@@ -1,6 +1,5 @@
 import asyncio
 import json
-from pyexpat.errors import messages
 
 from common import Client  # Assuming this is your base client class
 from messages import get_client_message
@@ -47,10 +46,14 @@ class GameClient(Client):
             return
 
         if message_dict["type"] == "load":
-            pass
+            self.player = message_dict.get("player")
+            print(f"client {self.client_id} has loaded {self.player.name}")
 
         if message_dict["type"] == "create":
-            pass
+            if self.player.name == message_dict['player_name']:
+                print(f"{self.player.name} is equal to {message_dict['player_name']}")
+            print(f"client {self.client_id} has created {self.player.name}")
+            self.player = message_dict.get('player')
 
         else:
             print("Message from server:")

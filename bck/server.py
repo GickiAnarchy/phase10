@@ -1,9 +1,9 @@
 import asyncio
 import json
 import os
-import pickle
 
 from common import Client
+from phase10.game.classes.player import Player
 
 saved_players_file = "assets/data/playersaves.p10"
 
@@ -44,14 +44,46 @@ async def handle_client(reader, writer):
                     await writer.drain()
 
                 case "load":
-                    print(f"{player.name} loaded")
+                    name = message["name"]
+                    pin = message["pin"]
+                    try:
+                        loaded_p = load_player(name, pin)
+                    except Exception as e:
+                        print(e)
+                        print(f"Message received: Client {c_id} could not load their player")
+                        return
+                    if isinstance(loaded_p, Player):
+                        pass  #Add Player to the game then update all gui in game
+                    reply = {"type": "load", "client_id": c_id, "player": loaded_p.to_json()}
+                    rep_e = json.dumps(reply)
+                    writer.write(rep_e.encode())
+                    print(f"Message received: Client {c_id} loaded their player")
+                    await writer.drain()
 
                 case "create":
-                    player = message["player"]
-                    print(f"{player.name} created")
+                    name = message.get('name')
+                    pin = message.get('pin')
+                    try:
+                        new_player = Player(name=name, pin=pin)  # Add to the game. then update all gui in game.
+                    except Exception as e:
+                        print(e)
+                        return
+                    reply = {"type": "create", "client_id": c_id, "player": new_player.to_json()}
+                    rep_e = json.dumps(reply)
+                    writer.write(rep_e.encode())
+                    print(f"Message received: Client {c_id} created their player")
+                    await writer.drain()
 
                 case "save":
-                    print(f"{player.name} saved")
+                    p = message["player"]
+                    player:Player = player.generate_from_json(player)
+                    player.generate_from_json(player)
+                    save_player(player)
+                    reply = {"type": "save", "client_id": c_id, "desc": "Saved a player"}
+                    rep_e = json.dumps(reply)
+                    writer.write(rep_e.encode())
+                    print(f"Message received: Client {c_id} saved their player")
+                    await writer.drain()
 
                 case "ready":
                     rep = {"type": "success", "client_id": c_id, "desc": "Got Ready Message"}
@@ -114,16 +146,30 @@ async def main():
 """
     Saving and loading players
 """
+
+
 def get_saved_players():
-    pass
+    global saved_players_file
+    data = None
+    with open(saved_players_file, "r") as rf:
+        data = rf.read()
+        rf.close()
+    return data
 
 
 def save_player(player):
-    pass
+    data = get_saved_players()
+    saved_players = data
+
+    with open(saved_players_file, "w") as f:
+        f.write(json.dumps(saved_players))
+    print(f"Saved {player.name}")
 
 
 def load_player(name, pin):
-    pass
+    saved_players = get_saved_players()
+    print(saved_players)
+    return saved_players
 
 
 if __name__ == "__main__":
