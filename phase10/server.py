@@ -114,12 +114,26 @@ async def main():
 """
     Saving and loading players
 """
+
 def get_saved_players():
-    pass
+    with open(saved_players_file, "rb") as f:
+        data = pickle.load(f)
+        f.close()
+    return data
 
 
 def save_player(player):
-    pass
+    saved_players = {}
+    try:
+        saved_players = get_saved_players()
+    except Exception as e:
+        print(e)
+    finally:
+        saved_players = {}
+    saved_players[player.name] = player
+    with open(saved_players_file, "wb") as f:
+        pickle.dump(saved_players, f)
+        f.close()
 
 
 def load_player(name, pin):
