@@ -4,6 +4,7 @@ from pyexpat.errors import messages
 
 from common import Client  # Assuming this is your base client class
 from messages import get_client_message
+from phase10.game.classes.player import Player
 
 
 class GameClient(Client):
@@ -32,7 +33,7 @@ class GameClient(Client):
         await self.send_message(message)
         await self.receive_message()
 
-    async def send_message(self, message: dict):
+    async def send_message(self, message):
         message_json = json.dumps(message)
         self.writer.write(message_json.encode())
         await self.writer.drain()
@@ -47,10 +48,14 @@ class GameClient(Client):
             return
 
         if message_dict["type"] == "load":
-            pass
+            print("in client->receive_message()->type load")
+            self.player = Player(**message_dict['player'])
+            print(self.player.to_dict())
 
         if message_dict["type"] == "create":
-            pass
+            print("in client->receive_message()->type create")
+            self.player = Player.from_dict(message_dict.get('player'))
+            print(self.player.to_dict())
 
         else:
             print("Message from server:")

@@ -1,14 +1,14 @@
 #!/usr/bin/env python
-import json
-from json import JSONEncoder
 
-from phase10.game import *
+from phase10.game.classes.card import Card
 
 
 class Discards:
-    def __init__(self):
-        self.name = "Discards"
-        self.cards = []
+    def __init__(self, name = "Discards", cards = None):
+        self.name = name
+        if cards is None:
+            cards = []
+        self.cards = cards
 
     def number_of_cards(self):
         return len(self.cards)
@@ -46,8 +46,17 @@ class Discards:
     def __iter__(self):
         return iter(self.cards)
 
-        # JSON
+    # JSON
+    def to_dict(self):
+        cards_list = []
+        if len(self.cards) > 0:
+            for c in self.cards:
+                cards_list.append(c.to_dict())
+        return {"name":self.name,"cards":cards_list,"image":self.image}
 
-    def to_json(self):
-        data = json.dumps(self, indent=4, cls=Phase10Encoder)
-        return data
+    @classmethod
+    def from_dict(cls, data):
+        cards = []
+        for c in data.get('cards'):
+            cards.append(Card.from_dict(c))
+        return cls(name = data.get('name'), cards = cards)

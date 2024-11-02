@@ -10,14 +10,14 @@ from phase10.game import *
 class Goal:
     goal_counter = 0
 
-    def __init__(self, min_cards: int):
+    def __init__(self, min_cards: int, cards=None, name=None, complete=None, goal_id=None):
         Goal.goal_counter += 1
         self.min_cards = min_cards
-        self.cards = []
-        self.name = ""
-        self.complete = False
+        self.cards = cards
+        self.name = name
+        self.complete = complete
         self.g_type = self.get_type()
-        self.goal_id = Goal.goal_counter
+        self.goal_id = goal_id
 
     def check_cards(self, cards: List['Card']) -> bool:
         pass
@@ -66,18 +66,20 @@ class Goal:
         if isinstance(self, ColorGoal):
             return "Color"
 
-    def to_json(self):
-        data = json.dumps(self, indent=4, cls=Phase10Encoder)
-        return data
+    def to_dict(self):
+        return {
+            "min_cards":self.min_cards,
+            "cards":self.cards,
+            "name":self.name,
+            "complete":self.complete,
+            "goal_id":self.goal_id
+            }
 
-    def __repr__(self):
-        sup = super().__repr__()
-        try:
-            ret = self.to_json()
-        except Exception as e:
-            print(e)
-            return sup
-        return ret
+    @classmethod
+    def from_dict(cls,data):
+        return cls(**data)
+
+
 
 class SetGoal(Goal):
     def check_cards(self, cards: List['Card']) -> bool:

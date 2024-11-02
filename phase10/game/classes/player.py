@@ -2,24 +2,28 @@
 
 import json
 
-from phase10.game import Phase10Encoder
+from phase10.game.classes.card import Card
 from phase10.game.classes.phase import Phase
 
 
 class Player:
-    def __init__(self, name, hand=[], current_phase=None, score=0, win=False, is_skipped=False, player_id=None, pin = None):
+    def __init__(self, name = "", hand=[], score=0, win=False, is_skipped=False, player_id=None, pin = None,
+                 is_active=None, current_turn_step=None, current_phase=None):
         self.name = name
-        self.hand = []
-        self.score = 0
-
-        self.current_phase = Phase.make_phase(1)
-        self.win = False
-        self.is_skipped = False
-        self.is_active = False
-        self.current_turn_step = None
-
-        self.player_id = None
+        self.hand = hand
+        self.score = score
+        if isinstance(current_phase,dict):
+            self.current_phase = Phase(**current_phase)
+        else:
+            self.current_phase = current_phase
+        self.win = win
+        self.is_skipped = is_skipped
+        self.is_active = is_active
+        self.current_turn_step = current_turn_step
+        self.player_id = player_id
         self.pin = pin
+        if self.current_phase is None:
+            self.current_phase = Phase().make_phase(1)
 
     # PLAYER
     def toggle_skipped(self):
@@ -63,13 +67,23 @@ class Player:
     def sort_by_color(self):
         self.hand.sort(key=lambda x: x.color)
 
-    def to_json(self):
-        return json.dumps(self, indent=4, cls=Phase10Encoder)
+    def to_dict(self):
+        return {
+            "name": self.name,
+            "hand": [c.to_dict() for c in self.hand],
+            "score": self.score,
+            "current_phase": self.current_phase.to_dict(),
+            "win": self.win,
+            "is_skipped": self.is_skipped,
+            "is_active": self.is_active,
+            "current_turn_step": self.current_turn_step,
+            "player_id": self.player_id,
+            "pin": self.pin
+        }
 
-    def from_json(self, data):
-        self.generate_from_json(data)
-        #self.__dict__.update(**data)
-
-    def generate_from_json(self, data):
-        if isinstance(data, dict) and isinstance(data['name'], str):
-            self.__dict__.update(**data)
+    @classmethod
+    def from_dict(cls,data):
+        hnd = []
+        for c in data.get('hand'):
+            hnd.append(Card.from_dict(c))
+        return cls(name=data.get('name'),hand=hnd,score=data.get("score"),win=data.get("win"),is_skipped=data.get("is_skipped"),player_id=data.get("player_id"),pin=data.get("pin"),is_active=data.get("is_active"),current_turn_step=data.get("current_turn_step"),current_phase=data.get("current_phase"))

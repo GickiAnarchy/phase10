@@ -70,15 +70,22 @@ class Card:
         if isinstance(other, int):
             return self.number > other
 
-    # JSON
-    def to_json(self):
-        data = json.dumps(self, indent=4, cls=Phase10Encoder)
-        return data
+    def to_dict(self):
+        return {"id": self.id,
+               "number": self.number,
+               "color": self.is_skip,
+               "is_skip": self.color,
+               "is_wild": self.is_wild,
+               "image": self.image}
+
+    @classmethod
+    def from_dict(cls, data):
+        return cls(**data)
 
 
 class Wild(Card):
     def __init__(self, number=0, color="Wild", is_wild=True):
-        super().__init__(number, color, False, is_wild)
+        super().__init__(number, color, is_skip=False, is_wild = is_wild)
 
     def __eq__(self, other):
         if isinstance(other, int):

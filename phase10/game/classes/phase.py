@@ -7,11 +7,13 @@ from phase10.game.classes.goal import SetGoal, RunGoal, ColorGoal, Goal
 
 
 class Phase:
-    def __init__(self, number, name: str, goals: List[Goal]):
+    def __init__(self, number = 0, name: str = "", goals=None, complete = False):
+        if goals is None:
+            goals = []
         self.number = number
         self.name = name
         self.goals = goals
-        self.complete = False
+        self.complete = complete
 
     @classmethod
     def make_phase(cls, n):
@@ -46,20 +48,18 @@ class Phase:
                 if goal.goal_id == goal_id:
                     goal.add_cards(cards)
 
-    def to_json(self):
-        return json.dumps(self, indent=4, cls=Phase10Encoder)
+    def to_dict(self):
+        return {"name": self.name,
+               "number": self.number,
+               "goals": [g.to_dict() for g in self.goals],
+               "complete": self.complete}
 
-    def __dict__(self):
-        return {"number": self.number,"name": self.name, "goals": self.goals}
-    
-    def __repr__(self):
-        sup = super().__repr__()
-        try:
-            ret = self.to_json()
-        except Exception as e:
-            print(e)
-            return sup
-        return ret
+    @classmethod
+    def from_dict(cls, data):
+        gls = []
+        for g in data.get('goals'):
+            gls.append(Goal.from_dict(g))
+        return cls(number=data.get('number'),name=data.get('name'),goals=gls,complete=data.get('complete'))
 
 
 #   #   #   #   @   #   #   #   #   #

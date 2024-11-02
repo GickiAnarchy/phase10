@@ -4,13 +4,16 @@ import json
 from random import shuffle
 
 from phase10.game import *
+from phase10.game.classes.card import Card, Wild, Skip
 
 
 class Deck:
-    def __init__(self):
-        self.cards = []
-        self.name = "Deck"
-        self.image = "phase10/assets/images/CardBack.png"
+    def __init__(self, name = "Deck", cards=None, image ="phase10/assets/images/CardBack.png"):
+        if cards is None:
+            cards = []
+        self.cards = cards
+        self.name = name
+        self.image = image
 
     def can_take_card(self):
         if len(self.cards) >= 1:
@@ -47,5 +50,14 @@ class Deck:
         return iter(self.cards)
 
     def to_dict(self):
-        data = json.dumps(self, indent=4, cls=Phase10Encoder)
-        return data
+        cards_dict = []
+        for c in self.cards:
+            cards_dict.append(c.to_dict())
+        return {"name":self.name,"cards":cards_dict,"image":self.image}
+
+    @classmethod
+    def from_dict(cls, data):
+        cards = []
+        for c in data.get('cards'):
+            cards.append(Card.from_dict(c))
+        return cls(name = data.get('name'), cards = cards, image = data.get('image'))

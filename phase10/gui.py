@@ -1,13 +1,9 @@
 import asyncio
 
 from kivy.app import App
-from kivy.clock import Clock
 from kivy.graphics import Color, Rectangle
-from kivy.properties import ObjectProperty
 from kivy.uix.boxlayout import BoxLayout
-from kivy.uix.button import Button
 from kivy.uix.image import Image
-from kivy.uix.label import Label
 from kivy.uix.popup import Popup
 from kivy.uix.screenmanager import Screen, ScreenManager
 from kivy.uix.togglebutton import ToggleButton
@@ -149,7 +145,6 @@ class PlayerPopup(Popup):
             newp = Player(name = name_in,pin = pin_in)
             App.get_running_app().set_player(newp)
             App.get_running_app().create_player(name_in,pin_in)
-            App.get_running_app().save_player()
             self.dismiss()
         
 #   #   #   #   #   #   #   #   #   #
@@ -200,30 +195,33 @@ class PhaseTenApp(App):
 
     def load_player(self, name:str, pin:str):
         """User requests to load a player from the server"""
+        self.update_label("load_player")
         message = {"type":"load", "client_id": self.client.client_id, "name": name, "pin": pin, "description": "Load player"}
         print("Sending load_player message...")
         fload = asyncio.ensure_future(self.client.send_message(message))  # Send the message asynchronously
         self.loop.run_until_complete(fload)
+        self.set_player(self.client.player)
+        self.update_label(f"{self.player.name} loaded")
 
     def create_player(self, name, pin):
         """User requests to create a player"""
         message = {"type": "create", "client_id": self.client.client_id, "name": name, "pin": pin,
-                   "player": self.player.to_json(), "description": "Create player"}
+                   "player": self.player.to_dict(), "description": "Create player"}
         print("Sending create message...")
         fcreate = asyncio.ensure_future(self.client.send_message(message))  # Send the message asynchronously
         self.loop.run_until_complete(fcreate)
         p = self.client.player
         self.set_player(p)
+        self.update_label(f"{self.player.name} created")
 
     def save_player(self):
-        message = {"type": "save", "client_id": self.client.client_id, "player": self.player.to_json(), "description": "Create player"}
+        message = {"type": "save", "client_id": self.client.client_id, "player": self.player.to_dict(), "description": "Create player"}
         print("Sending save message...")
         fsave = asyncio.ensure_future(self.client.send_message(message))  # Send the message asynchronously
         self.loop.run_until_complete(fsave)
 
     def update_label(self, message):
-        """Update the label text with a message (for feedback purposes)."""
-        Clock.schedule_once(lambda dt: setattr(self, 'title', message), 0)  # Update UI safely in the main thread
+        self.title = f"{message}"
 
     def on_stop(self):
         super().on_stop()
@@ -235,9 +233,12 @@ class PhaseTenApp(App):
         super().on_start()
         self.connect_player()
 
-    def set_player(self, newp):
-        self.player = newp
-        self.set_client_player(newp)
+    def set_player(self, newp = None):
+        if newp is not None:
+            self.player = newp
+            self.set_client_player(newp)
+        else:
+            self.player = self.client.player
         print("Set the player in gui")
 
     def set_client_player(self, newp):
