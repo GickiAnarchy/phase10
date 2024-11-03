@@ -5,6 +5,7 @@ from pyexpat.errors import messages
 from common import Client  # Assuming this is your base client class
 from messages import get_client_message
 from phase10.game.classes.player import Player
+from phase10.game.classes.game_encoder import GameEncoder, game_decoder  # Your custom encoder/decoder
 
 
 class GameClient(Client):
@@ -34,7 +35,7 @@ class GameClient(Client):
         await self.receive_message()
 
     async def send_message(self, message):
-        message_json = json.dumps(message)
+        message_json = json.dumps(message, cls=GameEncoder)
         self.writer.write(message_json.encode())
         await self.writer.drain()
         print(f"Sent message: {message}")
@@ -42,7 +43,7 @@ class GameClient(Client):
     async def receive_message(self):
         try:
             data = await self.reader.read(1024)
-            message_dict = json.loads(data.decode())
+            message_dict = json.loads(data.decode(), object_hook=game_decoder)
         except Exception as e:
             print(f"Error receiving message: {e}")
             return
@@ -60,12 +61,12 @@ class GameClient(Client):
             self.set_player(tmp_p)
             print(self.player.to_dict())
 
-#        if message_dict["type"] == "create":
-#            print("in client->receive_message()->type create")
-#            data = message_dict.get('player')
-#            tmp_p = Player.from_dict(data)
-#            self.set_player(tmp_p)
-#            print(self.player.to_dict())
+        if message_dict["type"] == "create":
+            print("in client->receive_message()->type create")
+            data = message_dict.get('player')
+            tmp_p = Player.from_dict(data)
+            self.set_player(tmp_p)
+            print(self.player.to_dict())
 
         else:
             print("Message from server:")

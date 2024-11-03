@@ -78,7 +78,14 @@ class Card:
 
     @classmethod
     def from_dict(cls, data):
-        return cls(**data)
+        obj = cls(
+            number=data.get("number"),
+            color=data.get("color"),
+            is_skip=data.get("is_skip"),
+            is_wild=data.get("is_wild"),
+        )
+        obj.id = data.get("id", Card.count)
+        return obj
 
 
 class Wild(Card):

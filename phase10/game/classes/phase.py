@@ -56,10 +56,13 @@ class Phase:
 
     @classmethod
     def from_dict(cls, data):
-        gls = []
-        for g in data.get('goals'):
-            gls.append(Goal.from_dict(g))
-        return cls(number=data.get('number'),name=data.get('name'),goals=gls,complete=data.get('complete'))
+        obj = cls(
+            number=data.get("number"),
+            name=data.get("name"),
+            goals=[Goal.from_dict(g) for g in data.get("goals", [])],
+            complete=data.get("complete")
+        )
+        return obj
 
 
 #   #   #   #   @   #   #   #   #   #

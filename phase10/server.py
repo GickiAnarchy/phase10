@@ -3,10 +3,12 @@ import json
 import os
 import pickle
 
-from kivy.graphics.cgl_backend.cgl_gl import init_backend
-
 from common import Client
 from phase10.game.classes.player import Player
+from phase10.game.classes.game_encoder import GameEncoder, game_decoder  # Your custom encoder/decoder
+
+
+
 
 saved_players_file = "assets/data/playersaves.p10"
 
@@ -21,7 +23,7 @@ async def handle_client(reader, writer):
             if not data:
                 break
             message_json = data.decode()
-            message = json.loads(message_json)
+            message = json.loads(message_json, object_hook=game_decoder)
 
             msg_type = None
 
@@ -41,7 +43,7 @@ async def handle_client(reader, writer):
 
                     print(f"Received message: {message}")
                     rep = {"type": "success", "client_id": c_id}
-                    rep_e = json.dumps(rep)
+                    rep_e = json.dumps(rep,cls=GameEncoder)
                     writer.write(rep_e.encode())
                     print(f"Message received: Registered Client {c_id}")
                     await writer.drain()
@@ -58,7 +60,7 @@ async def handle_client(reader, writer):
                         print("in handle_client.... p is None")
                         return False
                     msg = {"type": "load", "client_id": c_id, "player": p.to_dict()}
-                    rep_e = json.dumps(msg)
+                    rep_e = json.dumps(msg,cls=GameEncoder)
                     writer.write(rep_e.encode())
                     print(f"Message received: Load Player {c_id}")
                     await writer.drain()
@@ -68,24 +70,27 @@ async def handle_client(reader, writer):
                     pin = message["pin"]
                     p = Player(name = name, player_id = c_id, pin = pin)
                     msg = {"type":"create","client_id":c_id, "player": p.to_dict()}
-                    rep_e = json.dumps(msg)
+                    rep_e = json.dumps(msg,cls=GameEncoder)
                     writer.write(rep_e.encode())
                     print(f"Message received: Create Player {c_id}")
                     await writer.drain()
 
                 case "save":
-                    pass
+                    data = message.get('player')
+                    new_pl = Player.from_dict(data)
+                    print(f"\n\n\n{new_pl.name}\n{new_pl.score}\n\n\n")
+                    save_player(new_pl)
 
                 case "ready":
                     rep = {"type": "success", "client_id": c_id, "desc": "Got Ready Message"}
-                    rep_e = json.dumps(rep)
+                    rep_e = json.dumps(rep,cls=GameEncoder)
                     writer.write(rep_e.encode())
                     print(f"Message received: Ready Player {c_id}")
                     await writer.drain()
 
                 case "test":
                     rep = {"type": "success", "client_id": c_id, "desc": "BUTTON SMASHER"}
-                    rep_e = json.dumps(rep)
+                    rep_e = json.dumps(rep,cls=GameEncoder)
                     writer.write(rep_e.encode())
                     print(f"Test Successful\nMessage sending to Client {c_id}")
                     await writer.drain()
@@ -112,7 +117,7 @@ async def main():
         print("saved_players_file didn't exist. Creating now..")
         with open(saved_players_file, "w") as f:
             saved_players = {}
-            f.write(json.dumps(saved_players))
+            f.write(json.dumps(saved_players,cls=GameEncoder))
             f.close()
     else:
         print("saved_players_file already exists")

@@ -82,11 +82,17 @@ class Player:
         }
 
     @classmethod
-    def from_dict(cls,data):
-        hnd = []
-        if len(data.get('hand')) > 0:
-            for c in data.get('hand'):
-                hnd.append(Card.from_dict(c))
-            data['hand'] = hnd
-        #return Player(**data)
-        return Player(name=data.get('name'),hand=hnd,score=data.get("score"),win=data.get("win"),is_skipped=data.get("is_skipped"),player_id=data.get("player_id"),pin=data.get("pin"),is_active=data.get("is_active"),current_turn_step=data.get("current_turn_step"),current_phase=data.get("current_phase"))
+    def from_dict(cls, data):
+        obj = cls(
+            name=data.get("name"),
+            hand=[Card.from_dict(c) for c in data.get("hand", [])],
+            score=data.get("score"),
+            current_phase=Phase.from_dict(data.get("current_phase", {})),
+            win=data.get("win"),
+            is_skipped=data.get("is_skipped"),
+            is_active=data.get("is_active"),
+            current_turn_step=data.get("current_turn_step"),
+            player_id=data.get("player_id"),
+            pin=data.get("pin")
+        )
+        return obj

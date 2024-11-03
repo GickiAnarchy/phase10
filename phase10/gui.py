@@ -11,6 +11,7 @@ from kivy.uix.togglebutton import ToggleButton
 from client import GameClient
 from phase10.game.classes.deck import Deck
 from phase10.game.classes.discards import Discards
+from phase10.game.classes.player import Player
 
 
 #   SELECTABLE
@@ -141,6 +142,10 @@ class PlayerPopup(Popup):
             App.get_running_app().load_player(name_in,pin_in)
             App.get_running_app().update_player()
         if instance.text == "Create":
+            if name_in == "TEST":
+                test_pl = Player(name="Test", pin="0000")
+                App.get_running_app().save_player(test_pl)
+                return
             print(f"\t{name_in}\n\t{pin_in}")
             App.get_running_app().create_player(name_in,pin_in)
         App.get_running_app().update_label(tst = True)
@@ -209,8 +214,10 @@ class PhaseTenApp(App):
         fcreate = asyncio.ensure_future(self.client.send_message(message))  # Send the message asynchronously
         self.loop.run_until_complete(fcreate)
 
-    def save_player(self):
-        message = {"type": "save", "client_id": self.client.client_id, "player": self.player.to_dict(), "description": "Create player"}
+    def save_player(self, player = None):
+        if player is None:
+            player = self.client.player
+        message = {"type": "save", "client_id": self.client.client_id, "player": player.to_dict(), "description": "Create player"}
         print("Sending save message...")
         fsave = asyncio.ensure_future(self.client.send_message(message))  # Send the message asynchronously
         self.loop.run_until_complete(fsave)

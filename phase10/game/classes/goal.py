@@ -3,10 +3,11 @@
 import json
 from typing import List
 
+from phase10.game.classes.card import Card
+
 
 class Goal:
     goal_counter = 0
-
     def __init__(self, min_cards=None, cards=None, name=None, complete=None, g_type=None, goal_id=None):
         Goal.goal_counter += 1
         self.min_cards = min_cards
@@ -97,5 +98,14 @@ class Goal:
 
     @classmethod
     def from_dict(cls, data):
-        return cls(**data)
-
+        if isinstance(data, Goal):
+            return data
+        obj = cls(
+            min_cards=data.get("min_cards"),
+            cards=[Card.from_dict(c) for c in data.get("cards", [])],
+            name=data.get("name"),
+            complete=data.get("complete"),
+            goal_id=data.get("goal_id"),
+            g_type=data.get("g_type")
+        )
+        return obj
