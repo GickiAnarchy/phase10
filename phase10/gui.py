@@ -11,7 +11,6 @@ from kivy.uix.togglebutton import ToggleButton
 from client import GameClient
 from phase10.game.classes.deck import Deck
 from phase10.game.classes.discards import Discards
-from phase10.game.classes.player import Player
 
 
 #   SELECTABLE
@@ -140,18 +139,20 @@ class PlayerPopup(Popup):
         if instance.text == "Load":
             print(f"\t{name_in}\n\t{pin_in}")
             App.get_running_app().load_player(name_in,pin_in)
+            App.get_running_app().update_player()
         if instance.text == "Create":
             print(f"\t{name_in}\n\t{pin_in}")
-            newp = Player(name = name_in,pin = pin_in)
-            App.get_running_app().set_player(newp)
             App.get_running_app().create_player(name_in,pin_in)
-            self.dismiss()
+        App.get_running_app().update_label(tst = True)
+        self.dismiss()
+
+    def on_dismiss(self):
+        App.get_running_app().update_label(tst = True)
         
 #   #   #   #   #   #   #   #   #   #
 class PhaseTenApp(App):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.player = None
         self.client = GameClient(self)
         self.client.make_client_id()
         self.loop = asyncio.new_event_loop()
@@ -200,19 +201,13 @@ class PhaseTenApp(App):
         print("Sending load_player message...")
         fload = asyncio.ensure_future(self.client.send_message(message))  # Send the message asynchronously
         self.loop.run_until_complete(fload)
-        self.set_player(self.client.player)
-        self.update_label(f"{self.player.name} loaded")
 
     def create_player(self, name, pin):
         """User requests to create a player"""
-        message = {"type": "create", "client_id": self.client.client_id, "name": name, "pin": pin,
-                   "player": self.player.to_dict(), "description": "Create player"}
+        message = {"type": "create", "client_id": self.client.client_id, "name": name, "pin": pin, "description": "Create player"}
         print("Sending create message...")
         fcreate = asyncio.ensure_future(self.client.send_message(message))  # Send the message asynchronously
         self.loop.run_until_complete(fcreate)
-        p = self.client.player
-        self.set_player(p)
-        self.update_label(f"{self.player.name} created")
 
     def save_player(self):
         message = {"type": "save", "client_id": self.client.client_id, "player": self.player.to_dict(), "description": "Create player"}
@@ -220,30 +215,24 @@ class PhaseTenApp(App):
         fsave = asyncio.ensure_future(self.client.send_message(message))  # Send the message asynchronously
         self.loop.run_until_complete(fsave)
 
-    def update_label(self, message):
-        self.title = f"{message}"
+    def update_label(self, message="", tst = False):
+        if tst:
+            message = f"PLAYER IS {self.player}"
+        print(message)
 
     def on_stop(self):
         super().on_stop()
-        print("stop")
         if self.client.player:
-            self.save_player()  # Save player before close.
+            self.save_player()
+        print("stop")# Save player before close.
 
     def on_start(self):
         super().on_start()
         self.connect_player()
 
-    def set_player(self, newp = None):
-        if newp is not None:
-            self.player = newp
-            self.set_client_player(newp)
-        else:
-            self.player = self.client.player
-        print("Set the player in gui")
-
-    def set_client_player(self, newp):
-        self.client.player = newp
-        print("Set the player in client")
+    @property
+    def player(self):
+        return self.client.player
 
 if __name__ == '__main__':
     app = PhaseTenApp()

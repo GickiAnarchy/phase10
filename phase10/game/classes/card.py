@@ -1,6 +1,4 @@
 #!/usr/bin/env python
-import json
-from phase10.game import Phase10Encoder
 
 
 class Card:

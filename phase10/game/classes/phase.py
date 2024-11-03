@@ -3,7 +3,7 @@ from typing import List
 
 from phase10.game import *
 from phase10.game.classes.card import Card
-from phase10.game.classes.goal import SetGoal, RunGoal, ColorGoal, Goal
+from phase10.game.classes.goal import Goal
 
 
 class Phase:
@@ -51,7 +51,7 @@ class Phase:
     def to_dict(self):
         return {"name": self.name,
                "number": self.number,
-               "goals": [g.to_dict() for g in self.goals],
+               "goals":[g.to_dict() for g in self.goals],
                "complete": self.complete}
 
     @classmethod
@@ -64,14 +64,14 @@ class Phase:
 
 #   #   #   #   @   #   #   #   #   #
 PHASES_DATA = {
-    1: Phase(1, "Phase 1", [SetGoal(3), SetGoal(3)]),
-    2: Phase(2, "Phase 2", [SetGoal(3), RunGoal(4)]),
-    3: Phase(3, "Phase 3", [SetGoal(4), RunGoal(4)]),
-    4: Phase(4, "Phase 4", [RunGoal(7)]),
-    5: Phase(5, "Phase 5", [RunGoal(8)]),
-    6: Phase(6, "Phase 6", [RunGoal(9)]),
-    7: Phase(7, "Phase 7", [SetGoal(4), SetGoal(4)]),
-    8: Phase(8, "Phase 8", [ColorGoal(7)]),
-    9: Phase(9, "Phase 9", [SetGoal(5), SetGoal(2)]),
-    10: Phase(10, "Phase 10", [SetGoal(5), SetGoal(3)])
+    1: Phase(1, "Phase 1", [Goal(3,g_type = "Set"), Goal(3,g_type = "Set")]),
+    2: Phase(2, "Phase 2", [Goal(3,g_type = "Set"), Goal(4,g_type = "Run")]),
+    3: Phase(3, "Phase 3", [Goal(4,g_type = "Set"), Goal(4,g_type = "Run")]),
+    4: Phase(4, "Phase 4", [Goal(7,g_type = "Run")]),
+    5: Phase(5, "Phase 5", [Goal(8,g_type = "Run")]),
+    6: Phase(6, "Phase 6", [Goal(9,g_type = "Run")]),
+    7: Phase(7, "Phase 7", [Goal(4,g_type = "Set"), Goal(4,g_type = "Set")]),
+    8: Phase(8, "Phase 8", [Goal(7,g_type = "Color")]),
+    9: Phase(9, "Phase 9", [Goal(5,g_type = "Set"), Goal(2,g_type = "Set")]),
+    10: Phase(10, "Phase 10", [Goal(5,g_type = "Set"), Goal(3,g_type = "Set")])
 }

@@ -5,18 +5,24 @@ import random
 from json import JSONEncoder
 from uuid import uuid4
 
-from .deck import Deck
-from .discards import Discards
-from .player import Player
+from phase10.game.classes.deck import Deck
+from phase10.game.classes.discards import Discards
+from phase10.game.classes.player import Player
 
 
 class Game:
-    def __init__(self):
-        self.game_id = None
-        self.players = []
-        self.deck = Deck()
-        self.discards = Discards()
-        self.turn_steps = {1: "Waiting", 2: "Draw", 3: "Main", 4: "Discard", 5: "Done"}
+    def __init__(self, game_id=None, players=None, deck=None, discards=None, turn_steps=None):
+        self.game_id = game_id
+        self.players = players
+        self.deck = deck
+        if self.deck is None:
+            self.deck = Deck()
+        self.discards = discards
+        if self.discards is None:
+            self.discards = Discards()
+        self.turn_steps = turn_steps
+        if self.turn_steps is None:
+            self.turn_steps = {1: "Waiting", 2: "Draw", 3: "Main", 4: "Discard", 5: "Done"}
 
     def ready(self):
         if len(self.players) >= 2:
@@ -108,12 +114,17 @@ class Game:
                 return p
 
     # JSON
-    def to_json(self):
-        data = json.dumps(self, indent=4, cls=GameEncoder)
-        return data
+    def to_dict(self):
+        return {"game_id":self.game_id,
+        "players":[p.to_dict() for p in self.players],
+        "deck":self.deck.to_dict(),
+        "discards":self.discards.to_dict(),
+        "turn_steps":self.turn_steps}
 
+    @classmethod
+    def from_dict(cls, data):
+        pls = []
+        for p in data.get('players'):
+            pls.append(Player.from_dict(p))
+        return cls(game_id=data.get('game_id'), players=pls, deck=data.get('deck').from_dict(), discards=data.get('discards').from_dict(), turn_steps=data.get('turn_steps'))
 
-#   #   #   #   #   #   #   #   #   #
-class GameEncoder(JSONEncoder):
-    def default(self, o):
-        return o.to_dict

@@ -12,7 +12,7 @@ class GameClient(Client):
         super().__init__()
         self.reader = None
         self.writer = None
-        self.player = None
+        self.player:Player
 
     async def start_client(self):
         await self.connect()
@@ -47,15 +47,25 @@ class GameClient(Client):
             print(f"Error receiving message: {e}")
             return
 
+        try:
+            tmp_pl = message_dict.get('player')
+            self.set_player(Player.from_dict(tmp_pl))
+        except Exception as e:
+            print(e)
+
+
         if message_dict["type"] == "load":
             print("in client->receive_message()->type load")
-            self.player = Player(**message_dict['player'])
+            tmp_p = Player.from_dict(message_dict.get('player'))
+            self.set_player(tmp_p)
             print(self.player.to_dict())
 
-        if message_dict["type"] == "create":
-            print("in client->receive_message()->type create")
-            self.player = Player.from_dict(message_dict.get('player'))
-            print(self.player.to_dict())
+#        if message_dict["type"] == "create":
+#            print("in client->receive_message()->type create")
+#            data = message_dict.get('player')
+#            tmp_p = Player.from_dict(data)
+#            self.set_player(tmp_p)
+#            print(self.player.to_dict())
 
         else:
             print("Message from server:")
@@ -65,6 +75,8 @@ class GameClient(Client):
             except Exception as e:
                 print(e)
 
+    def set_player(self, newp:Player):
+        self.player = newp
 
     async def test_message(self, msg=None):
         if msg is None:

@@ -3,6 +3,8 @@ import json
 import os
 import pickle
 
+from kivy.graphics.cgl_backend.cgl_gl import init_backend
+
 from common import Client
 from phase10.game.classes.player import Player
 
@@ -55,7 +57,7 @@ async def handle_client(reader, writer):
                     if p is None:
                         print("in handle_client.... p is None")
                         return False
-                    msg = {"type": "success", "client_id": c_id, "player": p.__dict__()}
+                    msg = {"type": "load", "client_id": c_id, "player": p.to_dict()}
                     rep_e = json.dumps(msg)
                     writer.write(rep_e.encode())
                     print(f"Message received: Load Player {c_id}")
@@ -65,8 +67,7 @@ async def handle_client(reader, writer):
                     name = message["name"]
                     pin = message["pin"]
                     p = Player(name = name, player_id = c_id, pin = pin)
-                    save_player(p)
-                    msg = {"type":"success","client_id":c_id, "player": p.__dict__()}
+                    msg = {"type":"create","client_id":c_id, "player": p.to_dict()}
                     rep_e = json.dumps(msg)
                     writer.write(rep_e.encode())
                     print(f"Message received: Create Player {c_id}")
@@ -89,17 +90,8 @@ async def handle_client(reader, writer):
                     print(f"Test Successful\nMessage sending to Client {c_id}")
                     await writer.drain()
 
-                case "connect_player":
-                    player_name = message["name"]
-                    c_id = message["client_id"]
-                    pl_client = clients.get(c_id)
-                    pl_client.player = player_name
-
-                    rep = {"type": "connect_player", "desc": "added player name"}
-                    rep_e = json.dumps(rep)
-                    writer.write(rep_e.encode())
-                    print(f"Client {c_id} added the player name: {player_name}")
-                    await writer.drain()
+                case "connect":
+                    print("\n\n\t\tConnected\n\n")
 
                 case _:
                     print(f"Type:{msg_type} is not recognized by the server")
@@ -117,10 +109,10 @@ async def broadcast_game():
 async def main():
     """ Create saved_players_file file if nonexistent"""
     if not os.path.exists(saved_players_file):
-        print("saved_players_file didnt exist. Creating now..")
-        with open(saved_players_file, "wb") as f:
+        print("saved_players_file didn't exist. Creating now..")
+        with open(saved_players_file, "w") as f:
             saved_players = {}
-            pickle.dump(saved_players,f)
+            f.write(json.dumps(saved_players))
             f.close()
     else:
         print("saved_players_file already exists")
@@ -138,12 +130,8 @@ async def main():
 """
 def get_saved_players():
     print("in server.py->get_saved_players()")
-    with open(saved_players_file, "rb") as f:
-        try:
-            data = pickle.load(f)
-        except Exception as e:
-            print(e)
-            data = {}
+    with open(saved_players_file, "r") as f:
+        data = json.load(f)
         f.close()
     print("leaving server.py->get_saved_players()")
     for k,v in data.items():
@@ -152,13 +140,13 @@ def get_saved_players():
     return data
 
 
-def save_player(player):
+def save_player(player:Player):
     print("in server.py->save_player()")
     print(f"\n\t\t{player.name}\n\n")
     data = get_saved_players()
     data[player.name] = player.to_dict()
-    with open(saved_players_file,"wb") as f:
-        pickle.dump(data, f)
+    with open(saved_players_file,"w") as f:
+        json.dump(data, f, indent=4)
         f.close()
     print("leaving server.py->save_player()")
 
@@ -167,10 +155,10 @@ def load_player(name, pin):
     print("in server.py->load_player()")
     data = get_saved_players()
     for k in data.keys():
-        if k == name:
+        if data.get[k] == name:
             if data.get(k)['pin'] == pin:
                 print("success:leaving server.py->load_player()")
-                return Player(**data[str(k)])
+                return Player.from_dict(data.get(k))
     print("failed:leaving server.py->load_player()")
 
 
