@@ -1,19 +1,17 @@
 import asyncio
 import json
-from pyexpat.errors import messages
 
 from common import Client  # Assuming this is your base client class
-from messages import get_client_message
-from phase10.game.classes.player import Player
 from phase10.game.classes.game_encoder import GameEncoder, game_decoder  # Your custom encoder/decoder
+from phase10.game.classes.player import Player
 
 
 class GameClient(Client):
-    def __init__(self, gui=None):
+    def __init__(self):
         super().__init__()
         self.reader = None
         self.writer = None
-        self.player:Player
+        self.player = None
 
     async def start_client(self):
         await self.connect()
@@ -48,25 +46,34 @@ class GameClient(Client):
             print(f"Error receiving message: {e}")
             return
 
-        try:
-            tmp_pl = message_dict.get('player')
-            self.set_player(Player.from_dict(tmp_pl))
-        except Exception as e:
-            print(e)
+        m_type = message_dict['type']
 
+        if m_type == "create_true":
+            n = message_dict['name']
+            p = message_dict['pin']
+            pl = Player()
+            pl.name = n
+            pl.pin = p
+            pl.player_id = message_dict['client_id']
+            self.player = pl
+            await self.send_save_message(self.player)
+            return True
 
-        if message_dict["type"] == "load":
-            print("in client->receive_message()->type load")
-            tmp_p = Player.from_dict(message_dict.get('player'))
-            self.set_player(tmp_p)
-            print(self.player.to_dict())
+        if m_type == "create_false":
+            return False
 
-        if message_dict["type"] == "create":
-            print("in client->receive_message()->type create")
-            data = message_dict.get('player')
-            tmp_p = Player.from_dict(data)
-            self.set_player(tmp_p)
-            print(self.player.to_dict())
+        if m_type == "load_true":
+            self.player = Player.from_dict(message_dict['player'])
+            return True
+
+        if m_type == "load_false":
+            return False
+
+        if m_type == "save_true":
+            return True
+
+        if m_type == "save_false":
+            return False
 
         else:
             print("Message from server:")
@@ -76,31 +83,31 @@ class GameClient(Client):
             except Exception as e:
                 print(e)
 
-    def set_player(self, newp:Player):
-        self.player = newp
+    async def send_create_message(self, name, pin):
+        message = {"type": "create", "client_id": self.client_id, "name": name, "pin": pin,
+                   "description": "Create player"}
+        await self.send_message(message)
+        return await self.receive_message()
+
+    async def send_load_message(self, name, pin):
+        message = {"type": "load", "client_id": self.client_id, "name": name, "pin": pin}
+        print("Sending load_player message...")
+        await self.send_message(message)
+        return await self.receive_message()
+
+    async def send_save_message(self, player):
+        message = {"type": "save", "client_id": self.client_id, "player": player.to_dict(),
+                   "description": "Create player"}
+        print("Sending save message...")
+        await self.send_message(message)
+        return await self.receive_message()
 
     async def test_message(self, msg=None):
         if msg is None:
-            msg = {"type": "test", "name": self.player.name, "desc": "Test sending message"}
+            msg = {"type": "test", "desc": "Test sending message"}
         await self.send_message(msg)
         await self.receive_message()
 
-    async def draw_card(self, target):
-        message = self.create_message("draw_card")
-        await self.send_message(message)
-        await self.receive_message()
 
-    def create_message(self, msg_type, **kwargs):
-        if msg_type not in ['connect', 'disconnect', 'join', 'leave', 'load_player', 'create_player', 'turn_complete',
-                            'skipped', 'draw_deck', 'draw_discards', 'play_card', 'play_skip', 'discard', 'pass',
-                            'phase_complete', 'win', 'deal_cards']:
-            print(
-                "Message type must be one of the following: \n['connect', 'disconnect', 'join', 'leave', 'load_player', 'create_player', 'turn_complete', 'skipped', 'draw_deck', 'draw_discards',\n 'play_card', 'play_skip', 'discard', 'pass', 'phase_complete', 'win', 'deal_cards']")
-            return
-        message = {}
-        try:
-            message = get_client_message(msg_type, **kwargs)
-        except ValueError as e:
-            print(e)
-            return
-        return message
+    async def draw_card(self, target):
+        pass

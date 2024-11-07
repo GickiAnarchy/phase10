@@ -1,7 +1,6 @@
 import asyncio
 import json
 import os
-import pickle
 
 from common import Client
 from phase10.game.classes.player import Player
@@ -51,15 +50,14 @@ async def handle_client(reader, writer):
                 case "load":
                     name = message["name"]
                     pin = message["pin"]
-                    try:
-                        p = load_player(name,pin)
-                    except Exception as e:
-                        print(e)
-                        return
-                    if p is None:
-                        print("in handle_client.... p is None")
-                        return False
-                    msg = {"type": "load", "client_id": c_id, "player": p.to_dict()}
+                    msg = {}
+                    p = load_player(name,pin)
+                    if isinstance(p, Player):
+                        msg = {"type": "load_true", "client_id": c_id, "player": p.to_dict()}
+                        print("Load SUCCESS")
+                    else:
+                        msg = {"type": "load_false", "client_id": c_id}
+                        print("Load FAIL")
                     rep_e = json.dumps(msg,cls=GameEncoder)
                     writer.write(rep_e.encode())
                     print(f"Message received: Load Player {c_id}")
@@ -68,8 +66,14 @@ async def handle_client(reader, writer):
                 case "create":
                     name = message["name"]
                     pin = message["pin"]
-                    p = Player(name = name, player_id = c_id, pin = pin)
-                    msg = {"type":"create","client_id":c_id, "player": p.to_dict()}
+                    okay =  check_duplicate_save(name)
+                    msg = {}
+                    if not okay:
+                        msg = {"type":"create_true","client_id":c_id, "name":name, "pin":pin}
+                        print("create TRUE")
+                    elif okay:
+                        msg = {"type":"create_false", "client_id": c_id}
+                        print("create FALSE")
                     rep_e = json.dumps(msg,cls=GameEncoder)
                     writer.write(rep_e.encode())
                     print(f"Message received: Create Player {c_id}")
@@ -78,8 +82,16 @@ async def handle_client(reader, writer):
                 case "save":
                     data = message.get('player')
                     new_pl = Player.from_dict(data)
+                    msg = {}
                     print(f"\n\n\n{new_pl.name}\n{new_pl.score}\n\n\n")
-                    save_player(new_pl)
+                    if save_player(new_pl):
+                        msg = {"type":"save_true", "client_id":c_id}
+                    else:
+                        msg = {"type": "save_false", "client_id": c_id}
+                    rep_e = json.dumps(msg, cls=GameEncoder)
+                    writer.write(rep_e.encode())
+                    print(f"Message received: Create Player {c_id}")
+                    await writer.drain()
 
                 case "ready":
                     rep = {"type": "success", "client_id": c_id, "desc": "Got Ready Message"}
@@ -133,39 +145,51 @@ async def main():
 """
     Saving and loading players
 """
-def get_saved_players():
+def check_duplicate_save(name):
+    saves = get_saved_players(just_names=True)
+    for n in saves:
+        if name == n:
+            return True
+    return False
+
+
+def get_saved_players(just_names = False):
     print("in server.py->get_saved_players()")
     with open(saved_players_file, "r") as f:
         data = json.load(f)
         f.close()
     print("leaving server.py->get_saved_players()")
-    for k,v in data.items():
-        print(k)
-        print(v)
+    if just_names:
+        data = data.keys()
     return data
 
 
 def save_player(player:Player):
     print("in server.py->save_player()")
     print(f"\n\t\t{player.name}\n\n")
-    data = get_saved_players()
-    data[player.name] = player.to_dict()
-    with open(saved_players_file,"w") as f:
-        json.dump(data, f, indent=4)
-        f.close()
+    try:
+        data = get_saved_players()
+        data[player.name] = player.to_dict()
+        print(f"saving {player.name}")
+        with open(saved_players_file,"w") as f:
+            json.dump(data, f, indent=4)
+            f.close()
+    except Exception as e:
+        print(e)
+        return False
+    print(f"saved {player.name}")
     print("leaving server.py->save_player()")
+    return True
 
 
 def load_player(name, pin):
     print("in server.py->load_player()")
     data = get_saved_players()
-    for k in data.keys():
-        if data.get[k] == name:
-            if data.get(k)['pin'] == pin:
-                print("success:leaving server.py->load_player()")
-                return Player.from_dict(data.get(k))
+    if name in data.keys():
+        if pin == data[name]['pin']:
+            return Player.from_dict(data.get(name))
     print("failed:leaving server.py->load_player()")
-
+    return False
 
 
 if __name__ == "__main__":

@@ -1,6 +1,6 @@
 {
-    "Test": {
-        "name": "Test",
+    "Corey": {
+        "name": "Corey",
         "hand": [],
         "score": 0,
         "current_phase": {
@@ -30,7 +30,41 @@
         "is_skipped": false,
         "is_active": null,
         "current_turn_step": null,
-        "player_id": null,
-        "pin": "0000"
+        "player_id": "bb619d58-1c61-468a-8f75-12efda5040a1",
+        "pin": "1220"
+    },
+    "Core": {
+        "name": "Core",
+        "hand": [],
+        "score": 0,
+        "current_phase": {
+            "name": "Phase 1",
+            "number": 1,
+            "goals": [
+                {
+                    "min_cards": 3,
+                    "cards": [],
+                    "name": "Set of \n3 cards",
+                    "complete": false,
+                    "goal_id": 1,
+                    "g_type": "Set"
+                },
+                {
+                    "min_cards": 3,
+                    "cards": [],
+                    "name": "Set of \n3 cards",
+                    "complete": false,
+                    "goal_id": 2,
+                    "g_type": "Set"
+                }
+            ],
+            "complete": false
+        },
+        "win": false,
+        "is_skipped": false,
+        "is_active": null,
+        "current_turn_step": null,
+        "player_id": "0c469a15-3313-497c-852f-5773bbccdb32",
+        "pin": "1220"
     }
 }

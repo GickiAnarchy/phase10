@@ -2,7 +2,9 @@ import asyncio
 
 from kivy.app import App
 from kivy.graphics import Color, Rectangle
+from kivy.properties import ObjectProperty
 from kivy.uix.boxlayout import BoxLayout
+from kivy.uix.button import Button
 from kivy.uix.image import Image
 from kivy.uix.popup import Popup
 from kivy.uix.screenmanager import Screen, ScreenManager
@@ -125,6 +127,12 @@ class PageMaster(ScreenManager):
         self.add_widget(self.open)
 
 class OpenScreen(Screen):
+    def __init__(self, **kw):
+        super().__init__(**kw)
+        self.pop = None
+        self.newB = self.ids.new_btn
+        self.loadB = self.ids.load_btn
+
     def player_pop(self, instance):
         self.pop = PlayerPopup()
         if instance.text == "Load Player":
@@ -140,7 +148,6 @@ class PlayerPopup(Popup):
         if instance.text == "Load":
             print(f"\t{name_in}\n\t{pin_in}")
             App.get_running_app().load_player(name_in,pin_in)
-            App.get_running_app().update_player()
         if instance.text == "Create":
             if name_in == "TEST":
                 test_pl = Player(name="Test", pin="0000")
@@ -148,17 +155,18 @@ class PlayerPopup(Popup):
                 return
             print(f"\t{name_in}\n\t{pin_in}")
             App.get_running_app().create_player(name_in,pin_in)
-        App.get_running_app().update_label(tst = True)
         self.dismiss()
 
     def on_dismiss(self):
-        App.get_running_app().update_label(tst = True)
+        super().on_dismiss()
         
 #   #   #   #   #   #   #   #   #   #
 class PhaseTenApp(App):
+    player = ObjectProperty(Player)
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.client = GameClient(self)
+        self.app_root = None
+        self.client = GameClient()
         self.client.make_client_id()
         self.loop = asyncio.new_event_loop()
 
@@ -201,45 +209,32 @@ class PhaseTenApp(App):
 
     def load_player(self, name:str, pin:str):
         """User requests to load a player from the server"""
-        self.update_label("load_player")
-        message = {"type":"load", "client_id": self.client.client_id, "name": name, "pin": pin, "description": "Load player"}
-        print("Sending load_player message...")
-        fload = asyncio.ensure_future(self.client.send_message(message))  # Send the message asynchronously
-        self.loop.run_until_complete(fload)
+        fload = asyncio.ensure_future(self.client.send_load_message(name, pin))  # Send the message asynchronously
+        if self.loop.run_until_complete(fload):
+            self.player = self.client.player
 
     def create_player(self, name, pin):
-        """User requests to create a player"""
-        message = {"type": "create", "client_id": self.client.client_id, "name": name, "pin": pin, "description": "Create player"}
-        print("Sending create message...")
-        fcreate = asyncio.ensure_future(self.client.send_message(message))  # Send the message asynchronously
-        self.loop.run_until_complete(fcreate)
+        fcreate = asyncio.ensure_future(self.client.send_create_message(name, pin))  # Send the message asynchronously
+        if self.loop.run_until_complete(fcreate):
+            self.player = self.client.player
+            print(f"{self.player.name} is new player")
+        else:
+            print("Couldn't create player")
 
-    def save_player(self, player = None):
-        if player is None:
-            player = self.client.player
-        message = {"type": "save", "client_id": self.client.client_id, "player": player.to_dict(), "description": "Create player"}
-        print("Sending save message...")
-        fsave = asyncio.ensure_future(self.client.send_message(message))  # Send the message asynchronously
+    def save_player(self, player):
+        fsave = asyncio.ensure_future(self.client.send_save_message(player))  # Send the message asynchronously
         self.loop.run_until_complete(fsave)
-
-    def update_label(self, message="", tst = False):
-        if tst:
-            message = f"PLAYER IS {self.player}"
-        print(message)
 
     def on_stop(self):
         super().on_stop()
-        if self.client.player:
-            self.save_player()
         print("stop")# Save player before close.
 
     def on_start(self):
         super().on_start()
         self.connect_player()
 
-    @property
-    def player(self):
-        return self.client.player
+
+
 
 if __name__ == '__main__':
     app = PhaseTenApp()
