@@ -1,0 +1,51 @@
+<SelectableCard>:
+    img: img
+    size_hint: (None,None)
+    size: dp(150), dp(250)
+    canvas.before:
+        Color:
+            rgba: (1, 0, 0, 1) if self.state == 'down' else (0, 0, 0, 0)
+        Line:
+            width: 3
+            rectangle: self.x, self.y, self.width, self.height
+    Image:
+        id: img
+        allow_stretch: True
+        size: root.size
+        pos: root.pos
+        keep_ratio: False
+        source: root.image_source
+        center_x: root.center_x
+        center_y: root.center_y
+
+
+<SelectableHand>:
+    do_scroll_x: True
+    do_scroll_y: False
+    bar_width: dp(10)
+    effect_cls: 'ScrollEffect'
+    BoxLayout:
+        id: hand_layout
+        orientation: 'horizontal'
+        size_hint_y: None
+        height: dp(200)
+
+
+<SelectableDeck>:
+    canvas.before:
+        Color:
+            rgba: (0, 1, 0, 1) if not self.is_disabled else (0, 0, 0, 0)
+        Line:
+            width: 3
+            rectangle: self.x, self.y, self.width, self.height
+    background_normal: "assets/images/stack_back.png"
+
+
+<SelectableDiscards>:
+    canvas.before:
+        Color:
+            rgba: (0, 1, 0, 1) if not self.is_disabled else (0, 0, 0, 0)
+        Line:
+            width: 3
+            rectangle: self.x, self.y, self.width, self.height
+    background_normal: self.image_source

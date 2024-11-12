@@ -1,7 +1,7 @@
 import asyncio
 import json
 
-from common import Client  # Assuming this is your base client class
+from phase10.common import Client  # Assuming this is your base client class
 from phase10.game.classes.game_encoder import GameEncoder, game_decoder  # Your custom encoder/decoder
 from phase10.game.classes.player import Player
 
@@ -12,6 +12,13 @@ class GameClient(Client):
         self.reader = None
         self.writer = None
         self.player = None
+
+    @property
+    def is_ready(self):
+        if self.player is None:
+            return False
+        else:
+            return True
 
     async def start_client(self):
         await self.connect()
@@ -107,7 +114,6 @@ class GameClient(Client):
             msg = {"type": "test", "desc": "Test sending message"}
         await self.send_message(msg)
         await self.receive_message()
-
 
     async def draw_card(self, target):
         pass

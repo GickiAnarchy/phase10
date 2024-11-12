@@ -24,12 +24,16 @@ class Card:
 
     def get_image(self):
         img_path = "assets/images"
-        if self.is_wild:
-            return f"{img_path}/Wild.png"
-        elif self.is_skip:
-            return f"{img_path}/Skip.png"
-        else:
-            return f"{img_path}/{self.color}_{self.number}.png"
+        try:
+            if self.is_wild:
+                return f"{img_path}/Wild.png"
+            elif self.is_skip:
+                return f"{img_path}/Skip.png"
+            else:
+                return f"{img_path}/{str(self.color).lower()}_{self.number}.png"
+        except Exception as e:
+            print(e)
+            return None
 
     def point_value(self):
         if self.is_wild or self.is_skip:

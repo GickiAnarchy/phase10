@@ -66,5 +66,73 @@
         "current_turn_step": null,
         "player_id": "0c469a15-3313-497c-852f-5773bbccdb32",
         "pin": "1220"
+    },
+    "12": {
+        "name": "12",
+        "hand": [],
+        "score": 0,
+        "current_phase": {
+            "name": "Phase 1",
+            "number": 1,
+            "goals": [
+                {
+                    "min_cards": 3,
+                    "cards": [],
+                    "name": "Set of \n3 cards",
+                    "complete": false,
+                    "goal_id": 1,
+                    "g_type": "Set"
+                },
+                {
+                    "min_cards": 3,
+                    "cards": [],
+                    "name": "Set of \n3 cards",
+                    "complete": false,
+                    "goal_id": 2,
+                    "g_type": "Set"
+                }
+            ],
+            "complete": false
+        },
+        "win": false,
+        "is_skipped": false,
+        "is_active": null,
+        "current_turn_step": null,
+        "player_id": "19596fd3-0d7c-4f03-af78-df4e3cd027a3",
+        "pin": "12"
+    },
+    "": {
+        "name": "",
+        "hand": [],
+        "score": 0,
+        "current_phase": {
+            "name": "Phase 1",
+            "number": 1,
+            "goals": [
+                {
+                    "min_cards": 3,
+                    "cards": [],
+                    "name": "Set of \n3 cards",
+                    "complete": false,
+                    "goal_id": 1,
+                    "g_type": "Set"
+                },
+                {
+                    "min_cards": 3,
+                    "cards": [],
+                    "name": "Set of \n3 cards",
+                    "complete": false,
+                    "goal_id": 2,
+                    "g_type": "Set"
+                }
+            ],
+            "complete": false
+        },
+        "win": false,
+        "is_skipped": false,
+        "is_active": null,
+        "current_turn_step": null,
+        "player_id": "eb170397-5059-4646-8c23-bd3dff1e2d4c",
+        "pin": ""
     }
 }
