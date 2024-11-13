@@ -1,13 +1,17 @@
 <SelectableCard>:
     img: img
-    size_hint: (None,None)
+    size_hint: (None, None)
     size: dp(150), dp(250)
+    
+    # Border when selected
     canvas.before:
         Color:
             rgba: (1, 0, 0, 1) if self.state == 'down' else (0, 0, 0, 0)
         Line:
             width: 3
             rectangle: self.x, self.y, self.width, self.height
+
+    # Image aligned with button's size and position
     Image:
         id: img
         allow_stretch: True
@@ -24,11 +28,14 @@
     do_scroll_y: False
     bar_width: dp(10)
     effect_cls: 'ScrollEffect'
+
+    # Horizontal layout for displaying hand of cards
     BoxLayout:
         id: hand_layout
         orientation: 'horizontal'
+        spacing: dp(-50)  # Adjust card overlap
         size_hint_y: None
-        height: dp(200)
+        height: dp(250)  # Height of individual cards
 
 
 <SelectableDeck>:

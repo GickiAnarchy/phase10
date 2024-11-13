@@ -12,6 +12,7 @@ from phase10.game.classes.deck import Deck
 
 Builder.load_file("selectable.kv")
 
+
 class SelectableCard(ToggleButton):
     card = ObjectProperty(None)
     image_source = StringProperty('')
@@ -32,33 +33,42 @@ class SelectableCard(ToggleButton):
 
 
 class SelectableHand(ScrollView):
-    cards = ListProperty([])
+    cards = ListProperty([])            # All cards in the hand
+    selected_cards = ListProperty([])    # Currently selected cards
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+        
+        # Horizontal BoxLayout for displaying cards in the hand
         self.hand_layout = BoxLayout(orientation='horizontal', spacing=-50, size_hint_y=None)
         self.hand_layout.bind(minimum_width=self.hand_layout.setter('width'))
+        
+        # Add the layout to the ScrollView
         self.add_widget(self.hand_layout)
 
     def update_hand(self, new_cards):
-        """Repopulate the hand with a new set of cards."""
+        """Updates the hand display with a new set of cards."""
+        # Clear both the displayed widgets and internal tracking lists
         self.cards = new_cards
+        self.selected_cards.clear()
         self.hand_layout.clear_widgets()
+
+        # Add each card as a SelectableCard instance to the layout
         for card in self.cards:
             selectable_card = SelectableCard(card=card)
-            selectable_card.bind(state=self.on_card_selected)
+            selectable_card.bind(state=self.on_card_selected)  # Track selection state
             self.hand_layout.add_widget(selectable_card)
 
     def on_card_selected(self, instance, state):
-        """Update selected cards based on the toggle state of each card."""
-        if state == 'down' and instance.card not in self.cards:
-            self.cards.append(instance.card)
-        elif state == 'normal' and instance.card in self.cards:
-            self.cards.remove(instance.card)
+        """Updates the selected cards list based on the card's toggle state."""
+        if state == 'down' and instance.card not in self.selected_cards:
+            self.selected_cards.append(instance.card)
+        elif state == 'normal' and instance.card in self.selected_cards:
+            self.selected_cards.remove(instance.card)
 
     def get_selected_cards(self):
-        """Return a list of selected cards."""
-        return [card for card in self.cards if card.selected]
+        """Returns the list of currently selected cards."""
+        return self.selected_cards
 
 
 class SelectableDeck(Button):
