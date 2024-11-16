@@ -1,7 +1,7 @@
 import asyncio
 from kivy.app import App
 from kivy.graphics import Color, Rectangle
-from kivy.properties import ObjectProperty
+from kivy.properties import ObjectProperty, ListProperty
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.button import Button
 from kivy.uix.image import Image
@@ -66,20 +66,44 @@ class TestSelectCard(Screen):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.deck = Deck()
+        self.back_btn.text = "Back"
+
+    def on_enter(self, *args):
+        super().on_enter(*args)
         self.deck.create_deck()
         self.deck.shuffle()
-        self.back_btn.text = "Back"
+
+    def on_leave(self, *args):
+        super().on_leave(*args)
+        self.deck = Deck()
 
     def new_card(self):
         self.selCard.add_card(self.deck.draw_card())
 
 class TestSelectHand(Screen):
-    hand = ListProperty(None)
-    
+    pl_hand = ListProperty()
+    sel_hand_w = ObjectProperty(None)
+
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-    
-    
+        self.deck = Deck()
+
+    def update_hand(self):
+        self.sel_hand_w.update_hand(self.pl_hand)
+
+
+    def deal_hand(self):
+        self.deck.create_deck()
+        self.deck.shuffle()
+        for _ in range(10):
+            self.pl_hand.append(self.deck.draw_card())
+        self.sel_hand_w.cards = self.pl_hand
+        self.sel_hand_w.update_hand(self.pl_hand)
+
+
+    def on_leave(self, *args):
+        super().on_leave(*args)
+        self.deck = Deck()
 
 class TestMenu(Screen):
     def to_sel_hand(self):

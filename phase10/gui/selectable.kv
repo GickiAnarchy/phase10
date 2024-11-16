@@ -29,14 +29,6 @@
     bar_width: dp(10)
     effect_cls: 'ScrollEffect'
 
-    # Horizontal layout for displaying hand of cards
-    BoxLayout:
-        id: hand_layout
-        orientation: 'horizontal'
-        spacing: dp(-50)  # Adjust card overlap
-        size_hint_y: None
-        height: dp(250)  # Height of individual cards
-
 
 <SelectableDeck>:
     canvas.before:

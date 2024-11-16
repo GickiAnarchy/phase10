@@ -25,7 +25,7 @@ class SelectableCard(ToggleButton):
 
     def on_card(self, instance, value):
         if self.card:
-            self.image_source = self.card.get_image()
+            self.image_source = "../" + self.card.get_image()
 
 
     def add_card(self, newcard):
@@ -38,11 +38,9 @@ class SelectableHand(ScrollView):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        
         # Horizontal BoxLayout for displaying cards in the hand
-        self.hand_layout = BoxLayout(orientation='horizontal', spacing=-50, size_hint_y=None)
+        self.hand_layout = BoxLayout(orientation='horizontal', spacing=-35, size_hint= (None,None))
         self.hand_layout.bind(minimum_width=self.hand_layout.setter('width'))
-        
         # Add the layout to the ScrollView
         self.add_widget(self.hand_layout)
 
@@ -58,12 +56,14 @@ class SelectableHand(ScrollView):
             selectable_card = SelectableCard(card=card)
             selectable_card.bind(state=self.on_card_selected)  # Track selection state
             self.hand_layout.add_widget(selectable_card)
+        self.hand_layout.height = selectable_card.height
+
 
     def on_card_selected(self, instance, state):
         """Updates the selected cards list based on the card's toggle state."""
-        if state == 'down' and instance.card not in self.selected_cards:
+        if state == 'down': #and instance.card not in self.selected_cards:
             self.selected_cards.append(instance.card)
-        elif state == 'normal' and instance.card in self.selected_cards:
+        elif state == 'normal': #and instance.card in self.selected_cards:
             self.selected_cards.remove(instance.card)
 
     def get_selected_cards(self):

@@ -61,8 +61,7 @@ class Card:
             return self.number == other
         if isinstance(other, str):
             return self.color == other
-        else:
-            return self == other
+
 
     def __lt__(self, other):
         if isinstance(other, int):
