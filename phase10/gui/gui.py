@@ -19,7 +19,7 @@ from phase10.gui.selectable import SelectableCard, SelectableHand, SelectableDec
 
 
 #   SELECTABLE
-
+# Moved to selectable.py
 
 
 #   SCREENS
@@ -31,7 +31,7 @@ class PageMaster(ScreenManager):
         self.play = PlayScreen(name = "play")
         self.test_menu = TestMenu(name = "test_menu")
         self.sel_card = TestSelectCard(name="sel_card")
-        self.sel_card = TestSelectHand(name="sel_hand")
+        self.sel_hand = TestSelectHand(name="sel_hand")
         self.add_widget(self.test_menu)
         self.add_widget(self.sel_card)
         self.add_widget(self.sel_hand)
@@ -59,17 +59,6 @@ class OpenScreen(Screen):
             self.pop.ids.popup_btn.text = "Create"
         self.pop.open()
 
-#class TestSelectHand(Screen):
-#    hand = ObjectProperty(None)
-#
-#    def __init__(self, **kwargs):
-#        super().__init__(**kwargs)
-#        self.deck = Deck()
-#        self.deck.create_deck()
-#        self.deck.shuffle()
-#        self.hand = SelectableHand()
-#
-
 class TestSelectCard(Screen):
     back_btn = ObjectProperty(None)
     selCard = ObjectProperty(None)
@@ -84,6 +73,13 @@ class TestSelectCard(Screen):
     def new_card(self):
         self.selCard.add_card(self.deck.draw_card())
 
+class TestSelectHand(Screen):
+    hand = ListProperty(None)
+    
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+    
+    
 
 class TestMenu(Screen):
     def to_sel_hand(self):
