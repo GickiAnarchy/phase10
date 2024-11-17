@@ -14,6 +14,7 @@ class Deck:
         self.cards = cards
         self.name = name
         self.image = image
+        self.used = False
 
     def can_take_card(self):
         if len(self.cards) >= 1:
@@ -22,6 +23,7 @@ class Deck:
             return False
 
     def create_deck(self):
+        self.used = True
         if Card.count >= 108:
             raise Exception("Too many Cards")
             return
@@ -45,6 +47,12 @@ class Deck:
         shuffle(self.cards)
         shuffle(self.cards)
         shuffle(self.cards)
+
+    def clear_deck(self):
+        self.cards.clear()
+        Card.count = 0
+        self.used = False
+        print("deck cleared and reset")
 
     def __iter__(self):
         return iter(self.cards)

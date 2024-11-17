@@ -100,8 +100,6 @@ class Wild(Card):
             return True
         if isinstance(other, str):
             return True
-        else:
-            return self == other
 
     def __lt__(self, other):
         if isinstance(other, int):

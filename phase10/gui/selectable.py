@@ -1,6 +1,7 @@
 from kivy.graphics import Rectangle, Line
 from kivy.uix.behaviors import ToggleButtonBehavior
 from kivy.uix.image import Image
+from kivy.uix.label import Label
 from kivy.uix.togglebutton import ToggleButton
 from kivy.properties import ObjectProperty, StringProperty, ListProperty, BooleanProperty
 from kivy.uix.boxlayout import BoxLayout
@@ -35,14 +36,10 @@ class SelectableCard(ToggleButton):
 class SelectableHand(ScrollView):
     cards = ListProperty([])            # All cards in the hand
     selected_cards = ListProperty([])    # Currently selected cards
+    hand_layout = ObjectProperty(None)      #The root layout(BoxLayout)
 
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        # Horizontal BoxLayout for displaying cards in the hand
-        self.hand_layout = BoxLayout(orientation='horizontal', spacing=-35, size_hint= (None,None))
-        self.hand_layout.bind(minimum_width=self.hand_layout.setter('width'))
-        # Add the layout to the ScrollView
-        self.add_widget(self.hand_layout)
+    #def __init__(self, **kwargs):
+        #super().__init__(**kwargs)
 
     def update_hand(self, new_cards):
         """Updates the hand display with a new set of cards."""
@@ -50,25 +47,25 @@ class SelectableHand(ScrollView):
         self.cards = new_cards
         self.selected_cards.clear()
         self.hand_layout.clear_widgets()
-
         # Add each card as a SelectableCard instance to the layout
+        selectable_card = None
         for card in self.cards:
             selectable_card = SelectableCard(card=card)
             selectable_card.bind(state=self.on_card_selected)  # Track selection state
             self.hand_layout.add_widget(selectable_card)
-        self.hand_layout.height = selectable_card.height
-
+        #self.hand_layout.height = selectable_card.height + 50
 
     def on_card_selected(self, instance, state):
         """Updates the selected cards list based on the card's toggle state."""
-        if state == 'down': #and instance.card not in self.selected_cards:
+        if state == 'down' and instance.card not in self.selected_cards:
             self.selected_cards.append(instance.card)
-        elif state == 'normal': #and instance.card in self.selected_cards:
+        elif state == 'normal' and instance.card in self.selected_cards:
             self.selected_cards.remove(instance.card)
 
     def get_selected_cards(self):
         """Returns the list of currently selected cards."""
         return self.selected_cards
+
 
 
 class SelectableDeck(Button):
@@ -80,9 +77,9 @@ class SelectableDeck(Button):
         self.deck.shuffle()
 
     def on_selectable(self, ins, value):
-        if value == True:
+        if value:
             self.deck.is_disabled = False
-        elif value == False:
+        elif not value:
             self.deck.is_disabled = True
 
 

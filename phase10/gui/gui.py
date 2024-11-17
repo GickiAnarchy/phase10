@@ -1,4 +1,5 @@
 import asyncio
+import random
 from kivy.app import App
 from kivy.graphics import Color, Rectangle
 from kivy.properties import ObjectProperty, ListProperty
@@ -74,8 +75,8 @@ class TestSelectCard(Screen):
         self.deck.shuffle()
 
     def on_leave(self, *args):
+        self.deck.clear_deck()
         super().on_leave(*args)
-        self.deck = Deck()
 
     def new_card(self):
         self.selCard.add_card(self.deck.draw_card())
@@ -91,19 +92,26 @@ class TestSelectHand(Screen):
     def update_hand(self):
         self.sel_hand_w.update_hand(self.pl_hand)
 
-
     def deal_hand(self):
+        if self.deck.used:
+            self.deck.clear_deck()
+        if len(self.pl_hand) > 0:
+            self.pl_hand.clear()
         self.deck.create_deck()
         self.deck.shuffle()
         for _ in range(10):
             self.pl_hand.append(self.deck.draw_card())
-        self.sel_hand_w.cards = self.pl_hand
         self.sel_hand_w.update_hand(self.pl_hand)
 
+    def get_selected(self):
+        sel_cards = self.sel_hand_w.get_selected_cards()
+        if len(sel_cards) > 0:
+            for c in sel_cards:
+                print(f"{c.get_description()}\n")
 
     def on_leave(self, *args):
+        self.deck.clear_deck()
         super().on_leave(*args)
-        self.deck = Deck()
 
 class TestMenu(Screen):
     def to_sel_hand(self):
@@ -111,6 +119,12 @@ class TestMenu(Screen):
 
     def to_sel_card(self):
         self.manager.current = "sel_card"
+
+    def get_color(self):
+        R = random.random()
+        G = random.random()
+        B = random.random()
+        return R,G,B,1
 
 
 #   DIALOGS

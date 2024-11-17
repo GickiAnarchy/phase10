@@ -59,45 +59,68 @@
                 size_hint: 0.5,0.7
 
 <TestMenu>:
-    GridLayout:
-        cols:2
-        Button:
-            id:sel_card_btn
-            text:"Selectable Card"
-            on_press: root.to_sel_card()
-        Button:
-            id:sel_hand_btn
-            text:"Selectable Card"
-            on_press: root.to_sel_hand()
+    BoxLayout:
+        orientation:"vertical"
+        padding:10
+        spacing:10
+        Label:
+            text: "TESTING MENU"
+            font_size: dp(40)
+            color: root.get_color()
+            size_hint: (0.9,0.7)
+            pos_hint:{'center_y': 0.2,'center_x':0.5}
+        GridLayout:
+            cols:2
+            size_hint: 0.9,0.5
+            pos_hint:{'center_x':0.5,'center_y':0.8}
+            padding:10
+            spacing:25
+            Button:
+                id:sel_card_btn
+                text:"Selectable Card"
+                size_hint:(0.3,0.3)
+                on_press: root.to_sel_card()
+            Button:
+                id:sel_hand_btn
+                text:"Selectable Hand"
+                size_hint:(0.3,0.3)
+                on_press: root.to_sel_hand()
         Button:
             id:quit_button
             text: "Exit"
+            size_hint:(0.2,0.2)
+            pos_hint:{'center_x':0.5,'center_y':0.5}
             on_press: app.stop()
-
 
 <TestSelectHand>:
     sel_hand_w:sel_hand_w
     BoxLayout:
         orientation: "vertical"
-        size_hint: 0.9, 0.6
-        pos_hint: {'center_y':0.3, 'center_x': 0.5}
-        spacing: 15
+        size_hint: 0.9, 1
+        pos_hint: {'center_y':0.5, 'center_x': 0.5}
+        spacing: 25
+        padding: 25
         SelectableHand:
             id:sel_hand_w
+            pos_hint: {'center_y':0.5, 'center_x': 0.5}
         BoxLayout:
-            size_hint: 0.8,0.6
+            size_hint: 0.8,0.3
             pos_hint: {'center_y': 0.8, 'center_x': 0.5}
             spacing: 20
             padding: 10
             orientation: "horizontal"
             Button:
                 text: "Deal"
+                size_hint: 0.5,0.5
                 on_press: root.deal_hand()
             Button:
-                text: "Exit"
-                on_press: app.stop()
-
-
+                text: "Get Selected"
+                size_hint: 0.5,0.5
+                on_press:root.get_selected()
+            Button:
+                text: "Back"
+                size_hint: 0.5,0.5
+                on_press: root.manager.current = "test_menu"
 
 <TestSelectCard>:
     back_btn: back_btn
