@@ -1,5 +1,9 @@
 from kivy.uix.boxlayout import BoxLayout
 from kivy.properties import ObjectProperty, StringProperty, NumericProperty, BooleanProperty
+from kivy.lang import Builder
+
+
+Builder.load_file("widgets.kv")
 
 from phase10.game.classes.player import Player
 

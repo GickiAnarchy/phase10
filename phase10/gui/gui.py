@@ -166,14 +166,14 @@ class PhaseTenApp(App):
         super().__init__(**kwargs)
         self.player_box = None
         self.app_root = None
-        self.root_lout = FloatLayout(size_hint = (1,1))
+        self.root_lout = FloatLayout()
         self.client = GameClient()
         self.client.make_client_id()
         self.loop = asyncio.new_event_loop()
 
     def build(self):
         self.title = "|||    PHASE 10    |||"
-        self.player_box = PlayerInfoWidget()
+        self.player_box = PlayerInfoWidget(size_hint = (0.3,0.2), pos_hint = {'right':1, 'top':1})
         self.app_root = PageMaster()
         self.root_lout.add_widget(self.app_root)
         self.root_lout.add_widget(self.player_box)
