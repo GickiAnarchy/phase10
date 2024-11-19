@@ -8,7 +8,7 @@ from phase10.game.classes.phase import Phase
 
 class Player:
     def __init__(self, name = "", hand=[], score=0, win=False, is_skipped=False, player_id=None, pin = None,
-                 is_active=None, current_turn_step=None, current_phase=None):
+                 is_active=False, current_turn_step=None, current_phase=None):
         self.name = name
         self.hand = hand
         self.score = score

@@ -1,10 +1,15 @@
 import asyncio
 import random
+from pickle import FLOAT
+
 from kivy.app import App
+from kivy.base import EventLoop
 from kivy.graphics import Color, Rectangle
 from kivy.properties import ObjectProperty, ListProperty
 from kivy.uix.boxlayout import BoxLayout
+from kivy.uix.anchorlayout import AnchorLayout
 from kivy.uix.button import Button
+from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.image import Image
 from kivy.uix.popup import Popup
 from kivy.uix.screenmanager import Screen, ScreenManager
@@ -16,8 +21,13 @@ from phase10.game.classes.deck import Deck
 from phase10.game.classes.discards import Discards
 from phase10.game.classes.player import Player
 from phase10.gui.selectable import SelectableCard, SelectableHand, SelectableDeck, SelectableDiscards
+from phase10.gui.widgets import PlayerInfoWidget
 
 
+# get the Window instance safely
+EventLoop.ensure_window()
+window = EventLoop.window
+EventLoop.window.title = "PPHHAASSEE"
 
 #   SELECTABLE
 # Moved to selectable.py
@@ -27,7 +37,6 @@ from phase10.gui.selectable import SelectableCard, SelectableHand, SelectableDec
 class PageMaster(ScreenManager):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.app_player = App.get_running_app().get_player
         self.open = OpenScreen(name = "open")
         self.play = PlayScreen(name = "play")
         self.test_menu = TestMenu(name = "test_menu")
@@ -152,17 +161,30 @@ class PlayerPopup(Popup):
 #   MAIN APP
 class PhaseTenApp(App):
     player = ObjectProperty(Player)
+
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+        self.player_box = None
         self.app_root = None
+        self.root_lout = FloatLayout(size_hint = (1,1))
         self.client = GameClient()
         self.client.make_client_id()
         self.loop = asyncio.new_event_loop()
 
     def build(self):
+        self.title = "|||    PHASE 10    |||"
+        self.player_box = PlayerInfoWidget()
         self.app_root = PageMaster()
+        self.root_lout.add_widget(self.app_root)
+        self.root_lout.add_widget(self.player_box)
         self.app_root.current = "open"
-        return self.app_root
+        return self.root_lout
+
+    def on_player(self, *args):
+        print("in PhaseTenApp.on_player()")
+        self.player_box.player = self.player
+        print("\t-PhaseTenApp.player updated")
+        print(f"\n{args}")
 
     def start_async_loop(self, dt=None):
         in_cl = asyncio.ensure_future(self.init_client())  # Start the client asynchronously
@@ -190,10 +212,10 @@ class PhaseTenApp(App):
         self.loop.run_until_complete(con_pl)
         print(f"Client {self.client.client_id} is connected")
 
-    def test_client(self):
+    def test_client(self,mmssgg):
         """Trigger the client to send a message and wait for the server response."""
         print("Sending test message...")
-        t_cl = asyncio.ensure_future(self.client.test_message())  # Send the message asynchronously
+        t_cl = asyncio.ensure_future(self.client.send_message(mmssgg))  # Send the message asynchronously
         self.loop.run_until_complete(t_cl)
 
     def load_player(self, name:str, pin:str):
@@ -229,8 +251,6 @@ class PhaseTenApp(App):
 
     def get_player(self):
         return self.player
-
-
 
 
 if __name__ == '__main__':
