@@ -14,7 +14,6 @@ class Card:
         self.image = self.get_image()
         print(f"{self.get_description()}\n{Card.count} cards created")
 
-
     def get_description(self):
         if self.is_wild:
             return "Wild Card"
@@ -25,12 +24,16 @@ class Card:
 
     def get_image(self):
         img_path = "assets/images"
-        if self.is_wild:
-            return f"{img_path}/Wild.png"
-        elif self.is_skip:
-            return f"{img_path}/Skip.png"
-        else:
-            return f"{img_path}/{self.color}_{self.number}.png"
+        try:
+            if self.is_wild:
+                return f"{img_path}/Wild.png"
+            elif self.is_skip:
+                return f"{img_path}/Skip.png"
+            else:
+                return f"{img_path}/{str(self.color).lower()}_{self.number}.png"
+        except Exception as e:
+            print(e)
+            return None
 
     def point_value(self):
         if self.is_wild or self.is_skip:
@@ -58,8 +61,7 @@ class Card:
             return self.number == other
         if isinstance(other, str):
             return self.color == other
-        else:
-            return self == other
+
 
     def __lt__(self, other):
         if isinstance(other, int):
@@ -70,27 +72,34 @@ class Card:
             return self.number > other
 
     def to_dict(self):
-        return {"Card": {
-            "id": self.id,
-            "number": self.number,
-            "color": self.color,
-            "is_skip": self.is_skip,
-            "is_wild":self.is_wild,
-            "point value": self.points,
-            "image": self.image
-            }}
+        return {"id": self.id,
+               "number": self.number,
+               "color": self.is_skip,
+               "is_skip": self.color,
+               "is_wild": self.is_wild,
+               "image": self.image}
+
+    @classmethod
+    def from_dict(cls, data):
+        obj = cls(
+            number=data.get("number"),
+            color=data.get("color"),
+            is_skip=data.get("is_skip"),
+            is_wild=data.get("is_wild"),
+        )
+        obj.id = data.get("id", Card.count)
+        return obj
+
 
 class Wild(Card):
     def __init__(self, number=0, color="Wild", is_wild=True):
-        super().__init__(number, color, False, is_wild)
+        super().__init__(number, color, is_skip=False, is_wild = is_wild)
 
     def __eq__(self, other):
         if isinstance(other, int):
             return True
         if isinstance(other, str):
             return True
-        else:
-            return self == other
 
     def __lt__(self, other):
         if isinstance(other, int):
@@ -113,5 +122,4 @@ class Skip(Card):
 
     def __lt__(self, other):
         return False
-    
-    
+

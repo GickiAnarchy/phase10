@@ -13,7 +13,7 @@ class Client:
         self.client_id = client_id
 
     def make_client_id(self):
-        self.client_id =  str(uuid.uuid4())
+        self.client_id = str(uuid.uuid4())
 
     def __dict__(self):
         return {

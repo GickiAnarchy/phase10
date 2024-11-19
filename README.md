@@ -1,20 +1,35 @@
 # <u>Phase 10</u>
 
-_by: GickiAnarchy_
+_by: 
+
+
+
 ---
-####
+
 ---
+>
 ___<u>ToDo</u>___
 
--[x] Remove Stack class. too confusing
 -[x] Start Game Logic
--[ ] Complete Game Logic
--[x] Start GUI
+-[x] Complete Game Logic
+-[ ] Complete Selectable Widgets
+-[ ] Complete Player Info Widgets
 -[ ] Complete GUI
 -[x] Start online mechanic
 -[ ] Complete Phase 10!
 
 ---
+
+08.20.24::
+Remove Stack class
+Added Discards class
+Divided class categories into separate files.
+Added server/client folders.
+
+11.16.24::
+Creating Selectable GUI widgets.
+Logic may still be valid.
+
 
 ## The game of Phase 10:
 
@@ -57,6 +72,7 @@ required to discard a card at the end of their turn.__
     * WildCard: This class inherits from Card and has a mimic attribute to hold the card it's mimicking. It overrides
       comparison operators to become the mimicked card when compared with other cards.
     * SkipCard: This class inherits from Card and has a TODO placeholder for a useSkip method.
+<s>    
     * BasicCard, LowCard, HighCard: These classes inherit from Card and define basic card types with specific point
       values.
 * _Card Stacks_
@@ -66,6 +82,7 @@ required to discard a card at the end of their turn.__
       deck with different card types and shuffles the deck. It also allows drawing cards.
     * Hand: This class inherits from Stack and represents a player's hand of cards. It allows showing the hand's
       contents.
+</s>
 * _Phases_
     * Phase: This class represents a phase in the game. It has a number and goals (not used in the provided code).
     * PhaseGoal: This class inherits from Stack and represents a specific goal within a phase (Set, Run, or Color). It
