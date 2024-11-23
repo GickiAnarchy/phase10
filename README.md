@@ -1,9 +1,13 @@
 # <u>Phase 10</u>
 
-_by: GickiAnarchy_
+_by: 
 
-#### *dev branch 2*
 
+
+---
+
+---
+>
 ___<u>ToDo</u>___
 
 -[x] Start Game Logic
@@ -72,7 +76,7 @@ required to discard a card at the end of their turn.__
     * BasicCard, LowCard, HighCard: These classes inherit from Card and define basic card types with specific point
       values.
 * _Card Stacks_
-    * Stack: This class represents a stack of cards. It allows adding/removing cards and sorting them by number or
+    * Discards: This class represents the discard pile. It allows adding/removing cards and sorting them by number or
       color.
     * Deck: This class inherits from Stack and represents the deck of cards. It has a createDeck method to populate the
       deck with different card types and shuffles the deck. It also allows drawing cards.
