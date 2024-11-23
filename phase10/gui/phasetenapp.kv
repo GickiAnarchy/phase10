@@ -86,6 +86,11 @@
                 text:"Selectable Hand"
                 size_hint:(0.3,0.3)
                 on_press: root.to_sel_hand()
+            Button:
+                #id:
+                text:"Join War"
+                size_hint:(0.3,0.3)
+                #on_press:
         Button:
             id:quit_button
             text: "Exit"
@@ -151,3 +156,9 @@
                     size_hint: 0.5,0.3
                     on_press: root.manager.current = "test_menu"
 
+#<War>:
+#    GridLayout:
+#        cols:5
+#        Label:
+#            text: root.opp.name if root.opp is not None else "Waiting"
+#            halign:

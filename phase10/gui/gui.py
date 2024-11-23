@@ -1,26 +1,17 @@
 import asyncio
 import random
-from pickle import FLOAT
 
 from kivy.app import App
 from kivy.base import EventLoop
-from kivy.graphics import Color, Rectangle
 from kivy.properties import ObjectProperty, ListProperty
-from kivy.uix.boxlayout import BoxLayout
-from kivy.uix.anchorlayout import AnchorLayout
-from kivy.uix.button import Button
 from kivy.uix.floatlayout import FloatLayout
-from kivy.uix.image import Image
 from kivy.uix.popup import Popup
 from kivy.uix.screenmanager import Screen, ScreenManager
-from kivy.uix.togglebutton import ToggleButton
 
 from phase10.client import GameClient
-from phase10.game.classes.card import Card
 from phase10.game.classes.deck import Deck
-from phase10.game.classes.discards import Discards
 from phase10.game.classes.player import Player
-from phase10.gui.selectable import SelectableCard, SelectableHand, SelectableDeck, SelectableDiscards
+from phase10.gui.selectable import SelectableCard
 from phase10.gui.widgets import PlayerInfoWidget
 
 
@@ -134,6 +125,7 @@ class TestMenu(Screen):
         G = random.random()
         B = random.random()
         return R,G,B,1
+
 
 
 #   DIALOGS

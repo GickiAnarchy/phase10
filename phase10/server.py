@@ -100,6 +100,9 @@ async def handle_client(reader, writer):
                     print(f"Message received: Ready Player {c_id}")
                     await writer.drain()
 
+                case "join_war":
+                    pass
+
                 case "test":
                     rep = {"type": "success", "client_id": c_id, "desc": "BUTTON SMASHER"}
                     rep_e = json.dumps(rep,cls=GameEncoder)
@@ -140,6 +143,11 @@ async def main():
             await server.serve_forever()
     except Exception as e:
         print(f"Failed to start server: {e}")
+
+
+"""GAME QUEUES"""
+war_games = {}
+
 
 
 """

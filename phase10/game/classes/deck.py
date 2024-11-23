@@ -57,6 +57,10 @@ class Deck:
     def __iter__(self):
         return iter(self.cards)
 
+    def print_cards(self):
+        for i,c in enumerate(self.cards):
+            print(f"{i}\n{c.get_description()}")
+
     def to_dict(self):
         cards_dict = []
         for c in self.cards:
