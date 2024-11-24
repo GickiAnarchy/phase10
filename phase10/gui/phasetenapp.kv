@@ -87,10 +87,10 @@
                 size_hint:(0.3,0.3)
                 on_press: root.to_sel_hand()
             Button:
-                #id:
-                text:"Join War"
+                id: clients_btn
+                text:"Show Clients"
                 size_hint:(0.3,0.3)
-                #on_press:
+                on_press: app.show_clients()
         Button:
             id:quit_button
             text: "Exit"

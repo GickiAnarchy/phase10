@@ -127,7 +127,6 @@ class TestMenu(Screen):
         return R,G,B,1
 
 
-
 #   DIALOGS
 class PlayerPopup(Popup):
     def make_player(self, instance):
@@ -231,6 +230,10 @@ class PhaseTenApp(App):
 
     def save_player(self, player):
         fsave = asyncio.ensure_future(self.client.send_save_message(player))  # Send the message asynchronously
+        self.loop.run_until_complete(fsave)
+
+    def show_clients(self):
+        fsave = asyncio.ensure_future(self.client.send_message({"type":"print_clients","client_id":self.client.client_id}))  # Send the message asynchronously
         self.loop.run_until_complete(fsave)
 
     def on_stop(self):
