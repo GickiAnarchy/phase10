@@ -100,6 +100,9 @@ async def handle_client(reader, writer):
                     print(f"Message received: Ready Player {c_id}")
                     await writer.drain()
 
+                case "join_war":
+                    pass
+
                 case "test":
                     rep = {"type": "success", "client_id": c_id, "desc": "BUTTON SMASHER"}
                     rep_e = json.dumps(rep,cls=GameEncoder)
@@ -109,6 +112,12 @@ async def handle_client(reader, writer):
 
                 case "connect":
                     print("\n\n\t\tConnected\n\n")
+
+                case "print_clients":
+                    print_clients()
+                    gameclient = clients.get(c_id)
+
+
 
                 case _:
                     print(f"Type:{msg_type} is not recognized by the server")
@@ -134,12 +143,32 @@ async def main():
     else:
         print("saved_players_file already exists")
     try:
-        server = await asyncio.start_server(handle_client, "127.0.0.1", 8888)
+        server = await asyncio.start_server(handle_client, "127.0.0.1", 8899)
         async with server:
             print("Server Listening")
             await server.serve_forever()
     except Exception as e:
         print(f"Failed to start server: {e}")
+
+
+"""GAME QUEUES"""
+class WaitingRoom:
+    def __init__(self):
+        self.waiting = []
+        self.ready = []
+
+    def add_client(self, client:Client):
+        self.waiting.append(client)
+        if len(self.waiting) == 2:
+            p1 = self.waiting.pop()
+            p2 = self.waiting.pop()
+            self.ready.append((p1,p2))
+            p1 = None
+            p2 = None
+
+    def get_next_ready(self) -> tuple:
+        if len(self.ready) > 0:
+            return self.ready.pop()
 
 
 """
@@ -190,6 +219,17 @@ def load_player(name, pin):
             return Player.from_dict(data.get(name))
     print("failed:leaving server.py->load_player()")
     return False
+
+# CLIENTS
+def print_clients():
+    for i,c in enumerate(clients):
+        print(f"{i}>>{c}")
+
+
+
+
+
+
 
 
 if __name__ == "__main__":

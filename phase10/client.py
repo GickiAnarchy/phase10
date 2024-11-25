@@ -25,7 +25,7 @@ class GameClient(Client):
         await self.register()
         print("Client registered!")
 
-    async def connect(self, addr="127.0.0.1", port=8888):
+    async def connect(self, addr="127.0.0.1", port=8899):
         print(f"Attempting to connect to {addr}:{port}...")
         try:
             self.reader, self.writer = await asyncio.open_connection(addr, port)
@@ -109,11 +109,19 @@ class GameClient(Client):
         await self.send_message(message)
         return await self.receive_message()
 
+    async def join_war_message(self, player):
+        message = {"type": "join_war", "client_id": self.client_id, "player": player.to_dict(),
+                   "description": "Join War"}
+        print("Sending join_war message...")
+        await self.send_message(message)
+        return await self.receive_message()
+
     async def test_message(self, msg=None):
         if msg is None:
             msg = {"type": "test", "desc": "Test sending message"}
         await self.send_message(msg)
         await self.receive_message()
 
-    async def draw_card(self, target):
-        pass
+    @staticmethod
+    def tell_user(msg):
+        print(f"\n\n{msg}")

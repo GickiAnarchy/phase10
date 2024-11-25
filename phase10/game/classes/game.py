@@ -7,6 +7,7 @@ from uuid import uuid4
 
 from .deck import Deck
 from .discards import Discards
+from .game_encoder import GameEncoder
 from .player import Player
 
 
@@ -113,7 +114,3 @@ class Game:
         return data
 
 
-#   #   #   #   #   #   #   #   #   #
-class GameEncoder(JSONEncoder):
-    def default(self, o):
-        return o.to_dict
