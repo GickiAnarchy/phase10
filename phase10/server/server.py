@@ -4,14 +4,14 @@ import os
 
 from common import Client
 from phase10.game.classes.player import Player
-from phase10.game.classes.game_encoder import GameEncoder, game_decoder  # Your custom encoder/decoder
+from phase10.game_encoder import GameEncoder, game_decoder  # Your custom encoder/decoder
 
 
 
 
 saved_players_file = "assets/data/playersaves.p10"
 
-clients = {}
+CLIENTS = {}
 
 
 async def handle_client(reader, writer):
@@ -23,8 +23,6 @@ async def handle_client(reader, writer):
                 break
             message_json = data.decode()
             message = json.loads(message_json, object_hook=game_decoder)
-
-            msg_type = None
 
             try:
                 msg_type = message["type"]
@@ -38,7 +36,7 @@ async def handle_client(reader, writer):
                     new_client = Client(reader, writer)
                     new_client.make_client_id()
                     new_client.set_client_id(message["client_id"])
-                    clients[c_id] = new_client
+                    CLIENTS[c_id] = new_client
                     rep = {"type": "success", "client_id": c_id}
                     rep_e = json.dumps(rep,cls=GameEncoder)
                     writer.write(rep_e.encode())
@@ -48,7 +46,6 @@ async def handle_client(reader, writer):
                 case "load":
                     name = message["name"]
                     pin = message["pin"]
-                    msg = {}
                     p = load_player(name,pin)
                     if isinstance(p, Player):
                         msg = {"type": "load_true", "client_id": c_id, "player": p.to_dict()}
@@ -80,7 +77,6 @@ async def handle_client(reader, writer):
                 case "save":
                     data = message.get('player')
                     new_pl = Player.from_dict(data)
-                    msg = {}
                     print(f"\n\n\n{new_pl.name}\n{new_pl.score}\n\n\n")
                     if save_player(new_pl):
                         msg = {"type":"save_true", "client_id":c_id}
@@ -98,8 +94,8 @@ async def handle_client(reader, writer):
                     print(f"Type:{msg_type} is not recognized by the server")
 
     finally:
-        if c_id and c_id in clients:
-            del clients[c_id]
+        if c_id and c_id in CLIENTS:
+            del CLIENTS[c_id]
         writer.close()
         await writer.wait_closed()
 
@@ -114,6 +110,9 @@ async def broadcast_game(gamestate, gclients):
             msg = json.dumps(msg, cls=GameEncoder)
             c.writer.write(msg.encode())
             print(f"Sending Game Update to : {c.client_id}")
+            await c.writer.drain()
+        except Exception as e:
+            print(e)
 
 
 async def main():
@@ -133,26 +132,6 @@ async def main():
             await server.serve_forever()
     except Exception as e:
         print(f"Failed to start server: {e}")
-
-
-"""GAME QUEUES"""
-class WaitingRoom:
-    def __init__(self):
-        self.waiting = []
-        self.ready = []
-
-    def add_client(self, client:Client):
-        self.waiting.append(client)
-        if len(self.waiting) == 2:
-            p1 = self.waiting.pop()
-            p2 = self.waiting.pop()
-            self.ready.append((p1,p2))
-            p1 = None
-            p2 = None
-
-    def get_next_ready(self) -> tuple:
-        if len(self.ready) > 0:
-            return self.ready.pop()
 
 
 """
@@ -206,7 +185,7 @@ def load_player(name, pin):
 
 # CLIENTS
 def print_clients():
-    for i,c in enumerate(clients):
+    for i,c in enumerate(CLIENTS):
         print(f"{i}>>{c}")
 
 

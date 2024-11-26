@@ -67,7 +67,6 @@ class SelectableHand(ScrollView):
         return self.selected_cards
 
 
-
 class SelectableDeck(Button):
     selectable = BooleanProperty(False)
     deck = ObjectProperty(Deck)

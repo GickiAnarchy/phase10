@@ -2,12 +2,11 @@
 
 import json
 import random
-from json import JSONEncoder
 from uuid import uuid4
 
 from .deck import Deck
 from .discards import Discards
-from .game_encoder import GameEncoder
+from phase10.game_encoder import GameEncoder
 from .player import Player
 
 

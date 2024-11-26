@@ -1,17 +1,8 @@
-import random
-
-from kivy.properties import ObjectProperty, ListProperty
-from kivy.uix.floatlayout import FloatLayout
-from kivy.uix.boxlayout import BoxLayout
-from kivy.uix.popup import Popup
-from kivy.uix.screenmanager import Screen, ScreenManager
+from kivy.properties import ObjectProperty
+from kivy.uix.screenmanager import Screen
 from kivy.lang import Builder
 
-from phase10.client import GameClient
 from phase10.game.classes.deck import Deck
-from phase10.game.classes.player import Player
-from phase10.gui.selectable import SelectableCard
-
 
 Builder.load("games.kv")
 

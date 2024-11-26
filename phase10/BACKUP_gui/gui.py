@@ -8,10 +8,9 @@ from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.popup import Popup
 from kivy.uix.screenmanager import Screen, ScreenManager
 
-from phase10.client import GameClient
+from phase10.client.client import GameClient
 from phase10.game.classes.deck import Deck
 from phase10.game.classes.player import Player
-from phase10.gui.selectable import SelectableCard
 from phase10.gui.widgets import PlayerInfoWidget
 
 

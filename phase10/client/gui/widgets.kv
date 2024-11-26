@@ -1,4 +1,4 @@
-<PlayerInfoWidget>:
+<InfoWidget>:
     orientation: 'vertical'
     size_hint: 0.3,0.2
     #size: dp(200), dp(100)
@@ -11,6 +11,19 @@
             pos: self.pos
             size: self.size
             radius: [dp(10)]
+
+
+<NameInfoWidget>:
+    Label:
+        id: name_label
+        font_size: '16sp'
+        halign: 'center'
+        valign: 'middle'
+        size_hint_y: None
+        height: self.texture_size[1]
+
+
+<PlayerInfoWidget>:
     Label:
         text: root.player_name
         font_size: '16sp'
@@ -43,3 +56,6 @@
         valign: 'middle'
         size_hint_y: None
         height: self.texture_size[1]
+
+
+<RPSInfoWidget>:
