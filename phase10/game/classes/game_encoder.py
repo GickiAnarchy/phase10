@@ -3,7 +3,6 @@ from phase10.game.classes.goal import Goal
 from phase10.game.classes.phase import Phase
 from phase10.game.classes.player import Player
 from phase10.game.classes.card import Card
-from phase10.game.classes.war import War
 
 
 class GameEncoder(json.JSONEncoder):
@@ -30,6 +29,4 @@ def game_decoder(obj):
         return Player.from_dict(obj)
     elif '__card__' in obj:
         return Card.from_dict(obj)
-    elif '__war__' in obj:
-        return War.from_dict(obj)
     return obj

@@ -24,3 +24,5 @@ TestResults.xml
 #examples/*
 backups/*
 Stuff/*
+# Backups
+#BACKUP_*/

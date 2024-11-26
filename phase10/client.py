@@ -108,20 +108,3 @@ class GameClient(Client):
         print("Sending save message...")
         await self.send_message(message)
         return await self.receive_message()
-
-    async def join_war_message(self, player):
-        message = {"type": "join_war", "client_id": self.client_id, "player": player.to_dict(),
-                   "description": "Join War"}
-        print("Sending join_war message...")
-        await self.send_message(message)
-        return await self.receive_message()
-
-    async def test_message(self, msg=None):
-        if msg is None:
-            msg = {"type": "test", "desc": "Test sending message"}
-        await self.send_message(msg)
-        await self.receive_message()
-
-    @staticmethod
-    def tell_user(msg):
-        print(f"\n\n{msg}")

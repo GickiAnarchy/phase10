@@ -39,8 +39,6 @@ async def handle_client(reader, writer):
                     new_client.make_client_id()
                     new_client.set_client_id(message["client_id"])
                     clients[c_id] = new_client
-
-                    print(f"Received message: {message}")
                     rep = {"type": "success", "client_id": c_id}
                     rep_e = json.dumps(rep,cls=GameEncoder)
                     writer.write(rep_e.encode())
@@ -93,34 +91,12 @@ async def handle_client(reader, writer):
                     print(f"Message received: Create Player {c_id}")
                     await writer.drain()
 
-                case "ready":
-                    rep = {"type": "success", "client_id": c_id, "desc": "Got Ready Message"}
-                    rep_e = json.dumps(rep,cls=GameEncoder)
-                    writer.write(rep_e.encode())
-                    print(f"Message received: Ready Player {c_id}")
-                    await writer.drain()
-
-                case "join_war":
-                    pass
-
-                case "test":
-                    rep = {"type": "success", "client_id": c_id, "desc": "BUTTON SMASHER"}
-                    rep_e = json.dumps(rep,cls=GameEncoder)
-                    writer.write(rep_e.encode())
-                    print(f"Test Successful\nMessage sending to Client {c_id}")
-                    await writer.drain()
-
                 case "connect":
                     print("\n\n\t\tConnected\n\n")
 
-                case "print_clients":
-                    print_clients()
-                    gameclient = clients.get(c_id)
-
-
-
                 case _:
                     print(f"Type:{msg_type} is not recognized by the server")
+
     finally:
         if c_id and c_id in clients:
             del clients[c_id]
@@ -128,8 +104,16 @@ async def handle_client(reader, writer):
         await writer.wait_closed()
 
 
-async def broadcast_game():
-    pass
+async def broadcast_game(gamestate, gclients):
+    msg = {
+        "type":"update",
+        "gamestate":gamestate
+    }
+    for c in gclients:
+        try:
+            msg = json.dumps(msg, cls=GameEncoder)
+            c.writer.write(msg.encode())
+            print(f"Sending Game Update to : {c.client_id}")
 
 
 async def main():
