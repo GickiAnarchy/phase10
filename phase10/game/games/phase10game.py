@@ -10,7 +10,8 @@ from phase10.game_encoder import GameEncoder
 from .player import Player
 
 
-class Game:
+
+class Phase10(Game):
     def __init__(self):
         self.game_id = None
         self.players = []
