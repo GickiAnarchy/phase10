@@ -12,7 +12,31 @@ from phase10.game_encoder import GameEncoder, game_decoder  # Your custom encode
 saved_players_file = "assets/data/playersaves.p10"
 
 CLIENTS = {}
+GAMES = {}
 
+
+async def main():
+    """ Create saved_players_file file if nonexistent"""
+    if not os.path.exists(saved_players_file):
+        print("saved_players_file didn't exist. Creating now..")
+        with open(saved_players_file, "w") as f:
+            saved_players = {}
+            f.write(json.dumps(saved_players,cls=GameEncoder))
+            f.close()
+    else:
+        print("saved_players_file already exists")
+    try:
+        server = await asyncio.start_server(handle_client, "127.0.0.1", 8899)
+        async with server:
+            print("Server Listening")
+            await server.serve_forever()
+    except Exception as e:
+        print(f"Failed to start server: {e}")
+
+
+"""
+    Saving and loading players
+"""
 
 async def handle_client(reader, writer):
     c_id = None
@@ -48,6 +72,7 @@ async def handle_client(reader, writer):
                     pin = message["pin"]
                     p = load_player(name,pin)
                     if isinstance(p, Player):
+                        p.player_id = c_id
                         msg = {"type": "load_true", "client_id": c_id, "player": p.to_dict()}
                         print("Load SUCCESS")
                     else:
@@ -64,7 +89,11 @@ async def handle_client(reader, writer):
                     okay =  check_duplicate_save(name)
                     msg = {}
                     if not okay:
-                        msg = {"type":"create_true","client_id":c_id, "name":name, "pin":pin}
+                        #TODO: Change gui to accept Player and this to return Player
+                        p = Player(name = name, pin = pin, player_id = c_id)
+                        msg = {"type":"create_true","client_id":c_id,
+                        "player":p.to_dict()
+                        }
                         print("create TRUE")
                     elif okay:
                         msg = {"type":"create_false", "client_id": c_id}
@@ -90,6 +119,11 @@ async def handle_client(reader, writer):
                 case "connect":
                     print("\n\n\t\tConnected\n\n")
 
+                case "join_waiting":
+                    game_type = message.get("game_type")
+                    data = message.get("player").to_dict()
+                    
+
                 case _:
                     print(f"Type:{msg_type} is not recognized by the server")
 
@@ -100,6 +134,7 @@ async def handle_client(reader, writer):
         await writer.wait_closed()
 
 
+#   Games Management
 async def broadcast_game(gamestate, gclients):
     msg = {
         "type":"update",
@@ -114,36 +149,16 @@ async def broadcast_game(gamestate, gclients):
         except Exception as e:
             print(e)
 
-
-async def main():
-    """ Create saved_players_file file if nonexistent"""
-    if not os.path.exists(saved_players_file):
-        print("saved_players_file didn't exist. Creating now..")
-        with open(saved_players_file, "w") as f:
-            saved_players = {}
-            f.write(json.dumps(saved_players,cls=GameEncoder))
-            f.close()
-    else:
-        print("saved_players_file already exists")
-    try:
-        server = await asyncio.start_server(handle_client, "127.0.0.1", 8899)
-        async with server:
-            print("Server Listening")
-            await server.serve_forever()
-    except Exception as e:
-        print(f"Failed to start server: {e}")
+async def join_waiting(game_id, player, )
 
 
-"""
-    Saving and loading players
-"""
+#   PLAYER SAVES
 def check_duplicate_save(name):
     saves = get_saved_players(just_names=True)
     for n in saves:
         if name == n:
             return True
     return False
-
 
 def get_saved_players(just_names = False):
     print("in server.py->get_saved_players()")
@@ -154,7 +169,6 @@ def get_saved_players(just_names = False):
     if just_names:
         data = data.keys()
     return data
-
 
 def save_player(player:Player):
     print("in server.py->save_player()")
@@ -173,7 +187,6 @@ def save_player(player:Player):
     print("leaving server.py->save_player()")
     return True
 
-
 def load_player(name, pin):
     print("in server.py->load_player()")
     data = get_saved_players()
@@ -183,7 +196,9 @@ def load_player(name, pin):
     print("failed:leaving server.py->load_player()")
     return False
 
-# CLIENTS
+
+
+#   CLIENTS
 def print_clients():
     for i,c in enumerate(CLIENTS):
         print(f"{i}>>{c}")

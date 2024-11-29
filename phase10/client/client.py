@@ -108,3 +108,10 @@ class GameClient(Client):
         print("Sending save message...")
         await self.send_message(message)
         return await self.receive_message()
+
+    async def send_join_waiting(self, game_type, player):
+        msg = {
+            "c_id": self.client_id,
+            "player": player.to_dict(),
+            "game_type": game_type
+        }

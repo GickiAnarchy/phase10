@@ -4,7 +4,7 @@ class RPS(BaseGame):
     def __init__(**kwargs):
         super().__init__(**kwargs)
         self.choices = ["Rock","Paper","Scissors"]
-        self.max_plyrs = 2
+        self.max_players = 2
         self.p1_choice = None
         self.p2_choice = None
     
@@ -34,7 +34,7 @@ class RPS(BaseGame):
             self.players.append(player)
 
     def check_max_players(self):
-        if len(self.players) > self.max_plyrs:
+        if len(self.players) > self.max_players:
             return False
         else:
             return True
