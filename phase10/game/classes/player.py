@@ -6,10 +6,30 @@ from phase10.game.classes.card import Card
 from phase10.game.classes.phase import Phase
 
 
-class Player:
-    def __init__(self, name = "", hand=[], score=0, win=False, is_skipped=False, player_id=None, pin = None,
-                 is_active=False, current_turn_step=None, current_phase=None):
+class PlayerBase:
+    def __init__(self, name = "", pin = None):
         self.name = name
+        self.pin = pin
+
+    def to_dict(self):
+        return {
+            "name": self.name,
+            "pin": self.pin
+        }
+
+    @classmethod
+    def from_dict(cls, data):
+        obj = cls(
+            name=data.get("name"),
+            pin=data.get("pin")
+        )
+        return obj
+
+class Player(PlayerBase):
+    def __init__(self, name = "", hand=None, score=0, win=False, is_skipped=False, player_id=None, pin = None, is_active=False, current_turn_step=None, current_phase=None, **kwargs):
+        super().__init__(**kwargs)
+        if hand is None:
+            hand = []
         self.hand = hand
         self.score = score
         if isinstance(current_phase,dict):
@@ -21,7 +41,6 @@ class Player:
         self.is_active = is_active
         self.current_turn_step = current_turn_step
         self.player_id = player_id
-        self.pin = pin
         if self.current_phase is None:
             self.current_phase = Phase().make_phase(1)
 
@@ -66,6 +85,9 @@ class Player:
 
     def sort_by_color(self):
         self.hand.sort(key=lambda x: x.color)
+
+
+
 
     def to_dict(self):
         return {

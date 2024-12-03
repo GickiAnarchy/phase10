@@ -4,14 +4,13 @@ import json
 import random
 from uuid import uuid4
 
-from .deck import Deck
-from .discards import Discards
-from phase10.game_encoder import GameEncoder
-from .player import Player
+from phase10.game.classes.deck import Deck
+from phase10.game.classes.discards import Discards
+from phase10.game.classes.player import Player
+from phase10.game.game_encoder import GameEncoder
 
 
-
-class Phase10(Game):
+class Phase10():
     def __init__(self):
         self.game_id = None
         self.players = []

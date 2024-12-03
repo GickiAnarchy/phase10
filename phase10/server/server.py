@@ -2,29 +2,16 @@ import asyncio
 import json
 import os
 
-from common import Client
+from phase10.client.common import Client
 from phase10.game.classes.player import Player
-from phase10.game_encoder import GameEncoder, game_decoder  # Your custom encoder/decoder
-
-
-
-
-saved_players_file = "assets/data/playersaves.p10"
+from phase10.game.game_encoder import GameEncoder, game_decoder
 
 CLIENTS = {}
-GAMES = {}
 
 
 async def main():
-    """ Create saved_players_file file if nonexistent"""
-    if not os.path.exists(saved_players_file):
-        print("saved_players_file didn't exist. Creating now..")
-        with open(saved_players_file, "w") as f:
-            saved_players = {}
-            f.write(json.dumps(saved_players,cls=GameEncoder))
-            f.close()
-    else:
-        print("saved_players_file already exists")
+    init_assets()
+    # Start the server at host:port
     try:
         server = await asyncio.start_server(handle_client, "127.0.0.1", 8899)
         async with server:
@@ -39,90 +26,49 @@ async def main():
 """
 
 async def handle_client(reader, writer):
-    c_id = None
+    """
+    Called when a client connects to host:port.
+    """
+    c_id = None #initialize c_id for the client_id
     try:
         while True:
+            # Continuously check for messages from the client
             data = await reader.read(2048)
             if not data:
                 break
+
+            # Decode the message
             message_json = data.decode()
             message = json.loads(message_json, object_hook=game_decoder)
 
             try:
+                # Get the client_id
+                c_id = message["client_id"]  # always include the client_id
+            except Exception as e:
+                print(e)
+
+            try:
+                # Get the type of message. Which is sent from the client.
                 msg_type = message["type"]
             except Exception as e:
                 print(f"There is no 'type' value in the message.\n{e}")
                 break
-            c_id = message["client_id"]  #always include the client_id
 
+            # Perform action here base on the message type.
             match msg_type:
                 case "register":
+                    # Register the client in the CLIENTS dictionary
                     new_client = Client(reader, writer)
                     new_client.make_client_id()
                     new_client.set_client_id(message["client_id"])
                     CLIENTS[c_id] = new_client
-                    rep = {"type": "success", "client_id": c_id}
-                    rep_e = json.dumps(rep,cls=GameEncoder)
-                    writer.write(rep_e.encode())
+
+                    # Create the response back to the client and send
+                    rep = {"type": "success", "client_id": c_id} # Message to send back to the client
+                    rep_e = json.dumps(rep,cls=GameEncoder) # Encode with the GameEncoder
+                    writer.write(rep_e.encode()) # Send to client
                     print(f"Message received: Registered Client {c_id}")
-                    await writer.drain()
-
-                case "load":
-                    name = message["name"]
-                    pin = message["pin"]
-                    p = load_player(name,pin)
-                    if isinstance(p, Player):
-                        p.player_id = c_id
-                        msg = {"type": "load_true", "client_id": c_id, "player": p.to_dict()}
-                        print("Load SUCCESS")
-                    else:
-                        msg = {"type": "load_false", "client_id": c_id}
-                        print("Load FAIL")
-                    rep_e = json.dumps(msg,cls=GameEncoder)
-                    writer.write(rep_e.encode())
-                    print(f"Message received: Load Player {c_id}")
-                    await writer.drain()
-
-                case "create":
-                    name = message["name"]
-                    pin = message["pin"]
-                    okay =  check_duplicate_save(name)
-                    msg = {}
-                    if not okay:
-                        #TODO: Change gui to accept Player and this to return Player
-                        p = Player(name = name, pin = pin, player_id = c_id)
-                        msg = {"type":"create_true","client_id":c_id,
-                        "player":p.to_dict()
-                        }
-                        print("create TRUE")
-                    elif okay:
-                        msg = {"type":"create_false", "client_id": c_id}
-                        print("create FALSE")
-                    rep_e = json.dumps(msg,cls=GameEncoder)
-                    writer.write(rep_e.encode())
-                    print(f"Message received: Create Player {c_id}")
-                    await writer.drain()
-
-                case "save":
-                    data = message.get('player')
-                    new_pl = Player.from_dict(data)
-                    print(f"\n\n\n{new_pl.name}\n{new_pl.score}\n\n\n")
-                    if save_player(new_pl):
-                        msg = {"type":"save_true", "client_id":c_id}
-                    else:
-                        msg = {"type": "save_false", "client_id": c_id}
-                    rep_e = json.dumps(msg, cls=GameEncoder)
-                    writer.write(rep_e.encode())
-                    print(f"Message received: Create Player {c_id}")
-                    await writer.drain()
-
-                case "connect":
-                    print("\n\n\t\tConnected\n\n")
-
-                case "join_waiting":
-                    game_type = message.get("game_type")
-                    data = message.get("player").to_dict()
-                    
+                    await writer.drain() # Clear the write buffer
 
                 case _:
                     print(f"Type:{msg_type} is not recognized by the server")
@@ -136,7 +82,8 @@ async def handle_client(reader, writer):
 
 #   Games Management
 async def broadcast_game(gamestate, gclients):
-    msg = {
+    pass
+    '''msg = {
         "type":"update",
         "gamestate":gamestate
     }
@@ -147,10 +94,27 @@ async def broadcast_game(gamestate, gclients):
             print(f"Sending Game Update to : {c.client_id}")
             await c.writer.drain()
         except Exception as e:
-            print(e)
+            print(e)'''
 
-async def join_waiting(game_id, player, )
 
+#   ASSET HANDLING
+data_directory = "../assets/data/"
+saved_players_file = "playersaves.p10" #Player saves file
+
+def init_assets():
+    # Create data directory is nonexistent
+    if not os.path.exists(data_directory):
+        print("created data folder")
+        os.mkdir(data_directory)
+    # Create saved_players_file file if nonexistent
+    if not os.path.exists(f"{data_directory}{saved_players_file}"):
+        print("saved_players_file didn't exist. Creating now..")
+        with open(f"{data_directory}{saved_players_file}", "w") as f:
+            saved_players = {}
+            f.write(json.dumps(saved_players, cls=GameEncoder))
+            f.close()
+    else:
+        print("saved_players_file already exists")
 
 #   PLAYER SAVES
 def check_duplicate_save(name):
@@ -162,7 +126,7 @@ def check_duplicate_save(name):
 
 def get_saved_players(just_names = False):
     print("in server.py->get_saved_players()")
-    with open(saved_players_file, "r") as f:
+    with open(f"{data_directory}{saved_players_file}", "r") as f:
         data = json.load(f)
         f.close()
     print("leaving server.py->get_saved_players()")
@@ -177,7 +141,7 @@ def save_player(player:Player):
         data = get_saved_players()
         data[player.name] = player.to_dict()
         print(f"saving {player.name}")
-        with open(saved_players_file,"w") as f:
+        with open(f"{data_directory}{saved_players_file}","w") as f:
             json.dump(data, f, indent=4)
             f.close()
     except Exception as e:
@@ -202,11 +166,6 @@ def load_player(name, pin):
 def print_clients():
     for i,c in enumerate(CLIENTS):
         print(f"{i}>>{c}")
-
-
-
-
-
 
 
 
