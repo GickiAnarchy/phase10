@@ -70,6 +70,20 @@ async def handle_client(reader, writer):
                     print(f"Message received: Registered Client {c_id}")
                     await writer.drain() # Clear the write buffer
 
+                case "get_clients":
+                    ids = []
+                    for c in CLIENTS.keys():
+                        ids.append(c)
+                    rep = {
+                        "type":msg_type,
+                        "client_id": c_id,
+                        "response": ids
+                    }
+                    # Create the response back to the client and send
+                    rep_e = json.dumps(rep, cls=GameEncoder)  # Encode with the GameEncoder
+                    writer.write(rep_e.encode())  # Send to client
+                    await writer.drain()  # Clear the write buffer
+
                 case _:
                     print(f"Type:{msg_type} is not recognized by the server")
 
@@ -116,7 +130,6 @@ def init_assets():
     else:
         print("saved_players_file already exists")
 
-#   PLAYER SAVES
 def check_duplicate_save(name):
     saves = get_saved_players(just_names=True)
     for n in saves:

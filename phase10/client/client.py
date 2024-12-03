@@ -1,8 +1,9 @@
 import asyncio
 import json
+from http.client import responses
+from pyexpat.errors import messages
 
 from phase10.client.common import Client  # Assuming this is your base client class
-
 from phase10.game.game_encoder import GameEncoder, game_decoder
 
 
@@ -37,7 +38,6 @@ class GameClient(Client):
         print("Registering client...")
         message = {"type": "register", "client_id": self.client_id}
         await self.send_message(message)
-        await self.receive_message()
 
     async def send_message(self, message):
         message_json = json.dumps(message, cls=GameEncoder)
@@ -52,12 +52,25 @@ class GameClient(Client):
         except Exception as e:
             print(f"Error receiving message: {e}")
             return
-
         try:
             m_type = message_dict['type']
         except Exception as e:
             print(e)
 
+        try:
+            response = message_dict['response']
+            return response
+        except Exception as e:
+            print(f"No response from server.\n{e}")
+
+
+
+    async def test_get_clients(self):
+        message = {"type":"get_clients","client_id":self.client_id}
+        await self.send_message(message)
+        clients_list = await self.receive_message()
+        for cl in clients_list:
+            print(cl)
 
 if __name__ == "__main__":
     c = GameClient()
