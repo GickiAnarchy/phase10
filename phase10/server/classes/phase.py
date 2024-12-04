@@ -1,9 +1,5 @@
-import json
-from typing import List
-
-from phase10.game import *
-from phase10.game.classes.card import Card
-from phase10.game.classes.goal import Goal
+from phase10.server.classes.card import Card
+from phase10.server.classes.goal import Goal
 
 
 class Phase:

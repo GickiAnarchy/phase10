@@ -4,10 +4,10 @@ import json
 import random
 from uuid import uuid4
 
-from phase10.game.classes.deck import Deck
-from phase10.game.classes.discards import Discards
-from phase10.game.classes.player import Player
-from phase10.game.game_encoder import GameEncoder
+from phase10.server.classes.deck import Deck
+from phase10.server.classes.discards import Discards
+from phase10.server.classes.player import Player
+from phase10.server.game import GameEncoder
 
 
 class Phase10():

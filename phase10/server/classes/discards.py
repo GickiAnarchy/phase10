@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-from phase10.game.classes.card import Card
+from phase10.server.classes.card import Card
 
 
 class Discards:

@@ -3,8 +3,9 @@ import json
 import os
 
 from phase10.client.common import Client
-from phase10.game.classes.player import Player
-from phase10.game.game_encoder import GameEncoder, game_decoder
+from phase10.game_encoder import game_decoder, GameEncoder
+from phase10.server.classes.player import Player
+
 
 CLIENTS = {}
 
@@ -179,7 +180,6 @@ def load_player(name, pin):
 def print_clients():
     for i,c in enumerate(CLIENTS):
         print(f"{i}>>{c}")
-
 
 
 if __name__ == "__main__":

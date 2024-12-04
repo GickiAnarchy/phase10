@@ -1,8 +1,8 @@
 import json
-from phase10.game.classes.goal import Goal
-from phase10.game.classes.phase import Phase
-from phase10.game.classes.player import Player,PlayerBase
-from phase10.game.classes.card import Card
+from phase10.server.classes.goal import Goal
+from phase10.server.classes.phase import Phase
+from phase10.server.classes.player import Player,PlayerBase
+from phase10.server.classes.card import Card
 
 class GameEncoder(json.JSONEncoder):
     def default(self, obj):

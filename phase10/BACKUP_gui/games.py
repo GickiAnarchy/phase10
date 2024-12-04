@@ -2,7 +2,7 @@ from kivy.properties import ObjectProperty
 from kivy.uix.screenmanager import Screen
 from kivy.lang import Builder
 
-from phase10.game.classes.deck import Deck
+from phase10.server.classes.deck import Deck
 
 Builder.load("games.kv")
 

@@ -1,11 +1,10 @@
 """This is a collection of Kivy GUI classes that isn't implemented yet, or has been discarded"""
 from kivy.core.image import Image
-from kivy.graphics import Color, Rectangle
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.togglebutton import ToggleButton
 
-from phase10.game.classes.deck import Deck
-from phase10.game.classes.discards import Discards
+from phase10.server.classes.deck import Deck
+from phase10.server.classes.discards import Discards
 
 
 class SelectableCard(ToggleButton):
@@ -111,7 +110,6 @@ class SelectableDiscards(ToggleButton):
 
 
 from kivy.uix.image import Image
-from kivy.clock import Clock
 from kivy.properties import ListProperty, OptionProperty, StringProperty
 from kivy.uix.behaviors import ToggleButtonBehavior
 
@@ -171,7 +169,6 @@ class ImageToggleButton(ToggleButtonBehavior, Image):
 # example to demonstrate imagetogglebutton widget capabilities
 if __name__ == '__main__':
     from kivy.app import App
-    from kivy.clock import Clock
     from kivy.lang.builder import Builder
     from kivy.uix.boxlayout import BoxLayout
 
@@ -349,15 +346,13 @@ class SelectableCard2(ToggleButtonBehavior, Image):
 
 
 #####################################
-from kivy.graphics import Rectangle, Color, BorderImage
+from kivy.graphics import Rectangle
 from kivy.uix.image import Image
-from kivy.clock import Clock
-from kivy.properties import ListProperty, OptionProperty, StringProperty, ObjectProperty, ColorProperty
+from kivy.properties import ObjectProperty, ColorProperty
 from kivy.uix.behaviors import ToggleButtonBehavior
-from kivy.uix.togglebutton import ToggleButton
 from kivy.graphics import Line, Color
 
-from phase10.game.classes.card import Card
+from phase10.server.classes.card import Card
 
 
 class SelectableCard(ToggleButtonBehavior, Image):

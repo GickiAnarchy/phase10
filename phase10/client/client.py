@@ -1,10 +1,8 @@
 import asyncio
 import json
-from http.client import responses
-from pyexpat.errors import messages
 
 from phase10.client.common import Client  # Assuming this is your base client class
-from phase10.game.game_encoder import GameEncoder, game_decoder
+from phase10.server.game import GameEncoder, game_decoder
 
 
 class GameClient(Client):

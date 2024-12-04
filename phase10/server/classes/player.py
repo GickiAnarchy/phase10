@@ -1,9 +1,7 @@
 #!/usr/bin/env python
 
-import json
-
-from phase10.game.classes.card import Card
-from phase10.game.classes.phase import Phase
+from phase10.server.classes.card import Card
+from phase10.server.classes.phase import Phase
 
 
 class PlayerBase:

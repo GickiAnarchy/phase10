@@ -23,7 +23,7 @@ class Card:
             return f"{self.color} {self.number} Card"
 
     def get_image(self):
-        img_path = "assets/images"
+        img_path = "../assets/images"
         try:
             if self.is_wild:
                 return f"{img_path}/Wild.png"

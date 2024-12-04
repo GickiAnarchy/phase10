@@ -1,9 +1,8 @@
 #!/usr/bin/env python
 
-import json
 from typing import List
 
-from phase10.game.classes.card import Card
+from phase10.server.classes.card import Card
 
 
 class Goal:

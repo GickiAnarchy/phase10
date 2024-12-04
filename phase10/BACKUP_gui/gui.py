@@ -9,9 +9,8 @@ from kivy.uix.popup import Popup
 from kivy.uix.screenmanager import Screen, ScreenManager
 
 from phase10.client.client import GameClient
-from phase10.game.classes.deck import Deck
-from phase10.game.classes.player import Player
-from phase10.gui.widgets import PlayerInfoWidget
+from phase10.server.classes.deck import Deck
+from phase10.server.classes.player import Player
 
 
 # get the Window instance safely

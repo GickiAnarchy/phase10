@@ -1,10 +1,8 @@
 #!/usr/bin/env python
 
-import json
 from random import shuffle
 
-from phase10.game import *
-from phase10.game.classes.card import Card, Wild, Skip
+from phase10.server.classes.card import Card, Wild, Skip
 
 
 class Deck:

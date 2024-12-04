@@ -1,15 +1,10 @@
-from kivy.graphics import Rectangle, Line
-from kivy.uix.behaviors import ToggleButtonBehavior
-from kivy.uix.image import Image
-from kivy.uix.label import Label
 from kivy.uix.togglebutton import ToggleButton
 from kivy.properties import ObjectProperty, StringProperty, ListProperty, BooleanProperty
-from kivy.uix.boxlayout import BoxLayout
-from kivy.uix.scrollview import ScrollView 
+from kivy.uix.scrollview import ScrollView
 from kivy.uix.button import Button
 from kivy.lang import Builder
 
-from phase10.game.classes.deck import Deck
+from phase10.server.classes.deck import Deck
 
 Builder.load_file("selectable.kv")
 

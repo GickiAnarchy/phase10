@@ -3,7 +3,7 @@ import json
 import os
 
 from common import Client
-from phase10.game.classes.player import Player
+from phase10.server.classes.player import Player
 from phase10.game_encoder import GameEncoder, game_decoder  # Your custom encoder/decoder
 
 

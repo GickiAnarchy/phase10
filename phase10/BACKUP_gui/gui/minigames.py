@@ -1,12 +1,6 @@
-from kivy.app import App
-from kivy.base import EventLoop
-from kivy.properties import ObjectProperty, ListProperty, StringProperty
-from kivy.uix.floatlayout import FloatLayout
-from kivy.uix.boxlayout import BoxLayout
-from kivy.uix.popup import Popup
+from kivy.properties import ListProperty, StringProperty
 from kivy.uix.screenmanager import Screen, ScreenManager
 
-from phase10.game.games.minigames import RPS
 
 class MiniGamesManager(ScreenManager):
     pass
