@@ -2,7 +2,8 @@ import asyncio
 import json
 
 from phase10.client.common import Client  # Assuming this is your base client class
-from phase10.server.game import GameEncoder, game_decoder
+from phase10.game_encoder import GameEncoder, game_decoder
+from phase10.server.classes.player import Player
 
 
 class GameClient(Client):
@@ -61,14 +62,22 @@ class GameClient(Client):
         except Exception as e:
             print(f"No response from server.\n{e}")
 
-
-
     async def test_get_clients(self):
         message = {"type":"get_clients","client_id":self.client_id}
         await self.send_message(message)
         clients_list = await self.receive_message()
         for cl in clients_list:
             print(cl)
+
+    #   MESSAGES
+    async def save_player(self, player: Player):
+        message = {
+            "type":"save_player",
+            "client_id":self.client_id,
+            "player": player
+        }
+        await self.send_message(message)
+
 
 if __name__ == "__main__":
     c = GameClient()

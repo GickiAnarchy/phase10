@@ -3,6 +3,9 @@ from phase10.server.classes.goal import Goal
 from phase10.server.classes.phase import Phase
 from phase10.server.classes.player import Player,PlayerBase
 from phase10.server.classes.card import Card
+from phase10.server.game.gamesbase import GameBase
+from phase10.server.game.rps import RPS
+
 
 class GameEncoder(json.JSONEncoder):
     def default(self, obj):
@@ -16,6 +19,11 @@ class GameEncoder(json.JSONEncoder):
             return {'__card__': True, **obj.to_dict()}
         elif isinstance(obj, PlayerBase):
             return {'__plbase__': True, **obj.to_dict()}
+        elif isinstance(obj, GameBase):
+            return {'__gamebase__': True, **obj.to_dict()}
+        elif isinstance(obj, RPS):
+            return {'__rps__': True, **obj.to_dict()}
+
         return super().default(obj)
 
 
@@ -30,4 +38,9 @@ def game_decoder(obj):
         return Card.from_dict(obj)
     elif '__plbase__' in obj:
         return PlayerBase.from_dict(obj)
+    elif '__gamebase__' in obj:
+            return GameBase.from_dict(obj)
+    elif '__rps__' in obj:
+            return RPS.from_dict(obj)
+
     return obj

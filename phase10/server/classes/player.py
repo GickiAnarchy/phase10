@@ -2,6 +2,7 @@
 
 from phase10.server.classes.card import Card
 from phase10.server.classes.phase import Phase
+from phase10.server.game.gamesbase import get_all_game_types
 
 
 class PlayerBase:
@@ -24,7 +25,7 @@ class PlayerBase:
         return obj
 
 class Player(PlayerBase):
-    def __init__(self, name = "", hand=None, score=0, win=False, is_skipped=False, player_id=None, pin = None, is_active=False, current_turn_step=None, current_phase=None, **kwargs):
+    def __init__(self, name = "", hand=None, score=0, win=False, is_skipped=False, player_id=None, pin = None, is_active=False, current_turn_step=None, current_phase=None, records = None, **kwargs):
         super().__init__(**kwargs)
         if hand is None:
             hand = []
@@ -41,6 +42,15 @@ class Player(PlayerBase):
         self.player_id = player_id
         if self.current_phase is None:
             self.current_phase = Phase().make_phase(1)
+
+        if records is None:
+            records = {}
+            for g_type in get_all_game_types():
+                records[g_type] = {
+                    "wins":0,
+                    "losses":0
+                }
+        self.records = records
 
     # PLAYER
     def toggle_skipped(self):
@@ -84,9 +94,26 @@ class Player(PlayerBase):
     def sort_by_color(self):
         self.hand.sort(key=lambda x: x.color)
 
+    # RECORDS HANDLING
+    def get_records(self, g_type = None):
+        if g_type is not None:
+            return self.records.get(g_type)
+        else:
+            return self.records
 
+    def add_win(self, g_type):
+        try:
+            self.records[g_type]["wins"] =+ 1
+        except Exception as e:
+            print(e)
 
+    def add_loss(self, g_type):
+        try:
+            self.records[g_type]["losses"] =+ 1
+        except Exception as e:
+            print(e)
 
+    # SERIALIZATION
     def to_dict(self):
         return {
             "name": self.name,
