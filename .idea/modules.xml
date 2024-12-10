@@ -3,6 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/Phase Ten.iml" filepath="$PROJECT_DIR$/.idea/Phase Ten.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../async-practice/.idea/async-practice.iml" filepath="$PROJECT_DIR$/../async-practice/.idea/async-practice.iml" />
     </modules>
   </component>
 </project>

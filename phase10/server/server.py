@@ -4,7 +4,7 @@ import os
 
 from phase10.client.common import Client
 from phase10.game_encoder import game_decoder, GameEncoder
-from phase10.server.classes.player import Player
+from phase10.server.classes.player import Player, PlayerBase
 from phase10.server.lobby import Lobby
 
 
@@ -107,6 +107,21 @@ async def handle_client(reader, writer):
                         # Load Player from file
                         p = load_player(n,p)
                         print(f"Loaded {p.name}")
+                    except Exception as e:
+                        print(e)
+                    LOBBY.bind_player(c_id, p)
+                    return p
+
+                case "create_player":
+                    try:
+                        # Get Name and PIN from message
+                        n = message.get("name")
+                        p = message.get("pin")
+                        # Make Player
+                        pl = PlayerBase(n,p)
+                        print(f"Loaded {pl.name}")
+                        LOBBY.bind_player(c_id, pl)
+                        return pl
                     except Exception as e:
                         print(e)
 

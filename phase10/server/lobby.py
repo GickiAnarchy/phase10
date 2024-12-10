@@ -33,6 +33,11 @@ class Lobby:
     def remove_client(self, c_id):
         rc = self.clients.pop(c_id)
 
+    def bind_player(self, c_id, player):
+        if self.clients[c_id].get("player") is None:
+            self.clients[c_id]["player"] = player
+            print(f"{player.name} --> {c_id}")
+
     # GAMES
     def get_games(self):
         return self.games
